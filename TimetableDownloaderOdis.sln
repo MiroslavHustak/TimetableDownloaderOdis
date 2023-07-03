@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TimetableDownloaderOdis", "TimetableDownloaderOdis\TimetableDownloaderOdis.fsproj", "{E55E78DB-9AAB-4B4C-B5FA-00222500150F}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "DialogWindows", "DialogWindows\DialogWindows.fsproj", "{E65D2C08-FD82-4CEF-8714-FA430281EF37}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E55E78DB-9AAB-4B4C-B5FA-00222500150F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E55E78DB-9AAB-4B4C-B5FA-00222500150F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E55E78DB-9AAB-4B4C-B5FA-00222500150F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E55E78DB-9AAB-4B4C-B5FA-00222500150F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E65D2C08-FD82-4CEF-8714-FA430281EF37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E65D2C08-FD82-4CEF-8714-FA430281EF37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E65D2C08-FD82-4CEF-8714-FA430281EF37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E65D2C08-FD82-4CEF-8714-FA430281EF37}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F6A681D1-BE3A-427C-9455-3AF1D1D78CA2}
+	EndGlobalSection
+EndGlobal

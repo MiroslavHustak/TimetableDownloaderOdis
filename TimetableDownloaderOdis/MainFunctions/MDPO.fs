@@ -1,0 +1,108 @@
+﻿module WebScraping1_MDPO
+
+open System
+open System.IO
+open System.Net
+
+open MDPO_Submain
+open SettingsKODIS
+open Messages.Messages
+//open Messages.MessagesMocking
+
+open ErrorHandling.TryWith
+open ErrorHandling.CustomOption
+
+//************************Main code*******************************************************************************
+
+type State =  //not used
+    { 
+        TimetablesDownloadedAndSaved: unit
+    }
+    static member Default = 
+        {          
+            TimetablesDownloadedAndSaved = ()
+        }
+
+type Actions =
+    | StartProcess
+    | DeleteOneODISDirectory
+    | CreateFolders
+    | FilterDownloadSave    
+    | EndProcess
+
+type Environment = 
+    {
+        filterTimetables: string -> (string*string) list
+        downloadAndSaveTimetables: Http.HttpClient -> Messages -> string -> (string*string) list -> unit
+        client: Http.HttpClient 
+    }
+
+//quli client neni default
+let environment: Environment =
+    { 
+        filterTimetables = filterTimetables
+        downloadAndSaveTimetables = downloadAndSaveTimetables
+        client = client (lazy (Messages.Default.msgParam7 "Error4")) Messages.Default.msgParam1 
+    }    
+
+let webscraping_MDPO pathToDir =  
+
+     //tryWith block is in the main() function  
+
+    let stateReducer (state: State) (message: Messages) (action: Actions) (environment: Environment) =
+
+        let dirList pathToDir = [ sprintf"%s\%s"pathToDir ODIS.Default.odisDir6 ]
+
+        match action with                                                   
+        | StartProcess           -> 
+                                    let processStartTime x =    
+                                        let processStartTime = sprintf "Začátek procesu: %s" <| DateTime.Now.ToString("HH:mm:ss") 
+                                        message.msgParam7 processStartTime 
+                                    tryWith processStartTime (fun x -> ()) () String.Empty ()
+                                    |> deconstructor message.msgParam1
+
+        | DeleteOneODISDirectory ->                                     
+                                    let dirName = ODIS.Default.odisDir6                                    
+                                    let myDeleteFunction x =  
+                                        //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+                                        let dirInfo = new DirectoryInfo(pathToDir) |> optionToSrtp (lazy (message.msgParam7 "Error8")) (new DirectoryInfo(pathToDir))   
+                                        dirInfo.EnumerateDirectories()
+                                        |> optionToSrtp (lazy (message.msgParam7 "Error11h")) Seq.empty  
+                                        |> Seq.filter (fun item -> item.Name = dirName) 
+                                        |> Seq.iter (fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce    
+                                    message.msg12()    
+                                    tryWith myDeleteFunction (fun x -> ()) () String.Empty () 
+                                    |> deconstructor message.msgParam1   
+                                    
+        | CreateFolders          -> 
+                                    let myFolderCreation x = 
+                                        dirList pathToDir
+                                        |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)                    
+                                    tryWith myFolderCreation (fun x -> ()) () String.Empty ()
+                                    |> deconstructor message.msgParam1  
+
+        | FilterDownloadSave     -> 
+                                    //filtering timetable links, downloading and saving timetables in the pdf format 
+                                    let pathToSubdir = dirList pathToDir |> List.head    
+                                    match pathToSubdir |> Directory.Exists with 
+                                    | false ->                                              
+                                               message.msgParam5 pathToSubdir   
+                                               message.msg1()                                                
+                                    | true  -> 
+                                               environment.filterTimetables 
+                                               >> environment.downloadAndSaveTimetables environment.client message pathToSubdir <| pathToSubdir 
+                                               
+        | EndProcess             -> 
+                                    let processEndTime x =    
+                                        let processEndTime = sprintf "Konec procesu: %s" <| DateTime.Now.ToString("HH:mm:ss")                       
+                                        message.msgParam7 processEndTime
+                                    tryWith processEndTime (fun x -> ()) () String.Empty () 
+                                    |> deconstructor message.msgParam1
+    
+    stateReducer State.Default Messages.Default StartProcess environment
+    stateReducer State.Default Messages.Default DeleteOneODISDirectory environment
+    stateReducer State.Default Messages.Default CreateFolders environment
+    stateReducer State.Default Messages.Default FilterDownloadSave environment
+    stateReducer State.Default Messages.Default EndProcess environment
+
+    environment.client.Dispose()

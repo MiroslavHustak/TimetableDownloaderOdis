@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>   
+	<OutputType>Exe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWindowsForms>True</UseWindowsForms>
+    <UseWPF>True</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="KODISJson\kodisMHDTotal.json" />
+    <Compile Include="Auxiliaries\Messages.fs" />
+    <Compile Include="Auxiliaries\SettingsKODIS.fs" />
+    <Compile Include="Auxiliaries\PattternBuilders.fs" />
+    <Compile Include="Auxiliaries\DiscriminatedUnions.fs" />
+    <Compile Include="Auxiliaries\Parsing.fs" />
+    <Compile Include="Auxiliaries\ErrorHandling.fs" />
+    <Compile Include="Auxiliaries\Helpers.fs" />
+    <Compile Include="Auxiliaries\ProgressBarFSharp.fs" />
+    <Compile Include="SubmainFunctions\MDPO-Submain.fs" />
+    <Compile Include="SubmainFunctions\DPO-Submain.fs" />
+    <Compile Include="SubmainFunctions\KODIS-Submain.fs" />
+    <Compile Include="MainFunctions\MDPO.fs" />
+    <Compile Include="MainFunctions\DPO.fs" />
+    <Compile Include="MainFunctions\KODIS.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="TestProjectGitHub01_TemporaryKey.pfx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fantomas.Core" Version="6.0.8" />
+    <PackageReference Include="FSharp.Data" Version="6.2.0" />
+    <PackageReference Include="Fugit" Version="0.4.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DialogWindows\DialogWindows.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="7.0.300" />
+  </ItemGroup>
+
+</Project>
