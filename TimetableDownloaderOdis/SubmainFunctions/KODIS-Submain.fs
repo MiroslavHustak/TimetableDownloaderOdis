@@ -505,10 +505,9 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                                                 | _ -> String.Empty  
 
                                                                    let condNAD (rangeN: string list) =                                                                     
-                                                                       rangeN |> List.tryFind (fun item -> fileNameFull.Contains(item))                                                                                    
-                                                                       |> function 
-                                                                           | Some _ -> true
-                                                                           | None   -> false  
+                                                                       rangeN
+                                                                       |> List.tryFind (fun item -> fileNameFull.Contains(item))                                                                                    
+                                                                       |> Option.isSome   
                                                                                
                                                                    let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
                                                                                 
@@ -542,10 +541,9 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                                               let item = string item                                                                              
                                                                               try
                                                                                   let condNAD (rangeN: string list) =                                                                     
-                                                                                      rangeN |> List.tryFind (fun item1 -> item.Contains(item1))                                                                                    
-                                                                                      |> function 
-                                                                                          | Some _ -> true
-                                                                                          | None   -> false  
+                                                                                      rangeN
+                                                                                      |> List.tryFind (fun item1 -> item.Contains(item1))                                                                                    
+                                                                                      |> Option.isSome                                                                                           
                                                                                               
                                                                                   let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
                                                                                                
