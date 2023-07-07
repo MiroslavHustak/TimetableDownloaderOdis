@@ -26,7 +26,7 @@ let internal client printToConsole1 printToConsole2 =
     let myClient x = new System.Net.Http.HttpClient() |> (optionToSrtp <| printToConsole1 <| (new System.Net.Http.HttpClient()))    
     tryWith myClient (fun x -> ()) () String.Empty (new System.Net.Http.HttpClient()) |> deconstructor printToConsole2
 
-let internal filterTimetables pathToDir =   
+let internal filterTimetables pathToDir message =   
     
     let urlList = 
         [
@@ -35,7 +35,9 @@ let internal filterTimetables pathToDir =
     
     urlList
     |> List.collect (fun url -> 
-                              let document = FSharp.Data.HtmlDocument.Load(url)        
+                              let document = 
+                                  let myDocument x = FSharp.Data.HtmlDocument.Load(url)  
+                                  tryWith myDocument (fun x -> ()) () String.Empty (FSharp.Data.HtmlDocument.Load(@"https://google.com")) |> deconstructor message.msgParam7        
                            
                               document.Descendants "a"
                               |> Seq.choose (fun htmlNode ->

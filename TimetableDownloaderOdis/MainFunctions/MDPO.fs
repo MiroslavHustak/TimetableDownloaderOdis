@@ -32,7 +32,7 @@ type Actions =
 
 type Environment = 
     {
-        filterTimetables: string -> (string*string) list
+        filterTimetables: string -> Messages -> (string*string) list
         downloadAndSaveTimetables: Http.HttpClient -> Messages -> string -> (string*string) list -> unit
         client: Http.HttpClient 
     }
@@ -40,7 +40,7 @@ type Environment =
 //quli client neni default
 let environment: Environment =
     { 
-        filterTimetables = filterTimetables
+        filterTimetables = filterTimetables 
         downloadAndSaveTimetables = downloadAndSaveTimetables
         client = client (lazy (Messages.Default.msgParam7 "Error4")) Messages.Default.msgParam1 
     }    
@@ -89,8 +89,8 @@ let webscraping_MDPO pathToDir =
                                                message.msgParam5 pathToSubdir   
                                                message.msg1()                                                
                                     | true  -> 
-                                               environment.filterTimetables 
-                                               >> environment.downloadAndSaveTimetables environment.client message pathToSubdir <| pathToSubdir 
+                                               environment.filterTimetables pathToSubdir message
+                                               |> environment.downloadAndSaveTimetables environment.client message pathToSubdir  
                                                
         | EndProcess             -> 
                                     let processEndTime x =    

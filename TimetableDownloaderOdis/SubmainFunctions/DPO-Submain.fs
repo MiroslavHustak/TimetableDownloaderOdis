@@ -53,8 +53,10 @@ let internal filterTimetables pathToDir (message: Messages) = //I
     
     urlList
     |> List.collect (fun url -> 
-                              let document = FSharp.Data.HtmlDocument.Load(url)        
-                           
+                              let document = 
+                                  let myDocument x = FSharp.Data.HtmlDocument.Load(url)  
+                                  tryWith myDocument (fun x -> ()) () String.Empty (FSharp.Data.HtmlDocument.Load(@"https://google.com")) |> deconstructor message.msgParam7
+                                                             
                               document.Descendants "a"
                               |> Seq.choose (fun htmlNode ->
                                                            htmlNode.TryGetAttribute("href") //inner text zatim nepotrebuji, cisla linek mam resena jinak  
