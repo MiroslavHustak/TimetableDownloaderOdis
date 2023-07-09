@@ -80,7 +80,8 @@ let internal client (printToConsole1 : Lazy<unit>) (printToConsole2: string -> u
     tryWithLazy printToConsole2 (optionToResultPrint f printToConsole1) ()           
     |> function    
         | Ok value  -> value
-        | Error err -> err.Force()
+        | Error err -> 
+                       err.Force()
                        new System.Net.Http.HttpClient()  
 
 let internal filterTimetables pathToDir (message: Messages) = //I
