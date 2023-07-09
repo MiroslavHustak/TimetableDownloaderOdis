@@ -13,11 +13,10 @@ open Microsoft.FSharp.Reflection
 
 open ProgressBarFSharp
 open Messages.Messages
-open Helpers.ConsoleFixers
 //open Messages.MessagesMocking
 
 open ErrorHandling.TryWithKenny
-open ErrorHandling.CustomOption
+//open ErrorHandling.CustomOption
 
 //************************Constants**********************************************************************
 
@@ -26,7 +25,7 @@ let [<Literal>] pathDpoWebTimetablesBus = @"https://www.dpo.cz/pro-cestujici/jiz
 let [<Literal>] pathDpoWebTimetablesTrBus = @"https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-trol.html" 
 let [<Literal>] pathDpoWebTimetablesTram = @"https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-tram.html" 
 
-//************************Submain functions************************************************************************
+//************************Types**************************************************************************
     
 type ConnErrorCode = 
     {
@@ -47,12 +46,17 @@ type ConnErrorCode =
             CofeeMakerUnavailable = "418 I'm a teapot. Look for a coffee maker elsewhere."
         }   
 
-let private getDefaultRcVal (t: Type) (r: ConnErrorCode) = //record -> Array //open FSharp.Reflection
+//************************Submain helpers**************************************************************************
+
+let private getDefaultRcVal (t: Type) (r: ConnErrorCode) = 
    
     FSharpType.GetRecordFields(t) 
     |> Array.map (fun (prop: PropertyInfo) -> prop.GetGetMethod().Invoke(r, [||]) :?> string)            
    
 let private getDefaultRecordValues = getDefaultRcVal typeof<ConnErrorCode> ConnErrorCode.Default 
+
+
+//************************Submain functions************************************************************************
 
 let internal client (printToConsole1 : Lazy<unit>) (printToConsole2: string -> unit) : HttpClient = 
     (*
