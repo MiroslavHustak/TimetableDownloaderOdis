@@ -75,7 +75,8 @@ let internal client (printToConsole1 : Lazy<unit>) (printToConsole2: string -> u
     *)
 
     let f = new HttpClient() |> Option.ofObj       
-        
+    
+    //doSomethingWithResult
     tryWithLazy printToConsole2 (optionToResultPrint f printToConsole1) ()           
     |> function    
         | Ok value  -> value
@@ -121,6 +122,7 @@ let internal filterTimetables pathToDir (message: Messages) = //I
                               let document = 
                                   let f = Ok <| FSharp.Data.HtmlDocument.Load(url)   
 
+                                  //doSomethingWithResult
                                   tryWith f ()          
                                   |> function    
                                       | Ok value -> value
@@ -201,7 +203,8 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                  let dispatch = 
                                                      async                                                
                                                          {
-                                                             progressBarContinuous message i l  //progressBarContinuous      
+                                                             progressBarContinuous message i l  //progressBarContinuous  
+                                                             //doSomethingWithResult
                                                              match async { return! downloadFileTaskAsync client link pathToFile } |> Async.RunSynchronously with 
                                                              | Ok value  -> ()     
                                                              | Error err -> 
