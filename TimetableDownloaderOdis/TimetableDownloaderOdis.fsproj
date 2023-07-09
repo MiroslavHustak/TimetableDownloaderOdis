@@ -17,6 +17,7 @@
     <Compile Include="Auxiliaries\ErrorHandling.fs" />
     <Compile Include="Auxiliaries\Helpers.fs" />
     <Compile Include="Auxiliaries\ProgressBarFSharp.fs" />
+    <Compile Include="SubmainFunctions\DPO-Submain-Kenny.fs" />
     <Compile Include="SubmainFunctions\MDPO-Submain.fs" />
     <Compile Include="SubmainFunctions\DPO-Submain.fs" />
     <Compile Include="SubmainFunctions\KODIS-Submain.fs" />
@@ -33,6 +34,7 @@
   <ItemGroup>
     <PackageReference Include="Fantomas.Core" Version="6.0.8" />
     <PackageReference Include="FSharp.Data" Version="6.2.0" />
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.8.0" />
     <PackageReference Include="Fugit" Version="0.4.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>

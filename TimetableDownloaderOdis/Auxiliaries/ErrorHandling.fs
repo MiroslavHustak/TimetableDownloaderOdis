@@ -6,6 +6,49 @@ open System.IO
 open Parsing
 open DiscriminatedUnions
 
+module TryWithKenny =
+
+    let inline optionToResultPrint f fPrint : Result<'a, 'b> = 
+        f                      
+        |> function   
+            | Some value -> Ok value 
+            | None       -> Error fPrint    
+
+    let inline tryWithLazy pfPrint f2 f1 : Result<'a, Lazy<unit>> =            
+        try
+            try                 
+                f2
+            finally
+                f1
+        with
+        | ex -> Error <| lazy (pfPrint (string ex)) 
+
+    let inline optionToResult f err : Result<'a, 'b> = 
+        f                      
+        |> function   
+            | Some value -> Ok value 
+            | None       -> Error err    
+           
+    let inline tryWith f2 f1  : Result<'a, string> =            
+        try
+            try                 
+                f2
+            finally
+                f1
+        with
+        | ex -> Error (string ex)
+
+module CustomOption = 
+        
+    let inline optionToSrtp (printError: Lazy<unit>) (srtp: ^a) value = 
+        value
+        |> Option.ofObj 
+        |> function 
+            | Some value -> value
+            | None       -> 
+                            printError.Force() 
+                            srtp    
+
 module TryWith =
 
     let inline tryWith f1 f2 f3 x y = 
@@ -31,17 +74,6 @@ module TryWith =
         | Failure (ex, y) -> 
                              deconstructorError <| printError (string ex) <| ()                             
                              y   
- 
-module CustomOption = 
-
-    let inline optionToSrtp (printError: Lazy<unit>) (srtp: ^a) value = 
-        value
-        |> Option.ofObj 
-        |> function 
-            | Some value -> value
-            | None       -> 
-                            printError.Force() 
-                            srtp    
 
 module Parsing =
        

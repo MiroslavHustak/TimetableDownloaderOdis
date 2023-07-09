@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Fantomas.Core" Version="6.0.8" />
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.8.0" />
   </ItemGroup>
 
   <ItemGroup>

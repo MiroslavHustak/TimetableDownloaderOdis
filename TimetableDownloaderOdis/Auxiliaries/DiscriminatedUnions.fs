@@ -1,6 +1,6 @@
 ﻿namespace DiscriminatedUnions 
 
-type Result<'TSuccess,'TFailure> =
+type ResultSW<'TSuccess,'TFailure> =
     | Success of 'TSuccess
     | Failure of 'TFailure
 
