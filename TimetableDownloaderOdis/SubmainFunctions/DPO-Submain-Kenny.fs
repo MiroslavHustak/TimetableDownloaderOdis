@@ -246,7 +246,8 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                                                                         message.msgParam1 value
                                                                                                         Console.ReadKey() |> ignore
                                                                                                         client.Dispose()
-                                                                                                        System.Environment.Exit(1))
+                                                                                                        System.Environment.Exit(1)
+                                                                                          )
                                                                             |> Option.defaultValue (message.msgParam2 link)                                                                          
                                                          }
                                                  Async.StartImmediate dispatch 
