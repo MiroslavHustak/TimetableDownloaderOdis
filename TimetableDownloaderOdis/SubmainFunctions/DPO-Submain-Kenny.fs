@@ -169,7 +169,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
             {                      
                 try    
                     match File.Exists(path) with
-                    | true  -> return Ok () // File already exists, no need to download it again
+                    | true  -> return Ok () 
                     | false -> 
                                let! response = client.GetAsync(uri) |> Async.AwaitTask
                         
