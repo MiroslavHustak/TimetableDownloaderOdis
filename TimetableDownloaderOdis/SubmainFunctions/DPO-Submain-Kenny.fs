@@ -236,6 +236,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                              match async { return! downloadFileTaskAsync client link pathToFile } |> Async.RunSynchronously with 
                                                              | Ok value  -> ()     
                                                              | Error err -> 
+                                                                            //using Option.map and Option.defaultValue does not make sense here
                                                                             getDefaultRecordValues
                                                                             |> Array.tryFind (fun item -> err = item)
                                                                             |> Option.map (fun value ->
