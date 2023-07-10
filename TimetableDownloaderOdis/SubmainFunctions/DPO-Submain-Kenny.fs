@@ -167,25 +167,28 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
        
         async
             {                      
-                try                                    
-                    let! response = client.GetAsync(uri) |> Async.AwaitTask
-                        
-                    match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
-                    | true  -> 
-                                let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask    
-                                use fileStream = new FileStream(path, FileMode.CreateNew) 
-                                do! stream.CopyToAsync(fileStream) |> Async.AwaitTask
-                                return Ok ()
+                try    
+                    match File.Exists(path) with
+                    | true  -> return Ok () // File already exists, no need to download it again
                     | false -> 
-                                let errorType = 
-                                    match response.StatusCode with
-                                    | HttpStatusCode.BadRequest          -> Error "400 Bad Request"
-                                    | HttpStatusCode.InternalServerError -> Error "500 Internal Server Error"
-                                    | HttpStatusCode.NotImplemented      -> Error "501 Not Implemented"
-                                    | HttpStatusCode.ServiceUnavailable  -> Error "503 Service Unavailable"
-                                    | HttpStatusCode.NotFound            -> Error uri  
-                                    | _                                  -> Error "418 I'm a teapot. Look for a coffee maker elsewhere."                                                                               
-                                return errorType     
+                               let! response = client.GetAsync(uri) |> Async.AwaitTask
+                        
+                               match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
+                               | true  -> 
+                                           let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask    
+                                           use fileStream = new FileStream(path, FileMode.CreateNew) 
+                                           do! stream.CopyToAsync(fileStream) |> Async.AwaitTask
+                                           return Ok ()
+                               | false -> 
+                                           let errorType = 
+                                               match response.StatusCode with
+                                               | HttpStatusCode.BadRequest          -> Error "400 Bad Request"
+                                               | HttpStatusCode.InternalServerError -> Error "500 Internal Server Error"
+                                               | HttpStatusCode.NotImplemented      -> Error "501 Not Implemented"
+                                               | HttpStatusCode.ServiceUnavailable  -> Error "503 Service Unavailable"
+                                               | HttpStatusCode.NotFound            -> Error uri  
+                                               | _                                  -> Error "418 I'm a teapot. Look for a coffee maker elsewhere."                                                                               
+                                           return errorType     
                 with                                                         
                 | ex -> 
                         message.msgParam1 (string ex)      
@@ -196,7 +199,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
             }             
     
     message.msgParam3 pathToDir 
-
+    
     let downloadTimetables client = 
         let l = filterTimetables |> List.length
         filterTimetables 
@@ -212,7 +215,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                                             getDefaultRecordValues
                                                                             |> Array.tryFind (fun item -> err = item)
                                                                             |> function
-                                                                                | Some value -> 
+                                                                                | Some value ->                                                                                                 
                                                                                                 message.msgParam1 value      
                                                                                                 Console.ReadKey() |> ignore 
                                                                                                 client.Dispose()
@@ -224,7 +227,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
 
     downloadTimetables client 
 
-    let downloadTimetables1 client = 
+    let downloadTimetablesRF client = 
         let l = filterTimetables |> List.length
         filterTimetables 
         |> List.iteri (fun i (link, pathToFile) ->  
@@ -236,20 +239,20 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                              match async { return! downloadFileTaskAsync client link pathToFile } |> Async.RunSynchronously with 
                                                              | Ok value  -> ()     
                                                              | Error err -> 
-                                                                            //using Option.map and Option.defaultValue does not make sense here
+                                                                            //In my view, using Option.map and Option.defaultValue does not make much sense here
                                                                             getDefaultRecordValues
                                                                             |> Array.tryFind (fun item -> err = item)
                                                                             |> Option.map (fun value ->
-                                                                                                       message.msgParam1 value
-                                                                                                       Console.ReadKey() |> ignore
-                                                                                                       client.Dispose()
-                                                                                                       System.Environment.Exit(1))
+                                                                                                        message.msgParam1 value
+                                                                                                        Console.ReadKey() |> ignore
+                                                                                                        client.Dispose()
+                                                                                                        System.Environment.Exit(1))
                                                                             |> Option.defaultValue (message.msgParam2 link)                                                                          
                                                          }
                                                  Async.StartImmediate dispatch 
                       )    
 
-    downloadTimetables1 client 
+    //downloadTimetablesRF client 
     
     message.msgParam4 pathToDir
 
