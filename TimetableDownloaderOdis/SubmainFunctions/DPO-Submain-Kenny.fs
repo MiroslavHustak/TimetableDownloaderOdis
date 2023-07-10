@@ -223,6 +223,32 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                       )    
 
     downloadTimetables client 
+
+    let downloadTimetables1 client = 
+        let l = filterTimetables |> List.length
+        filterTimetables 
+        |> List.iteri (fun i (link, pathToFile) ->  
+                                                 let dispatch = 
+                                                     async                                                
+                                                         {
+                                                             progressBarContinuous message i l  //progressBarContinuous  
+                                                             //doSomethingWithResult
+                                                             match async { return! downloadFileTaskAsync client link pathToFile } |> Async.RunSynchronously with 
+                                                             | Ok value  -> ()     
+                                                             | Error err -> 
+                                                                            getDefaultRecordValues
+                                                                            |> Array.tryFind (fun item -> err = item)
+                                                                            |> Option.map (fun value ->
+                                                                                                       message.msgParam1 value
+                                                                                                       Console.ReadKey() |> ignore
+                                                                                                       client.Dispose()
+                                                                                                       System.Environment.Exit(1))
+                                                                            |> Option.defaultValue (message.msgParam2 link)                                                                          
+                                                         }
+                                                 Async.StartImmediate dispatch 
+                      )    
+
+    downloadTimetables1 client 
     
     message.msgParam4 pathToDir
 
