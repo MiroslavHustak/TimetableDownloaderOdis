@@ -1,4 +1,4 @@
-﻿module DPO_Submain_Kenny
+﻿module DPO_Submain_RF
 
 open System
 open System.IO
@@ -15,7 +15,7 @@ open ProgressBarFSharp
 open Messages.Messages
 //open Messages.MessagesMocking
 
-open ErrorHandling.TryWithKenny
+open ErrorHandling.TryWithRF
 //open ErrorHandling.CustomOption
 
 //************************Constants**********************************************************************
@@ -59,21 +59,7 @@ let private getDefaultRecordValues = getDefaultRcVal typeof<ConnErrorCode> ConnE
 //************************Submain functions************************************************************************
 
 let internal client (printToConsole1 : Lazy<unit>) (printToConsole2: string -> unit) : HttpClient = 
-    (*
-    let result = 
-        try
-            try
-                new HttpClient()
-                |> Option.ofObj 
-                |> function   
-                    | Some value -> Ok value 
-                    | None       -> Error printToConsole1
-            finally
-            ()
-        with
-        | ex -> Error <| lazy (printToConsole2 (string ex))
-    *)
-
+    
     let f = new HttpClient() |> Option.ofObj       
     
     //doSomethingWithResult
@@ -109,21 +95,9 @@ let internal filterTimetables pathToDir (message: Messages) = //I
     
     urlList
     |> List.collect (fun url -> 
-                              (*
-                              let document = 
-                                  try
-                                      try
-                                           Ok <| FSharp.Data.HtmlDocument.Load(url)                                         
-                                      finally
-                                      ()
-                                  with
-                                  | ex -> Error ex 
-                              *)                             
-
                               let document = 
                                   let f = Ok <| FSharp.Data.HtmlDocument.Load(url)   
 
-                                  //doSomethingWithResult
                                   tryWith f ()          
                                   |> function    
                                       | Ok value -> value
@@ -196,7 +170,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                         client.Dispose()
                         System.Environment.Exit(1)                                                     
                         return Error String.Empty    
-            }             
+            }   
     
     message.msgParam3 pathToDir 
     
@@ -227,6 +201,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
 
     downloadTimetables client 
 
+    //for learning purposes only
     let downloadTimetablesRF client = 
         let l = filterTimetables |> List.length
         filterTimetables 
@@ -239,7 +214,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                              match async { return! downloadFileTaskAsync client link pathToFile } |> Async.RunSynchronously with 
                                                              | Ok value  -> ()     
                                                              | Error err -> 
-                                                                            //In my view, using Option.map and Option.defaultValue does not make much sense here
+                                                                            //Using Option.map and Option.defaultValue does not make much sense here
                                                                             getDefaultRecordValues
                                                                             |> Array.tryFind (fun item -> err = item)
                                                                             |> Option.map (fun value ->

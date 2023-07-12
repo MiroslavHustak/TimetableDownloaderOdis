@@ -6,7 +6,7 @@ open System.IO
 open Parsing
 open DiscriminatedUnions
 
-module TryWithKenny =
+module TryWithRF =
 
     let inline optionToResultPrint f fPrint : Result<'a, 'b> = 
         f                      

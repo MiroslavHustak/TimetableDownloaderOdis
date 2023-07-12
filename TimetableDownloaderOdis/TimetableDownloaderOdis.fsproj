@@ -17,7 +17,8 @@
     <Compile Include="Auxiliaries\ErrorHandling.fs" />
     <Compile Include="Auxiliaries\Helpers.fs" />
     <Compile Include="Auxiliaries\ProgressBarFSharp.fs" />
-    <Compile Include="SubmainFunctions\DPO-Submain-Kenny.fs" />
+    <Compile Include="SubmainFunctions\MDPO-Submain-RF.fs" />
+    <Compile Include="SubmainFunctions\DPO-Submain-RF.fs" />
     <Compile Include="SubmainFunctions\MDPO-Submain.fs" />
     <Compile Include="SubmainFunctions\DPO-Submain.fs" />
     <Compile Include="SubmainFunctions\KODIS-Submain.fs" />

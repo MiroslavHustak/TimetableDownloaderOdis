@@ -4,7 +4,9 @@ open System
 open System.IO
 open System.Net
 
-open MDPO_Submain
+//open MDPO_Submain
+open MDPO_Submain_RF
+
 open SettingsKODIS
 open Messages.Messages
 //open Messages.MessagesMocking
