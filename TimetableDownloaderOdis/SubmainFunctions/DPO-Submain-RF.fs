@@ -70,7 +70,7 @@ let internal client (printToConsole1 : Lazy<unit>) (printToConsole2: string -> u
                        err.Force()
                        new System.Net.Http.HttpClient()  
 
-let internal filterTimetables pathToDir (message: Messages) = //I
+let internal filterTimetables pathToDir (message: Messages) = 
 
     let getLastThreeCharacters input =
         match String.length input <= 3 with

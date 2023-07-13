@@ -60,7 +60,6 @@ let internal client (printToConsole1 : Lazy<unit>) (printToConsole2: string -> u
     
     let f = new HttpClient() |> Option.ofObj       
     
-    //doSomethingWithResult
     tryWithLazy printToConsole2 (optionToResultPrint f printToConsole1) ()           
     |> function    
         | Ok value  -> value
@@ -68,21 +67,7 @@ let internal client (printToConsole1 : Lazy<unit>) (printToConsole2: string -> u
                        err.Force()
                        new System.Net.Http.HttpClient()  
 
-let internal filterTimetables pathToDir (message: Messages) = //I
-
-    let getLastThreeCharacters input =
-        match String.length input <= 3 with
-        | true  -> 
-                   message.msgParam6 input 
-                   input 
-        | false -> input.Substring(input.Length - 3)
-
-    let removeLastFourCharacters input =
-        match String.length input <= 4 with
-        | true  -> 
-                   message.msgParam6 input 
-                   String.Empty
-        | false -> input.[..(input.Length - 5)]                    
+let internal filterTimetables pathToDir (message: Messages) = 
     
     let urlList = 
         [
