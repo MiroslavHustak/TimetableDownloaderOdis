@@ -15,7 +15,7 @@ module TryParserDate = //tohle je pro parsing textoveho retezce do DateTime, ne 
            tryParseFunc >> function
            | true, value -> Some value
            | false, _    -> None
-       let parseDate= tryParseWith <| System.DateTime.TryParse 
+       let parseDate = tryParseWith <| System.DateTime.TryParse 
        let (|Date|_|) = parseDate                 
                                     
 //**************************************************************************************************                                  
