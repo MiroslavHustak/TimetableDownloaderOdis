@@ -4,6 +4,8 @@ open System
 open System.IO
 open System.Net
 
+open SettingsKODIS
+
 //open DPO_Submain
 open DPO_Submain_RF
 
@@ -12,7 +14,6 @@ open Messages.Messages
 
 open ErrorHandling.TryWith
 open ErrorHandling.CustomOption
-open SettingsKODIS
 
 //************************Main code********************************************************************************
 

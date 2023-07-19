@@ -418,7 +418,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                             match fileNameFull.Contains("_v") || fileNameFull.Contains("_t") with
                                                             | true  -> 27  //27 -> 113_2022_12_11_2023_12_09_t......   //overovat, jestli se v jsonu nezmenila struktura nazvu                                                                
                                                             | false -> 25  //25 -> 113_2022_12_11_2023_12_09......
-                                                         
+                                                                                                                                                                                                                   
                                                         match not (fileNameFull |> String.length >= numberOfChar) with 
                                                         | true  -> String.Empty
                                                         | false ->     
@@ -551,7 +551,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                                                       match item.Contains("NAD") && condNAD = true with
                                                                                       | true  -> 2 
                                                                                       | false -> 0 
-                                                                                  
+                                                                                      
                                                                                   let yearValidityStart x = parseMeInt <| message.msgParam10 <| item.Substring(4 + x, 4) //overovat, jestli se v jsonu neco nezmenilo //113_2022_12_11_2023_12_09.....
                                                                                   let monthValidityStart x = parseMeInt <| message.msgParam10 <| item.Substring(9 + x, 2)
                                                                                   let dayValidityStart x = parseMeInt <| message.msgParam10 <| item.Substring(12 + x, 2)

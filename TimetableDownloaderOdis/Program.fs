@@ -9,11 +9,12 @@ open WebScraping1_DPO
 open WebScraping1_MDPO
 open WebScraping1_KODIS
 
-open ErrorHandling.TryWith
 open Messages.Messages
 open DiscriminatedUnions
 open BrowserDialogWindow
 open Helpers.ConsoleFixers
+
+open ErrorHandling.TryWith
 
 [<EntryPoint; STAThread>]
 let main argv =
