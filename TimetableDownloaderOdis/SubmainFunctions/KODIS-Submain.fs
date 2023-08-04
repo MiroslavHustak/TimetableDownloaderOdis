@@ -30,10 +30,15 @@ type KodisTimetables = JsonProvider<pathJson>
 
 let private getDefaultRcVal (t: Type) (r: ODIS) itemNo = //record -> Array //open FSharp.Reflection
    
+    //failwith "Error converting a record into an array"
     //dostanu pole hodnot typu PropertyInfo
     FSharpType.GetRecordFields(t) 
     |> Array.map (fun (prop: PropertyInfo) -> prop.GetGetMethod().Invoke(r, [||]) :?> string)            
     |> Array.take itemNo 
+    |> Option.ofObj
+    |> function
+        | Some value -> value
+        | None       -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna
 
 let private splitList message list = 
 
@@ -294,7 +299,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
             |> Array.ofList 
             |> Array.collect (fun pathToJson ->   
                                               let kodisJsonSamples = KodisTimetables.Parse(File.ReadAllText pathToJson) |> Option.ofObj //I
-                                              //let kodisJsonSamples = kodisJsonSamples.GetSamples() |> Option.ofObj  //v pripade jen jednoho json               
+                                              //let kodisJsonSamples = kodisJsonSamples.GetSample() |> Option.ofObj  //v pripade jen jednoho json               
                 
                                               kodisJsonSamples 
                                               |> function 

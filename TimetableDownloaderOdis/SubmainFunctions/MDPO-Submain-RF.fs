@@ -49,7 +49,11 @@ type ConnErrorCode =
 let private getDefaultRcVal (t: Type) (r: ConnErrorCode) = 
    
     FSharpType.GetRecordFields(t) 
-    |> Array.map (fun (prop: PropertyInfo) -> prop.GetGetMethod().Invoke(r, [||]) :?> string)            
+    |> Array.map (fun (prop: PropertyInfo) -> prop.GetGetMethod().Invoke(r, [||]) :?> string)   
+    |> Option.ofObj
+    |> function
+        | Some value -> value
+        | None       -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna
    
 let private getDefaultRecordValues = getDefaultRcVal typeof<ConnErrorCode> ConnErrorCode.Default 
 
