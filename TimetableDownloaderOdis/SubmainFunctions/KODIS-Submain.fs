@@ -5,6 +5,7 @@ open System.IO
 open System.Net
 open System.Reflection
 open System.Security.Cryptography
+open System.Text.RegularExpressions
 
 open Fugit
 open FSharp.Data
@@ -30,15 +31,18 @@ type KodisTimetables = JsonProvider<pathJson>
 
 let private getDefaultRcVal (t: Type) (r: ODIS) itemNo = //record -> Array //open FSharp.Reflection
    
-    //failwith "Error converting a record into an array"
-    //dostanu pole hodnot typu PropertyInfo
-    FSharpType.GetRecordFields(t) 
-    |> Array.map (fun (prop: PropertyInfo) -> prop.GetGetMethod().Invoke(r, [||]) :?> string)            
-    |> Array.take itemNo 
-    |> Option.ofObj
-    |> function
-        | Some value -> value
-        | None       -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna
+   try   
+       //failwith "Error converting a record into an array"
+       //dostanu pole hodnot typu PropertyInfo
+       FSharpType.GetRecordFields(t) 
+       |> Array.map (fun (prop: PropertyInfo) -> prop.GetGetMethod().Invoke(r, [||]) :?> string)            
+       |> Array.take itemNo 
+       |> Option.ofObj
+       |> function
+           | Some value -> value
+           | None       -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna
+   with
+   | ex -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna    
 
 let private splitList message list = 
 
@@ -72,9 +76,14 @@ let private splitList1 (list: string list) : string list list =
 
     list |> List.groupBy (fun (item: string) -> item.Substring(0, lineNumberLength)) |> List.map (fun (key, group) -> group) 
 
+let private getDefaultRecordValues = 
 
-let private getDefaultRecordValues = getDefaultRcVal typeof<ODIS> ODIS.Default 4 //jen prvni 4 polozky jsou pro celo-KODIS variantu
+    try   
+          getDefaultRcVal typeof<ODIS> ODIS.Default 4 //jen prvni 4 polozky jsou pro celo-KODIS variantu
+    with
+    | ex -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna 
  
+
 //************************Main code***********************************************************
 
 let private jsonLinkList = 
@@ -378,15 +387,35 @@ let internal filterTimetables message param pathToDir diggingResult  =
             |> Array.Parallel.map (fun (item: string) ->   
                                                         let item = string item
 
-                                                        //misto pro opravu retezcu v PDF, ktere jsou v jsonu v nespravnem formatu - 
+                                                        //misto pro rucni opravu retezcu v PDF, ktere jsou v jsonu v nespravnem formatu - 
                                                         let item = 
                                                             match item.Contains(@"S2_2023_04_03_2023_04_3_v") with
                                                             | true  -> item.Replace(@"S2_2023_04_03_2023_04_3_v", @"S2_2023_04_03_2023_04_03_v")  
-                                                            | false -> item        
-                                                        //konec opravy retezcu 
+                                                            | false -> item   
+                                                        
+                                                        let item = 
+                                                            match item.Contains(@"https://kodis-files.s3.eu-central-1.amazonaws.com/55_2023_07_01_2023_09_02_eb08ce03a7.pdf") with
+                                                            | true  -> item.Replace(@"https://kodis-files.s3.eu-central-1.amazonaws.com/55_2023_07_01_2023_09_02_eb08ce03a7.pdf", @"https://kodis-files.s3.eu-central-1.amazonaws.com/55_2023_07_26_2023_09_03_v_6186b834e8.pdf")  
+                                                            | false -> item          
+                                                        //konec rucni opravy retezcu       
+                                                                                                                                                         
+                                                        //az bude cas, implementuj (misto meho reseni nize) tento kod do logiky odstraneni prebytecneho retezce plus jeste odstraneni po normalnim datu 
+                                                        let replacePattern (input: string) =
+                                                            let pattern = @"(_v).*?(\.pdf)" 
+                                                            let replacement = "$1$2"
+                                                            Regex.Replace(input, pattern, replacement)      
+                                                            
+                                                            //let pattern = @"_v[^.]+\.pdf"
+                                                            //Regex.Replace(input, pattern, "_v.pdf")
+
+                                                        let item = 
+                                                            match (item.Contains(@"_v") || item.Contains(@"_t")) && item.Contains(@"_.pdf") with
+                                                            | true  -> replacePattern item                                  
+                                                            | false -> item                                                                  
 
                                                         //s chybnymi udaji v datech uz nic nenadelam, bez komplikovanych reseni..., tohle selekce vyradi jako neplatne (v JR je 2023_12_31)
                                                         //https://kodis-files.s3.eu-central-1.amazonaws.com/NAD_2022_12_11_2023_03_31_v_1a2f33dafa.pdf
+                                                        //https://kodis-files.s3.eu-central-1.amazonaws.com/55_2023_07_26_2023_09_03_v_6186b834e8.pdf
 
                                                         let fileName =  
                                                             match item.Contains @"timetables/" with
