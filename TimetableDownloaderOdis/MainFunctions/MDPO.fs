@@ -16,7 +16,7 @@ open ErrorHandling.CustomOption
 
 //************************Main code*******************************************************************************
 
-type State =  //not used
+type internal State =  //not used
     { 
         TimetablesDownloadedAndSaved: unit
     }
@@ -25,14 +25,14 @@ type State =  //not used
             TimetablesDownloadedAndSaved = ()
         }
 
-type Actions =
+type internal Actions =
     | StartProcess
     | DeleteOneODISDirectory
     | CreateFolders
     | FilterDownloadSave    
     | EndProcess
 
-type Environment = 
+type internal Environment = 
     {
         filterTimetables: string -> Messages -> (string*string) list
         downloadAndSaveTimetables: Http.HttpClient -> Messages -> string -> (string*string) list -> unit
@@ -40,14 +40,14 @@ type Environment =
     }
 
 //quli client neni default
-let environment: Environment =
+let internal environment: Environment =
     { 
         filterTimetables = filterTimetables 
         downloadAndSaveTimetables = downloadAndSaveTimetables
         client = client (lazy (Messages.Default.msgParam7 "Error4")) Messages.Default.msgParam1 
     }    
 
-let webscraping_MDPO pathToDir =  
+let internal webscraping_MDPO pathToDir =  
 
      //tryWith block is in the main() function  
 

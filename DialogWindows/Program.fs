@@ -3,7 +3,7 @@
 open System
 open Microsoft.Win32
 
-let openFolderBrowserDialog() = //I
+let internal openFolderBrowserDialog() = //I
 
     try 
         let folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog() 

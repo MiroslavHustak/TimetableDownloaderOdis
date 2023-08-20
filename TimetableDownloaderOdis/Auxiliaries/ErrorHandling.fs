@@ -8,13 +8,13 @@ open DiscriminatedUnions
 
 module TryWithRF =
 
-    let inline optionToResultPrint f fPrint : Result<'a, 'b> = 
+    let inline internal optionToResultPrint f fPrint : Result<'a, 'b> = 
         f                      
         |> function   
             | Some value -> Ok value 
             | None       -> Error fPrint    
 
-    let inline tryWithLazy pfPrint f2 f1 : Result<'a, Lazy<unit>> =            
+    let inline internal tryWithLazy pfPrint f2 f1 : Result<'a, Lazy<unit>> =            
         try
             try                 
                 f2
@@ -23,13 +23,13 @@ module TryWithRF =
         with
         | ex -> Error <| lazy (pfPrint (string ex)) 
 
-    let inline optionToResult f err : Result<'a, 'b> = 
+    let inline internal optionToResult f err : Result<'a, 'b> = 
         f                      
         |> function   
             | Some value -> Ok value 
             | None       -> Error err    
            
-    let inline tryWith f2 f1  : Result<'a, string> =            
+    let inline internal tryWith f2 f1  : Result<'a, string> =            
         try
             try                 
                 f2
@@ -40,7 +40,7 @@ module TryWithRF =
 
 module CustomOption = 
         
-    let inline optionToSrtp (printError: Lazy<unit>) (srtp: ^a) value = 
+    let inline internal optionToSrtp (printError: Lazy<unit>) (srtp: ^a) value = 
         value
         |> Option.ofObj 
         |> function 
@@ -51,7 +51,7 @@ module CustomOption =
 
 module TryWith =
 
-    let inline tryWith f1 f2 f3 x y = 
+    let inline internal tryWith f1 f2 f3 x y = 
         try
             try          
                f1 x |> Success
@@ -62,13 +62,13 @@ module TryWith =
                f3
                Failure (ex.Message, y)      
 
-    let deconstructorError fn1 fn2 =  
+    let internal deconstructorError fn1 fn2 =  
         fn1       
         do Console.ReadKey() |> ignore 
         fn2
         do System.Environment.Exit(1) 
 
-    let deconstructor (printError: string -> unit) =        
+    let internal deconstructor (printError: string -> unit) =        
         function
         | Success x       -> x                                                   
         | Failure (ex, y) -> 
@@ -78,11 +78,11 @@ module TryWith =
 module Parsing =
        
        //Int 
-       let inline f x = 
+       let inline internal f x = 
            let isANumber = x                                          
            isANumber  
            
-       let rec inline parseMeInt (printError: string -> unit) =
+       let rec inline internal parseMeInt (printError: string -> unit) =
            function            
            | TryParserInt.Int i -> f i 
            | notANumber         ->  
@@ -90,11 +90,11 @@ module Parsing =
                                    -1 
        
        //DateTime
-       let inline f_date x = 
+       let inline internal f_date x = 
            let isADate = x       
            isADate               
            
-       let rec inline parseMeDate (printError: string -> unit) =
+       let rec inline internal parseMeDate (printError: string -> unit) =
            function            
            | TryParserDate.Date d -> f_date d 
            | notADate             -> 

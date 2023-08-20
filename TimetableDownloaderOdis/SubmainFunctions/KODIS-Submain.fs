@@ -25,11 +25,13 @@ open ErrorHandling.CustomOption
 
 //TODO Errors :-)
 
-type KodisTimetables = JsonProvider<pathJson> 
+type internal KodisTimetables = JsonProvider<pathJson> 
 
 //*********************Helpers*******************************************
 
 let private getDefaultRcVal (t: Type) (r: ODIS) itemNo = //record -> Array //open FSharp.Reflection
+
+   //reflection nefunguje s type internal
    
    try   
        //failwith "Error converting a record into an array"

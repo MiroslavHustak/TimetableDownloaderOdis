@@ -11,7 +11,7 @@ open ErrorHandling.CustomOption
    
     module ConsoleFixers = 
 
-        let consoleAppProblemFixer() =
+        let internal consoleAppProblemFixer() =
             do System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance)        
             Console.BackgroundColor <- ConsoleColor.Blue 
             Console.ForegroundColor <- ConsoleColor.White 
@@ -38,13 +38,13 @@ open ErrorHandling.CustomOption
         
         //to be wrapped in a tryWith block
         //not used yet
-        let copyFiles source destination message =
+        let internal copyFiles source destination message =
             let action sourceFilepath destinFilepath = File.Copy(sourceFilepath, destinFilepath, true)                
             processFile source destination message action
             
         //to be wrapped in a tryWith block
         //not used yet
-        let moveFiles source destination message =
+        let internal moveFiles source destination message =
             let action sourceFilepath destinFilepath = File.Move(sourceFilepath, destinFilepath, true)                
             processFile source destination message action
        

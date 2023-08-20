@@ -6,6 +6,7 @@ open System.Net
 
 open FSharp.Data
 
+open SettingsDPO
 open ProgressBarFSharp
 open Messages.Messages
 open Helpers.ConsoleFixers
@@ -14,12 +15,6 @@ open Helpers.ConsoleFixers
 open ErrorHandling.TryWith
 open ErrorHandling.CustomOption
 
-//************************Constants**********************************************************************
-
-let [<Literal>] pathDpoWeb = @"https://www.dpo.cz"
-let [<Literal>] pathDpoWebTimetablesBus = @"https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html"  
-let [<Literal>] pathDpoWebTimetablesTrBus = @"https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-trol.html" 
-let [<Literal>] pathDpoWebTimetablesTram = @"https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-tram.html" 
 
 //************************Submain functions************************************************************************
 

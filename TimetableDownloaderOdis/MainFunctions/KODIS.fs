@@ -12,7 +12,7 @@ open DiscriminatedUnions
 open ErrorHandling.TryWith
 open ErrorHandling.CustomOption
 
-type State =  //not used
+type internal State =  //not used
     { 
         TimetablesDownloadedAndSaved: unit
     }
@@ -21,13 +21,13 @@ type State =  //not used
             TimetablesDownloadedAndSaved = ()
         }
            
-type Actions =
+type internal Actions =
     | StartProcess
     | DownloadAndSaveJson
     | DownloadSelectedVariant of Validity list           
     | EndProcess
 
-type Environment = 
+type internal Environment = 
     {
         deleteOneODISDirectory: Messages -> Validity -> string -> unit 
         deleteAllODISDirectories: Messages -> string -> unit 
@@ -37,7 +37,7 @@ type Environment =
     }
 
 //quli client neni default
-let environment: Environment =
+let internal environment: Environment =
     { 
         deleteOneODISDirectory = deleteOneODISDirectory
         deleteAllODISDirectories = deleteAllODISDirectories
@@ -46,7 +46,7 @@ let environment: Environment =
         client = client (lazy (Messages.Default.msgParam7 "Error4")) Messages.Default.msgParam1 
     }    
 
-let webscraping_KODIS pathToDir (variantList: Validity list) = 
+let internal webscraping_KODIS pathToDir (variantList: Validity list) = 
     
     //****************************MainFunction**********************************   
     

@@ -6,6 +6,7 @@ open System.Net
 
 open FSharp.Data
 
+open SettingsMDPO
 open ProgressBarFSharp
 open Messages.Messages
 open Helpers.ConsoleFixers
@@ -14,10 +15,6 @@ open Helpers.ConsoleFixers
 open ErrorHandling.TryWith
 open ErrorHandling.CustomOption
 
-//************************Constants**********************************************************************
-
-let [<Literal>] pathMdpoWeb = @"https://www.mdpo.cz"
-let [<Literal>] pathMdpoWebTimetables = @"https://www.mdpo.cz/jizdni-rady" 
 
 //************************Submain functions************************************************************************
 

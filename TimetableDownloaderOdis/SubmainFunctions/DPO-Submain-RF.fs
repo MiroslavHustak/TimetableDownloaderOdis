@@ -11,44 +11,21 @@ open FSharp.Data
 //open FsToolkit.ErrorHandling
 open Microsoft.FSharp.Reflection
 
+open SettingsDPO
 open ProgressBarFSharp
 open Messages.Messages
 //open Messages.MessagesMocking
 
+open ErrorTypes.ErrorTypes
 open ErrorHandling.TryWithRF
 //open ErrorHandling.CustomOption
 
-//************************Constants**********************************************************************
-
-let [<Literal>] pathDpoWeb = @"https://www.dpo.cz"
-let [<Literal>] pathDpoWebTimetablesBus = @"https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-bus.html"  
-let [<Literal>] pathDpoWebTimetablesTrBus = @"https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-trol.html" 
-let [<Literal>] pathDpoWebTimetablesTram = @"https://www.dpo.cz/pro-cestujici/jizdni-rady/jr-tram.html" 
-
-//************************Types**************************************************************************
-    
-type ConnErrorCode = 
-    {
-        BadRequest: string
-        InternalServerError: string
-        NotImplemented: string
-        ServiceUnavailable: string        
-        NotFound: string
-        CofeeMakerUnavailable: string
-    }
-    static member Default =                 
-        {
-            BadRequest            = "400 Bad Request"
-            InternalServerError   = "500 Internal Server Error"
-            NotImplemented        = "501 Not Implemented"
-            ServiceUnavailable    = "503 Service Unavailable"           
-            NotFound              = String.Empty  
-            CofeeMakerUnavailable = "418 I'm a teapot. Look for a coffee maker elsewhere."
-        }   
 
 //************************Submain helpers**************************************************************************
 
 let private getDefaultRcVal (t: Type) (r: ConnErrorCode) = 
+
+    //reflection nefunguje s type internal
    
     FSharpType.GetRecordFields(t) 
     |> Array.map (fun (prop: PropertyInfo) -> prop.GetGetMethod().Invoke(r, [||]) :?> string)   
@@ -58,7 +35,6 @@ let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =
         | None       -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna
    
 let private getDefaultRecordValues = getDefaultRcVal typeof<ConnErrorCode> ConnErrorCode.Default 
-
 
 //************************Submain functions************************************************************************
 

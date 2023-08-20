@@ -43,7 +43,7 @@ let main argv =
             | false                           -> str
             | true when (<>) str String.Empty ->
                                                 Console.Clear()
-                                                //deconstructorError <| msgParam1 str <| ()
+                                                deconstructorError <| Messages.Default.msgParam1 str <| ()
                                                 String.Empty
             | _                               ->
                                                 Console.Clear()

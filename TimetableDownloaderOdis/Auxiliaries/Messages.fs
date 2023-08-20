@@ -4,7 +4,7 @@ open System
 
 module Messages =
 
-    type Messages = 
+    type internal Messages = 
         {
             msg1: unit -> unit
             msg2: unit -> unit
@@ -65,7 +65,7 @@ module Messages =
    
 module MessagesMocking =  
 
-    type Messages = 
+    type internal Messages = 
         {
             msg1: unit -> unit
             msg2: unit -> unit

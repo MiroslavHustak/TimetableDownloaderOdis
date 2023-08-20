@@ -1,11 +1,11 @@
 ﻿namespace DiscriminatedUnions 
 
-type ResultSW<'TSuccess,'TFailure> =
+type internal ResultSW<'TSuccess,'TFailure> =
     | Success of 'TSuccess
     | Failure of 'TFailure
 
 [<Struct>]
-type Validity =
+type internal Validity =
     | CurrentValidity 
     | FutureValidity 
     | ReplacementService 

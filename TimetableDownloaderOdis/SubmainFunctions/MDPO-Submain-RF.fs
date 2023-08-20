@@ -11,42 +11,20 @@ open FSharp.Data
 //open FsToolkit.ErrorHandling
 open Microsoft.FSharp.Reflection
 
+open SettingsMDPO
 open ProgressBarFSharp
 open Messages.Messages
 //open Messages.MessagesMocking
 
+open ErrorTypes.ErrorTypes
 open ErrorHandling.TryWithRF
 //open ErrorHandling.CustomOption
-
-//************************Constants**********************************************************************
-
-let [<Literal>] pathMdpoWeb = @"https://www.mdpo.cz"
-let [<Literal>] pathMdpoWebTimetables = @"https://www.mdpo.cz/jizdni-rady" 
-
-//************************Types**************************************************************************
-    
-type ConnErrorCode = 
-    {
-        BadRequest: string
-        InternalServerError: string
-        NotImplemented: string
-        ServiceUnavailable: string        
-        NotFound: string
-        CofeeMakerUnavailable: string
-    }
-    static member Default =                 
-        {
-            BadRequest            = "400 Bad Request"
-            InternalServerError   = "500 Internal Server Error"
-            NotImplemented        = "501 Not Implemented"
-            ServiceUnavailable    = "503 Service Unavailable"           
-            NotFound              = String.Empty  
-            CofeeMakerUnavailable = "418 I'm a teapot. Look for a coffee maker elsewhere."
-        }   
 
 //************************Submain helpers**************************************************************************
 
 let private getDefaultRcVal (t: Type) (r: ConnErrorCode) = 
+
+    //reflection nefunguje s type internal
    
     FSharpType.GetRecordFields(t) 
     |> Array.map (fun (prop: PropertyInfo) -> prop.GetGetMethod().Invoke(r, [||]) :?> string)   
