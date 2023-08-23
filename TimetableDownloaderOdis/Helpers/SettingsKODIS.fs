@@ -29,7 +29,7 @@ type ODIS =  //reflection nefunguje s type internal
 //tu a tam zkontrolovat json, zdali KODIS nezmenil jeho strukturu 
 //pro type provider musi byt konstanta (nemozu pouzit sprintf partialPathJson) a musi byt forward slash"
 
-//Tohle nefunguje s type provider
+//Tohle nefunguje s json type provider
 let internal pathJsonNotWorkingForTypeProviders = 
     try
         let path = AppDomain.CurrentDomain.BaseDirectory + "KODISJson" + @"/kodisMHDTotal.json" //Copy Always     
@@ -43,6 +43,8 @@ let [<Literal>] internal partialPathJson = @"KODISJson/" //v binu //tohle je pro
 
 let [<Literal>] internal pathKodisWeb = @"https://kodisweb-backend.herokuapp.com/"
 let [<Literal>] internal pathKodisAmazonLink = @"https://kodis-files.s3.eu-central-1.amazonaws.com/"
+
+let [<Literal>] internal nonJsonString = "12345 #$%&*()"
 
 let internal currentTime = Fugit.now()//.AddDays(-1.0)   // new DateTime(2023, 04, 11)
 let internal regularValidityStart = new DateTime(2022, 12, 11) //zmenit pri pravidelne zmene JR 

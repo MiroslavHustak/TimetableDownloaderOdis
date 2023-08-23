@@ -25,6 +25,7 @@ open ErrorHandling.CustomOption
 
 //TODO Errors :-)
 
+
 type internal KodisTimetables = JsonProvider<pathJson> 
 
 //*********************Helpers*******************************************
@@ -170,9 +171,7 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
     //nepouzito, zjistovani delky json souboru trva tady stejne dlouho, jako jejich stazeni  
     //v pripade stahovani velkych souboru by uz mohl byt zjevny rozdil, tra vyzkusat    
     
-    let updateJson x = 
-        
-        let nonJsonString = "P428s^^22" 
+    let updateJson x =          
         
         let loadAndSaveJsonFiles = 
 
@@ -244,12 +243,12 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
         | false ->
                   (pathToJsonList, loadAndSaveJsonFiles)
                   ||> List.iteri2 (fun i path json -> 
-                                                    match json with
-                                                    | "P428s^^22" -> ()
-                                                    | _           ->                                                       
-                                                                     use streamWriter = new StreamWriter(Path.GetFullPath(path))                   
-                                                                     streamWriter.WriteLine(json)     
-                                                                     streamWriter.Flush()   
+                                                    match json.Equals(nonJsonString) with
+                                                    | true  -> ()
+                                                    | false ->                                                       
+                                                               use streamWriter = new StreamWriter(Path.GetFullPath(path))                   
+                                                               streamWriter.WriteLine(json)     
+                                                               streamWriter.Flush()   
                                   ) 
 
     message.msg2() 

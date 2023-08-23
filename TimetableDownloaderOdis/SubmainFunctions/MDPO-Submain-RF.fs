@@ -91,7 +91,7 @@ let internal filterTimetables pathToDir (message: Messages) =
 let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: string) (filterTimetables: (string*string) list) =  
 
     let downloadFileTaskAsync (client: Http.HttpClient) (uri: string) (path: string) : Async<Result<unit, string>> =  
-       
+        
         async
             {                      
                 try    
@@ -154,7 +154,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
 
     downloadTimetables client 
 
-    //for learning purposes only
+    //for educational purposes only
     let downloadTimetablesRF client = 
         let l = filterTimetables |> List.length
         filterTimetables 

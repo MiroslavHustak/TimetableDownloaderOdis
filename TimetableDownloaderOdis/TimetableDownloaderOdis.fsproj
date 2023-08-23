@@ -11,21 +11,21 @@
     <Content Include="KODISJson\kodisMHDTotal.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Compile Include="Auxiliaries\ErrorTypes.fs" />
-    <Compile Include="Auxiliaries\Messages.fs" />
-    <Compile Include="Auxiliaries\SettingsMDPO.fs" />
-    <Compile Include="Auxiliaries\SettingsDPO.fs" />
-    <Compile Include="Auxiliaries\SettingsKODIS.fs" />
-    <Compile Include="Auxiliaries\PattternBuilders.fs" />
-    <Compile Include="Auxiliaries\DiscriminatedUnions.fs" />
-    <Compile Include="Auxiliaries\Parsing.fs" />
-    <Compile Include="Auxiliaries\ErrorHandling.fs" />
-    <Compile Include="Auxiliaries\Helpers.fs" />
-    <Compile Include="Auxiliaries\ProgressBarFSharp.fs" />
+    <Compile Include="Helpers\ErrorTypes.fs" />
+    <Compile Include="Helpers\Messages.fs" />
+    <Compile Include="Helpers\SettingsMDPO.fs" />
+    <Compile Include="Helpers\SettingsDPO.fs" />
+    <Compile Include="Helpers\SettingsKODIS.fs" />
+    <Compile Include="Helpers\PattternBuilders.fs" />
+    <Compile Include="Helpers\DiscriminatedUnions.fs" />
+    <Compile Include="Helpers\Parsing.fs" />
+    <Compile Include="Helpers\ErrorHandling.fs" />
+    <Compile Include="Helpers\Helpers.fs" />
+    <Compile Include="Helpers\ProgressBarFSharp.fs" />
+    <Compile Include="SubmainFunctions\EducationalCode\MDPO-Submain.fs" />
+    <Compile Include="SubmainFunctions\EducationalCode\DPO-Submain.fs" />
     <Compile Include="SubmainFunctions\DPO-Submain-RF.fs" />
     <Compile Include="SubmainFunctions\MDPO-Submain-RF.fs" />
-    <Compile Include="SubmainFunctions\MDPO-Submain.fs" />
-    <Compile Include="SubmainFunctions\DPO-Submain.fs" />
     <Compile Include="SubmainFunctions\KODIS-Submain.fs" />
     <Compile Include="MainFunctions\MDPO.fs" />
     <Compile Include="MainFunctions\DPO.fs" />
