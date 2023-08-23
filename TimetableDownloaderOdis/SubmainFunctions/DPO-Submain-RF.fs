@@ -33,8 +33,13 @@ let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =
     |> function
         | Some value -> value
         | None       -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna
-   
-let private getDefaultRecordValues = getDefaultRcVal typeof<ConnErrorCode> ConnErrorCode.Default 
+ 
+let private getDefaultRecordValues = 
+
+    try   
+        getDefaultRcVal typeof<ConnErrorCode> ConnErrorCode.Default 
+    with
+    | ex -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna 
 
 //************************Submain functions************************************************************************
 

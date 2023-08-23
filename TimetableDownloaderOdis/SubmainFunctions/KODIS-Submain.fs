@@ -82,7 +82,7 @@ let private splitList1 (list: string list) : string list list =
 let private getDefaultRecordValues = 
 
     try   
-          getDefaultRcVal typeof<ODIS> ODIS.Default 4 //jen prvni 4 polozky jsou pro celo-KODIS variantu
+        getDefaultRcVal typeof<ODIS> ODIS.Default 4 //jen prvni 4 polozky jsou pro celo-KODIS variantu
     with
     | ex -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna 
  
