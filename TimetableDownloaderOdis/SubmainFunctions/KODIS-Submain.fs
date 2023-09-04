@@ -585,13 +585,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                                                       |> Option.isSome                                                                                           
                                                                                               
                                                                                   let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
-                                                                                  (*             
-                                                                                  let x = //korekce pozice znaku v retezci
-                                                                                      match item.Contains("NAD") && condNAD = true with
-                                                                                      | true  -> 2 
-                                                                                      | false -> 0 
-                                                                                   *)
-
+                                                                                 
                                                                                   let x = //int hodnota je korekce pozice znaku v retezci
                                                                                       MyBuilder
                                                                                           {

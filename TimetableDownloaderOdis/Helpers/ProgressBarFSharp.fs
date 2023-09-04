@@ -9,7 +9,7 @@ open Messages.Messages
 open ErrorHandling.TryWith
 open ErrorHandling.CustomOption
 
-//TODO Errors :-)
+//TODO pojmenovat ErrorPB4 atd. nejak lepe  :-)
 
 let private (++) a = (+) a 1
 
