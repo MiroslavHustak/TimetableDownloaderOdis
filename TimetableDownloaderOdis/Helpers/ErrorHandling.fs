@@ -82,11 +82,11 @@ module Parsing =
            let isANumber = x                                          
            isANumber  
            
-       let rec inline internal parseMeInt (printError: string -> unit) =
+       let rec inline internal parseMeInt printError line =
            function            
            | TryParserInt.Int i -> f i 
            | notANumber         ->  
-                                   printError notANumber 
+                                   printError notANumber line 
                                    -1 
        
        //DateTime

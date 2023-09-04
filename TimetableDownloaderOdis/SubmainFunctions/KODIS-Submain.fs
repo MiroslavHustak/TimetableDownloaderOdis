@@ -445,7 +445,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                                 }                                                            
                                                          
                                                         let fileNameFull =  
-                                                            match b rangeS || b rangeR || b rangeX || b rangeA with
+                                                            match b rangeS || b rangeR || b rangeX1 || b rangeA with
                                                             | true  -> sprintf "%s%s" "_" fileNameFullA                                                                       
                                                             | false -> fileNameFullA  
 
@@ -456,15 +456,15 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                                                                                                                                                                                    
                                                         match not (fileNameFull |> String.length >= numberOfChar) with 
                                                         | true  -> String.Empty
-                                                        | false ->     
-                                                                   let yearValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull.Substring(4 + x, 4) 
-                                                                   let monthValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull.Substring(9 + x, 2)
-                                                                   let dayValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull.Substring(12 + x, 2)
-
-                                                                   let yearValidityEnd x = parseMeInt <| message.msgParam10 <| fileNameFull.Substring(15 + x, 4)
-                                                                   let monthValidityEnd x = parseMeInt <| message.msgParam10 <| fileNameFull.Substring(20 + x, 2)
-                                                                   let dayValidityEnd x = parseMeInt <| message.msgParam10 <| fileNameFull.Substring(23 + x, 2)
-                                                                                                                                                                  
+                                                        | false ->                                                                        
+                                                                   let yearValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(4 + x, 4) 
+                                                                   let monthValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(9 + x, 2) 
+                                                                   let dayValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(12 + x, 2) 
+                                                                   
+                                                                   let yearValidityEnd x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(15 + x, 4) 
+                                                                   let monthValidityEnd x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(20 + x, 2) 
+                                                                   let dayValidityEnd x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(23 + x, 2) 
+                                                                   
                                                                    let a x =
                                                                        [ 
                                                                            yearValidityStart x
@@ -546,14 +546,18 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                                                
                                                                    let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
                                                                                 
-                                                                   let x = //korekce pozice znaku v retezci
-                                                                       match fileNameFull.Contains("NAD") && condNAD = true with
-                                                                       | true  -> 2 
-                                                                       | false -> 0 
-
+                                                                   let x = //int hodnota je korekce pozice znaku v retezci
+                                                                       MyBuilder
+                                                                           {
+                                                                               let!_ = not (fileNameFull.Contains("NAD") && condNAD = true), 2
+                                                                               let!_ = not (List.exists (fun item -> fileNameFull.Contains(item: string)) rangeX2), 1
+                                                                               return 0
+                                                                           }
+                                                                       
                                                                    result x
                                                    
                                   ) |> Array.toList |> List.distinct 
+        //tryWith myFunction (fun x -> ()) () 0 [] |> deconstructor message.msgParam1
         tryWith myFunction (fun x -> ()) () String.Empty [] |> deconstructor message.msgParam1
     
     let myList1 = 
@@ -587,14 +591,13 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                                                       | true  -> 2 
                                                                                       | false -> 0 
                                                                                       
-                                                                                  let yearValidityStart x = parseMeInt <| message.msgParam10 <| item.Substring(4 + x, 4) //overovat, jestli se v jsonu neco nezmenilo //113_2022_12_11_2023_12_09.....
-                                                                                  let monthValidityStart x = parseMeInt <| message.msgParam10 <| item.Substring(9 + x, 2)
-                                                                                  let dayValidityStart x = parseMeInt <| message.msgParam10 <| item.Substring(12 + x, 2)
+                                                                                  let yearValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(4 + x, 4) //overovat, jestli se v jsonu neco nezmenilo //113_2022_12_11_2023_12_09.....
+                                                                                  let monthValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(9 + x, 2) 
+                                                                                  let dayValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(12 + x, 2)
 
-                                                                                  let yearValidityEnd x = parseMeInt <| message.msgParam10 <| item.Substring(15 + x, 4)
-                                                                                  let monthValidityEnd x = parseMeInt <| message.msgParam10 <| item.Substring(20 + x, 2)
-                                                                                  let dayValidityEnd x = parseMeInt <| message.msgParam10 <| item.Substring(23 + x, 2)
-
+                                                                                  let yearValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(15 + x, 4) 
+                                                                                  let monthValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(20 + x, 2) 
+                                                                                  let dayValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(23 + x, 2) 
                                                                                   item, new DateTime(yearValidityStart x, monthValidityStart x, dayValidityStart x) 
                                                                                   //item, new DateTime(yearValidityEnd x, monthValidityEnd x, dayValidityEnd x) //pro pripadnou zmenu logiky
                                                                               with 
