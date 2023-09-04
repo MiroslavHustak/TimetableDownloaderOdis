@@ -23,8 +23,7 @@ open ErrorHandling.TryWith
 open ErrorHandling.Parsing
 open ErrorHandling.CustomOption
 
-//TODO Errors :-)
-
+//TODO pojmenovat Errors atd. nejak lepe  :-)
 
 type internal KodisTimetables = JsonProvider<pathJson> 
 
