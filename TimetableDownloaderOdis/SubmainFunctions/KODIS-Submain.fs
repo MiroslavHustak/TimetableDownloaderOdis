@@ -585,11 +585,20 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                                                       |> Option.isSome                                                                                           
                                                                                               
                                                                                   let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
-                                                                                               
+                                                                                  (*             
                                                                                   let x = //korekce pozice znaku v retezci
                                                                                       match item.Contains("NAD") && condNAD = true with
                                                                                       | true  -> 2 
                                                                                       | false -> 0 
+                                                                                   *)
+
+                                                                                  let x = //int hodnota je korekce pozice znaku v retezci
+                                                                                      MyBuilder
+                                                                                          {
+                                                                                              let!_ = not (item.Contains("NAD") && condNAD = true), 2
+                                                                                              let!_ = not (List.exists (fun item1 -> item.Contains(item1: string)) rangeX2), 1
+                                                                                              return 0
+                                                                                          } 
                                                                                       
                                                                                   let yearValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(4 + x, 4) //overovat, jestli se v jsonu neco nezmenilo //113_2022_12_11_2023_12_09.....
                                                                                   let monthValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(9 + x, 2) 
