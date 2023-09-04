@@ -274,8 +274,7 @@ let internal downloadAndSaveJson message (client: Http.HttpClient) =
                                               | ex -> 
                                                       deconstructorError <| message.msgParam1 (string ex) <| ()
                                                       return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
-                                          } |> Async.RunSynchronously
-                        
+                                          } |> Async.RunSynchronously                        
                          )  
 
         //save updated json files
@@ -317,6 +316,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
                                                                   message.msg5() 
                                                                   [||]    
                              ) 
+        
         tryWith myFunction (fun x -> ()) () String.Empty [||] |> deconstructor message.msgParam1
 
     let kodisAttachments() = 
@@ -370,6 +370,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
                                                                   message.msg8() 
                                                                   [||]                                 
                              ) 
+        
         tryWith myFunction (fun x -> ()) () String.Empty [||] |> deconstructor message.msgParam1          
 
     (Array.append <| kodisAttachments() <| kodisTimetables()) |> Set.ofArray //jen z vyukovych duvodu -> konverzi na Set vyhodime stejne polozky, jinak staci jen |> Array.distinct 
@@ -607,6 +608,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                                    ) |> List.maxBy snd                                                        
                                                    [ fst latestValidityStart ]                                                   
                             ) |> List.distinct                              
+        
         tryWith myFunction (fun x -> ()) () String.Empty [] |> deconstructor message.msgParam1
         
     let myList3 = 
@@ -642,6 +644,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                            
                                              link, path 
                         )
+        
         tryWith myFunction (fun x -> ()) () String.Empty [] |> deconstructor message.msgParam1   
     
     myList4 
