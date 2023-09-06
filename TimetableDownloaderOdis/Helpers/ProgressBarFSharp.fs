@@ -6,8 +6,8 @@ open System.Threading
 open Messages.Messages
 //open Messages.MessagesMocking
 
+open ErrorHandling
 open ErrorHandling.TryWith
-open ErrorHandling.CustomOption
 
 //TODO pojmenovat ErrorPB4 atd. nejak lepe  :-)
 
@@ -18,10 +18,10 @@ let private updateProgressBar (message: Messages) (currentProgress : int) (total
     let myFunction x = 
 
         let bytes = //437 je tzv. Extended ASCII  
-            System.Text.Encoding.GetEncoding(437).GetBytes("█") |> optionToSrtp (lazy (message.msgParam7 "ErrorPB4")) [||] 
+            System.Text.Encoding.GetEncoding(437).GetBytes("█") |> Option.toSrtp (lazy (message.msgParam7 "ErrorPB4")) [||] 
                    
         let output =
-            System.Text.Encoding.GetEncoding(852).GetChars(bytes) |> optionToSrtp (lazy (message.msgParam7 "ErrorPB5")) [||]   
+            System.Text.Encoding.GetEncoding(852).GetChars(bytes) |> Option.toSrtp (lazy (message.msgParam7 "ErrorPB5")) [||]   
         
         let progressBar = 
             let barWidth = 50 //nastavit delku dle potreby            
@@ -29,8 +29,8 @@ let private updateProgressBar (message: Messages) (currentProgress : int) (total
             let barFill = (/) ((*) currentProgress barWidth) totalProgress // :-)  
                
             let characterToFill = string (Array.item 0 output) //moze byt baj "#"
-            let bar = String.replicate barFill characterToFill |> optionToSrtp (lazy (message.msgParam7 "ErrorPB5")) String.Empty 
-            let remaining = String.replicate (barWidth - (++) barFill) "*" |> optionToSrtp (lazy (message.msgParam7 "ErrorPB6")) String.Empty // :-)
+            let bar = String.replicate barFill characterToFill |> Option.toSrtp (lazy (message.msgParam7 "ErrorPB5")) String.Empty 
+            let remaining = String.replicate (barWidth - (++) barFill) "*" |> Option.toSrtp (lazy (message.msgParam7 "ErrorPB6")) String.Empty // :-)
               
             sprintf "<%s%s> %d%%" bar remaining percentComplete 
 

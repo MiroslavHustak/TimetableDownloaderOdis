@@ -7,7 +7,7 @@ open System.Diagnostics
 open Messages.Messages
 //open Messages.MessagesMocking
 
-open ErrorHandling.CustomOption
+open ErrorHandling
    
     module ConsoleFixers = 
 
@@ -27,10 +27,10 @@ open ErrorHandling.CustomOption
         let private processFile source destination message action =
             let sourceFilepath =
                 Path.GetFullPath(source)
-                |> optionToSrtp (lazy (message.msgParam7 "Chyba při čtení cesty k souboru")) String.Empty 
+                |> Option.toSrtp (lazy (message.msgParam7 "Chyba při čtení cesty k souboru")) String.Empty 
             let destinFilepath =
                 Path.GetFullPath(destination) 
-                |> optionToSrtp (lazy (message.msgParam7 "Chyba při čtení cesty k souboru")) String.Empty                 
+                |> Option.toSrtp (lazy (message.msgParam7 "Chyba při čtení cesty k souboru")) String.Empty                 
             let fInfodat: FileInfo = new FileInfo(sourceFilepath)  
             match fInfodat.Exists with 
             | true  -> action sourceFilepath destinFilepath

@@ -12,15 +12,15 @@ open Messages.Messages
 open Helpers.ConsoleFixers
 //open Messages.MessagesMocking
 
+open ErrorHandling
 open ErrorHandling.TryWith
-open ErrorHandling.CustomOption
 
 
 //************************Submain functions************************************************************************
 
 let internal client printToConsole1 printToConsole2 =  
 
-    let myClient x = new System.Net.Http.HttpClient() |> (optionToSrtp <| printToConsole1 <| (new System.Net.Http.HttpClient()))    
+    let myClient x = new System.Net.Http.HttpClient() |> (Option.toSrtp <| printToConsole1 <| (new System.Net.Http.HttpClient()))    
     tryWith myClient (fun x -> ()) () String.Empty (new System.Net.Http.HttpClient()) |> deconstructor printToConsole2
 
 let internal filterTimetables pathToDir message =   

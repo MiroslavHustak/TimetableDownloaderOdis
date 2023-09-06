@@ -17,23 +17,21 @@ open Messages.Messages
 //open Messages.MessagesMocking
 
 open ErrorTypes.ErrorTypes
-open ErrorHandling.TryWithRF
-//open ErrorHandling.CustomOption
 
+open ErrorHandling
+open ErrorHandling.TryWithRF
 
 //************************Submain helpers**************************************************************************
 
-let private getDefaultRcVal (t: Type) (r: ConnErrorCode) = 
-
-    //reflection nefunguje s type internal
-   
+let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =  //reflection nefunguje s type internal
+       
     FSharpType.GetRecordFields(t) 
-    |> Array.map (fun (prop: PropertyInfo) -> prop.GetGetMethod().Invoke(r, [||]) :?> string)   
-    |> Option.ofObj
-    |> function
-        | Some value -> value
-        | None       -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna
- 
+    |> Array.map (fun (prop: PropertyInfo) -> 
+                                            match Casting.castAs<string> <| prop.GetValue(r) with
+                                            | Some value -> value
+                                            | None       -> failwith "Error" 
+                 ) |> List.ofArray    
+    
 let private getDefaultRecordValues = 
 
     try   
@@ -167,12 +165,12 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                      async                                                
                                                          {
                                                              progressBarContinuous message i l  //progressBarContinuous  
-                                                             //doSomethingWithResult
+                                                             
                                                              match async { return! downloadFileTaskAsync client link pathToFile } |> Async.RunSynchronously with 
                                                              | Ok value  -> ()     
                                                              | Error err -> 
                                                                             getDefaultRecordValues
-                                                                            |> Array.tryFind (fun item -> err = item)
+                                                                            |> List.tryFind (fun item -> err = item)
                                                                             |> function
                                                                                 | Some value ->                                                                                                 
                                                                                                 message.msgParam1 value      
@@ -195,13 +193,13 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                      async                                                
                                                          {
                                                              progressBarContinuous message i l  //progressBarContinuous  
-                                                             //doSomethingWithResult
+                                                             
                                                              match async { return! downloadFileTaskAsync client link pathToFile } |> Async.RunSynchronously with 
                                                              | Ok value  -> ()     
                                                              | Error err -> 
                                                                             //Using Option.map and Option.defaultValue does not make much sense here
                                                                             getDefaultRecordValues
-                                                                            |> Array.tryFind (fun item -> err = item)
+                                                                            |> List.tryFind (fun item -> err = item)
                                                                             |> Option.map (fun value ->
                                                                                                         message.msgParam1 value
                                                                                                         Console.ReadKey() |> ignore

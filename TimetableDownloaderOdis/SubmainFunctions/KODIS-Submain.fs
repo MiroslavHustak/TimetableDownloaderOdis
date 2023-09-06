@@ -19,9 +19,9 @@ open DiscriminatedUnions
 open Helpers.LogicalAliases
 open PatternBuilders.PattternBuilders
 
+open ErrorHandling
 open ErrorHandling.TryWith
 open ErrorHandling.Parsing
-open ErrorHandling.CustomOption
 
 //TODO pojmenovat Errors atd. nejak lepe  :-)
 
@@ -33,16 +33,24 @@ let private getDefaultRcVal (t: Type) (r: ODIS) itemNo = //record -> Array //ope
 
    //reflection nefunguje s type internal
    
-   try   
-       //failwith "Error converting a record into an array"
-       //dostanu pole hodnot typu PropertyInfo
+   try 
+       //dostanu Array hodnot typu PropertyInfo
        FSharpType.GetRecordFields(t) 
-       |> Array.map (fun (prop: PropertyInfo) -> prop.GetGetMethod().Invoke(r, [||]) :?> string)            
-       |> Array.take itemNo 
-       |> Option.ofObj
-       |> function
-           | Some value -> value
-           | None       -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna
+       //|> Array.map (fun (prop: PropertyInfo) -> prop.GetGetMethod().Invoke(r, [||]) :?> string) //downcasting :?> is not a functional feature
+       |> Array.map (fun (prop: PropertyInfo) -> 
+                                              match Casting.castAs<string> <| prop.GetValue(r) with
+                                              | Some value -> value
+                                              | None       -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX
+                                                    (*
+                                                    For educational purposes
+                                                    match prop.GetValue(r) with
+                                                    | :? string as str -> str //the :? operator in F# is used for type testing and downcasting
+                                                    | _                -> failwith "Error" 
+                                                    *)
+                    )            
+       |> List.ofArray 
+       |> List.take itemNo     
+   
    with
    | ex -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna    
 
@@ -162,7 +170,7 @@ let private pathToJsonList =
 
 let internal client printToConsole1 printToConsole2 =  
 
-    let myClient x = new System.Net.Http.HttpClient() |> (optionToSrtp <| printToConsole1 <| (new System.Net.Http.HttpClient()))    
+    let myClient x = new System.Net.Http.HttpClient() |> (Option.toSrtp <| printToConsole1 <| (new System.Net.Http.HttpClient()))    
     tryWith myClient (fun x -> ()) () String.Empty (new System.Net.Http.HttpClient()) |> deconstructor printToConsole2
 
 let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechano z vyukovych duvodu 
@@ -336,7 +344,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
 
         let myFunction x = 
             
-            let errorStr str err = str |> (optionToSrtp <| lazy (message.msgParam7 err) <| String.Empty) 
+            let errorStr str err = str |> (Option.toSrtp <| lazy (message.msgParam7 err) <| String.Empty) 
 
             pathToJsonList
             |> Array.ofList 
@@ -388,6 +396,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
             |> Array.Parallel.map (fun (item: string) ->   
                                                         let item = string item
 
+                                                        //******************************************************************************
                                                         //misto pro rucni opravu retezcu v PDF, ktere jsou v jsonu v nespravnem formatu - 
                                                         let item = 
                                                             match item.Contains(@"S2_2023_04_03_2023_04_3_v") with
@@ -397,8 +406,14 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                         let item = 
                                                             match item.Contains(@"https://kodis-files.s3.eu-central-1.amazonaws.com/55_2023_07_01_2023_09_02_eb08ce03a7.pdf") with
                                                             | true  -> item.Replace(@"https://kodis-files.s3.eu-central-1.amazonaws.com/55_2023_07_01_2023_09_02_eb08ce03a7.pdf", @"https://kodis-files.s3.eu-central-1.amazonaws.com/55_2023_07_26_2023_09_03_v_6186b834e8.pdf")  
-                                                            | false -> item          
-                                                        //konec rucni opravy retezcu       
+                                                            | false -> item   
+                                                            
+                                                        let item = //X55 a pod lze vyradit jen rucne, bo bez podivani se do obsahu nelze urcit, zdali jsou jeste relevantni ci ne
+                                                            match item.Contains(@"X3_2023_03_07_2023_12_09.pdf") || item.Contains(@"X55_2023_03_07_2023_12_09.pdf") || item.Contains(@"X28_2023_03_07_2023_12_09.pdf")  with
+                                                            | true  -> String.Empty
+                                                            | false -> item      
+                                                        //konec rucni opravy retezcu  
+                                                        //******************************************************************************
                                                                                                                                                          
                                                         //az bude cas, implementuj (misto meho reseni nize) tento kod do logiky odstraneni prebytecneho retezce plus jeste odstraneni po normalnim datu 
                                                         let replacePattern (input: string) =
@@ -663,14 +678,14 @@ let internal deleteAllODISDirectories message pathToDir  =
     let myDeleteFunction x =   
 
         //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
-        let dirInfo = new DirectoryInfo(pathToDir) |> optionToSrtp (lazy (message.msgParam7 "Error8")) (new DirectoryInfo(pathToDir))             
+        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toSrtp (lazy (message.msgParam7 "Error8")) (new DirectoryInfo(pathToDir))             
        
         //smazeme pouze adresare obsahujici stare JR, ostatni ponechame   
         let deleteIt = 
             dirInfo.EnumerateDirectories()
-            |> optionToSrtp (lazy (message.msgParam7 "Error11g")) Seq.empty  
+            |> Option.toSrtp (lazy (message.msgParam7 "Error11g")) Seq.empty  
             |> Array.ofSeq
-            |> Array.filter (fun item -> (getDefaultRecordValues |> Array.contains item.Name)) //prunik dvou kolekci (plus jeste Array.distinct pro unique items)
+            |> Array.filter (fun item -> (getDefaultRecordValues |> List.contains item.Name)) //prunik dvou kolekci (plus jeste Array.distinct pro unique items)
             |> Array.distinct 
             |> Array.Parallel.iter (fun item -> item.Delete(true))     
         deleteIt 
@@ -680,18 +695,14 @@ let internal deleteAllODISDirectories message pathToDir  =
     message.msg10() 
     message.msg11() 
  
-let internal createNewDirectories pathToDir = 
-     
-    getDefaultRecordValues 
-    |> List.ofArray
-    |> List.map (fun item -> sprintf"%s\%s"pathToDir item) 
+let internal createNewDirectories pathToDir = getDefaultRecordValues |> List.map (fun item -> sprintf"%s\%s"pathToDir item)  
 
 let internal createDirName variant =
     match variant with 
-    | CurrentValidity           -> getDefaultRecordValues |> Array.item 0
-    | FutureValidity            -> getDefaultRecordValues |> Array.item 1
-    | ReplacementService        -> getDefaultRecordValues |> Array.item 2                                
-    | WithoutReplacementService -> getDefaultRecordValues |> Array.item 3
+    | CurrentValidity           -> getDefaultRecordValues |> List.item 0
+    | FutureValidity            -> getDefaultRecordValues |> List.item 1
+    | ReplacementService        -> getDefaultRecordValues |> List.item 2                                
+    | WithoutReplacementService -> getDefaultRecordValues |> List.item 3
 
 let internal deleteOneODISDirectory message variant pathToDir =
 
@@ -700,10 +711,10 @@ let internal deleteOneODISDirectory message variant pathToDir =
     let myDeleteFunction x = //I  
 
         //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
-        let dirInfo = new DirectoryInfo(pathToDir) |> optionToSrtp (lazy (message.msgParam7 "Error8")) (new DirectoryInfo(pathToDir))        
+        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toSrtp (lazy (message.msgParam7 "Error8")) (new DirectoryInfo(pathToDir))        
        
         dirInfo.EnumerateDirectories()
-        |> optionToSrtp (lazy (message.msgParam7 "Error11h")) Seq.empty  
+        |> Option.toSrtp (lazy (message.msgParam7 "Error11h")) Seq.empty  
         |> Seq.filter (fun item -> item.Name = createDirName variant) 
         |> Seq.iter (fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce
                   

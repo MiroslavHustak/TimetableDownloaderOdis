@@ -34,10 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="TestProjectGitHub01_TemporaryKey.pfx" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Fantomas.Core" Version="6.0.8" />
     <PackageReference Include="FSharp.Data" Version="6.2.0" />
     <PackageReference Include="FsToolkit.ErrorHandling" Version="4.8.0" />

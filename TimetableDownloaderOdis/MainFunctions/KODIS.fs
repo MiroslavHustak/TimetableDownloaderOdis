@@ -9,8 +9,10 @@ open Messages.Messages
 //open Messages.MessagesMocking
 
 open DiscriminatedUnions
+
+open ErrorHandling
 open ErrorHandling.TryWith
-open ErrorHandling.CustomOption
+
 
 type internal State =  //not used
     { 

@@ -38,16 +38,40 @@ module TryWithRF =
         with
         | ex -> Error (string ex)
 
-module CustomOption = 
-        
-    let inline internal optionToSrtp (printError: Lazy<unit>) (srtp: ^a) value = 
+module Option = 
+
+    let inline internal ofNull (value: 'nullableValue) =
+            match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and the library method will still work.
+            | true  -> None
+            | false -> Some value
+
+    let inline internal ofObj value =
+        match value with
+        | null -> None
+        | _    -> Some value
+
+    let inline internal ofNullable (value: System.Nullable<'T>) =
+        match value.HasValue with
+        | true  -> Some value.Value
+        | false -> None
+
+    //************************************************************************
+
+    let inline internal toSrtp (printError: Lazy<unit>) (srtp: ^a) value = 
         value
         |> Option.ofObj 
         |> function 
             | Some value -> value
             | None       -> 
                             printError.Force() 
-                            srtp    
+                            srtp  
+                            
+module Casting = 
+    
+    let castAs<'a> (o: obj) : 'a option =    //the :? operator in F# is used for type testing     
+        match Option.ofObj o with
+        | Some (:? 'a as result) -> Some result
+        | _                      -> None
 
 module TryWith =
 
