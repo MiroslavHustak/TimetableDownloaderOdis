@@ -42,10 +42,10 @@ let private getDefaultRcVal (t: Type) (r: ODIS) itemNo = //record -> Array //ope
                                               | Some value -> value
                                               | None       -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX
                                                     (*
-                                                    For educational purposes
-                                                    match prop.GetValue(r) with
-                                                    | :? string as str -> str //the :? operator in F# is used for type testing and downcasting
-                                                    | _                -> failwith "Error" 
+                                                        For educational purposes
+                                                        match prop.GetValue(r) with
+                                                        | :? string as str -> str //the :? operator in F# is used for type testing and downcasting
+                                                        | _                -> failwith "Error" 
                                                     *)
                     )            
        |> List.ofArray 
@@ -188,16 +188,16 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
                 pathToJsonList
                 |> List.toArray
                 |> Array.Parallel.map (fun item ->                                          
-                                                   let fileInfo = new FileInfo(Path.GetFullPath(item))
+                                                 let fileInfo = new FileInfo(Path.GetFullPath(item))
                                                    
-                                                   try   
-                                                       match fileInfo.Exists with
-                                                       | true  -> Some fileInfo.Length 
-                                                       | false -> None                                               
-                                                   with
-                                                   | ex -> 
-                                                          deconstructorError <| message.msgParam7 (string ex) <| ()                                                                                                     
-                                                          None       
+                                                 try   
+                                                     match fileInfo.Exists with
+                                                     | true  -> Some fileInfo.Length 
+                                                     | false -> None                                               
+                                                 with
+                                                 | ex -> 
+                                                      deconstructorError <| message.msgParam7 (string ex) <| ()                                                                                                     
+                                                      None       
                                       ) |> List.ofArray
 
             (jsonLinkList, fileLengthList)
