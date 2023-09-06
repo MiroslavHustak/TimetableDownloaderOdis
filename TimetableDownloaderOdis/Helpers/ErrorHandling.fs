@@ -41,9 +41,9 @@ module TryWithRF =
 module Option = 
 
     let inline internal ofNull (value: 'nullableValue) =
-            match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and the library method will still work.
-            | true  -> None
-            | false -> Some value
+        match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and the library method will still work.
+        | true  -> None
+        | false -> Some value
 
     let inline internal ofObj value =
         match value with

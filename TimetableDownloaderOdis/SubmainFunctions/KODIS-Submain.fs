@@ -397,7 +397,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                         let item = string item
 
                                                         //******************************************************************************
-                                                        //misto pro rucni opravu retezcu v PDF, ktere jsou v jsonu v nespravnem formatu - 
+                                                        //misto pro rucni opravu retezcu v PDF, ktere jsou v jsonu v nespravnem formatu ci s chybnym datem 
                                                         let item = 
                                                             match item.Contains(@"S2_2023_04_03_2023_04_3_v") with
                                                             | true  -> item.Replace(@"S2_2023_04_03_2023_04_3_v", @"S2_2023_04_03_2023_04_03_v")  
