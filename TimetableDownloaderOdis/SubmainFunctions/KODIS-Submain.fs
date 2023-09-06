@@ -408,9 +408,19 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                             | true  -> item.Replace(@"https://kodis-files.s3.eu-central-1.amazonaws.com/55_2023_07_01_2023_09_02_eb08ce03a7.pdf", @"https://kodis-files.s3.eu-central-1.amazonaws.com/55_2023_07_26_2023_09_03_v_6186b834e8.pdf")  
                                                             | false -> item   
                                                             
-                                                        let item = //X55 a pod lze vyradit jen rucne, bo bez podivani se do obsahu nelze urcit, zdali jsou jeste relevantni ci ne
-                                                            match item.Contains(@"X3_2023_03_07_2023_12_09.pdf") || item.Contains(@"X55_2023_03_07_2023_12_09.pdf") || item.Contains(@"X28_2023_03_07_2023_12_09.pdf")  with
-                                                            | true  -> String.Empty
+                                                        let item = //X3 s chybnym koncem platnosti lze vyradit jen rucne (zmenou data na skutecny konec platnosti), bo bez podivani se do obsahu nelze urcit, zdali jsou jeste relevantni ci ne
+                                                            match item.Contains(@"X3_2023_03_07_2023_12_09.pdf") with
+                                                            | true  -> item.Replace(@"X3_2023_03_07_2023_12_09.pdf", @"X3_2023_03_07_2023_09_04.pdf")  
+                                                            | false -> item    
+                                                            
+                                                        let item = //X55 s chybnym koncem platnosti lze vyradit jen rucne (zmenou data na skutecny konec platnosti), bo bez podivani se do obsahu nelze urcit, zdali jsou jeste relevantni ci ne
+                                                            match item.Contains(@"X55_2023_03_07_2023_12_09.pdf") with
+                                                            | true  -> item.Replace(@"X55_2023_03_07_2023_12_09.pdf", @"X55_2023_03_07_2023_09_04.pdf")  
+                                                            | false -> item   
+                                                            
+                                                        let item = //X28 s chybnym koncem platnosti lze vyradit jen rucne (zmenou data na skutecny konec platnosti), bo bez podivani se do obsahu nelze urcit, zdali jsou jeste relevantni ci ne
+                                                            match item.Contains(@"X28_2023_03_07_2023_12_09.pdf")  with
+                                                            | true  -> item.Replace(@"X28_2023_03_07_2023_12_09.pdf", @"X28_2023_03_07_2023_09_04.pdf")  
                                                             | false -> item      
                                                         //konec rucni opravy retezcu  
                                                         //******************************************************************************
