@@ -13,7 +13,6 @@ open DiscriminatedUnions
 open ErrorHandling
 open ErrorHandling.TryWith
 
-
 type internal State =  //not used
     { 
         TimetablesDownloadedAndSaved: unit

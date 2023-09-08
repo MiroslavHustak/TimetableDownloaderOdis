@@ -13,7 +13,7 @@ open ErrorHandling.TryWith
 
 let private (++) a = (+) a 1
 
-let private updateProgressBar (message: Messages) (currentProgress : int) (totalProgress : int) : unit =
+let inline private updateProgressBar (message: Messages) (currentProgress : int) (totalProgress : int) : unit =
     
     let myFunction x = 
 

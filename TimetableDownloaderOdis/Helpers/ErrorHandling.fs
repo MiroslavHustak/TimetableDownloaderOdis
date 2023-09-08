@@ -8,13 +8,13 @@ open DiscriminatedUnions
 
 module TryWithRF =
 
-    let inline internal optionToResultPrint f fPrint : Result<'a, 'b> = 
+    let internal optionToResultPrint f fPrint : Result<'a, 'b> = 
         f                      
         |> function   
             | Some value -> Ok value 
             | None       -> Error fPrint    
 
-    let inline internal tryWithLazy pfPrint f2 f1 : Result<'a, Lazy<unit>> =            
+    let internal tryWithLazy pfPrint f2 f1 : Result<'a, Lazy<unit>> =            
         try
             try                 
                 f2
@@ -23,13 +23,13 @@ module TryWithRF =
         with
         | ex -> Error <| lazy (pfPrint (string ex)) 
 
-    let inline internal optionToResult f err : Result<'a, 'b> = 
+    let internal optionToResult f err : Result<'a, 'b> = 
         f                      
         |> function   
             | Some value -> Ok value 
             | None       -> Error err    
            
-    let inline internal tryWith f2 f1  : Result<'a, string> =            
+    let internal tryWith f2 f1  : Result<'a, string> =            
         try
             try                 
                 f2
@@ -40,22 +40,32 @@ module TryWithRF =
 
 module Option = 
 
-    let inline internal ofNull (value: 'nullableValue) =
+    let internal ofNull (value: 'nullableValue) =
         match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and the library method will still work.
         | true  -> None
         | false -> Some value
 
-    let inline internal ofObj value =
+    let internal ofObj value =
         match value with
         | null -> None
         | _    -> Some value
 
-    let inline internal ofNullable (value: System.Nullable<'T>) =
+    let internal ofNullable (value: System.Nullable<'T>) =
         match value.HasValue with
         | true  -> Some value.Value
         | false -> None
 
     //************************************************************************
+
+    (*
+    The inline keyword in F# is primarily used for inlining code at the call site, which can lead to 
+    performance improvements in situations where performance optimization is crucial. The impact of inlining 
+    is most pronounced when working with generic functions and operations that involve value types.  
+    Inline functions are particularly useful when working with collections and higher-order functions.
+    Inline functions are a powerful feature that allows the F# compiler to generate specialized code for
+    a function at the call site. This can result in more efficient and optimized code, especially when working 
+    with generic functions.
+    *)
 
     let inline internal toSrtp (printError: Lazy<unit>) (srtp: ^a) value = 
         value
@@ -68,14 +78,14 @@ module Option =
                             
 module Casting = 
     
-    let castAs<'a> (o: obj) : 'a option =    //the :? operator in F# is used for type testing     
+    let inline internal castAs<'a> (o: obj) : 'a option =    //the :? operator in F# is used for type testing     
         match Option.ofObj o with
         | Some (:? 'a as result) -> Some result
         | _                      -> None
 
 module TryWith =
 
-    let inline internal tryWith f1 f2 f3 x y = 
+    let internal tryWith f1 f2 f3 x y = 
         try
             try          
                f1 x |> Success
@@ -102,7 +112,7 @@ module TryWith =
 module Parsing =
        
        //Int 
-       let inline internal f x = 
+       let internal f x = 
            let isANumber = x                                          
            isANumber  
            
@@ -114,7 +124,7 @@ module Parsing =
                                    -1 
        
        //DateTime
-       let inline internal f_date x = 
+       let internal f_date x = 
            let isADate = x       
            isADate               
            
