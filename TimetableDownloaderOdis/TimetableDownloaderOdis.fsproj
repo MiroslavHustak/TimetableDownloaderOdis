@@ -13,15 +13,15 @@
     </Content>
     <Compile Include="Helpers\ErrorTypes.fs" />
     <Compile Include="Helpers\Messages.fs" />
-    <Compile Include="Helpers\SettingsMDPO.fs" />
-    <Compile Include="Helpers\SettingsDPO.fs" />
-    <Compile Include="Helpers\SettingsKODIS.fs" />
     <Compile Include="Helpers\PattternBuilders.fs" />
     <Compile Include="Helpers\DiscriminatedUnions.fs" />
     <Compile Include="Helpers\Parsing.fs" />
     <Compile Include="Helpers\ErrorHandling.fs" />
     <Compile Include="Helpers\Helpers.fs" />
     <Compile Include="Helpers\ProgressBarFSharp.fs" />
+    <Compile Include="Settings\SettingsMDPO.fs" />
+    <Compile Include="Settings\SettingsDPO.fs" />
+    <Compile Include="Settings\SettingsKODIS.fs" />
     <Compile Include="SubmainFunctions\EducationalCode\MDPO-Submain.fs" />
     <Compile Include="SubmainFunctions\EducationalCode\DPO-Submain.fs" />
     <Compile Include="SubmainFunctions\DPO-Submain-RF.fs" />
