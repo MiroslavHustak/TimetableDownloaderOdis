@@ -8,7 +8,7 @@ open System.Reflection
 open System.Net.NetworkInformation
 
 open FSharp.Data
-//open FsToolkit.ErrorHandling
+open FsToolkit.ErrorHandling
 open Microsoft.FSharp.Reflection
 
 open SettingsDPO
@@ -161,29 +161,37 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
         let l = filterTimetables |> List.length
         filterTimetables 
         |> List.iteri (fun i (link, pathToFile) ->  
-                                                 let dispatch = 
-                                                     async                                                
-                                                         {
-                                                             progressBarContinuous message i l  //progressBarContinuous  
-                                                             
-                                                             match async { return! downloadFileTaskAsync client link pathToFile } |> Async.RunSynchronously with 
-                                                             | Ok value  -> ()     
-                                                             | Error err -> 
-                                                                            getDefaultRecordValues
-                                                                            |> List.tryFind (fun item -> err = item)
-                                                                            |> function
-                                                                                | Some value ->                                                                                                 
+                                                async                                                
+                                                    {
+                                                        progressBarContinuous message i l  //progressBarContinuous  
+                                                        return! downloadFileTaskAsync client link pathToFile                                                                                                                               
+                                                    } 
+                                                    |> Async.Catch
+                                                    |> Async.RunSynchronously
+                                                    |> Result.ofChoice
+                                                    |> Result.toOption
+                                                    |> function                                                 
+                                                        | Some value ->  
+                                                                    match value with 
+                                                                    | Ok value -> ()
+                                                                    | Error err -> 
+                                                                                getDefaultRecordValues
+                                                                                |> List.tryFind (fun item -> err = item)
+                                                                                |> function
+                                                                                    | Some value ->                                                                                                 
                                                                                                 message.msgParam1 value      
                                                                                                 Console.ReadKey() |> ignore 
                                                                                                 client.Dispose()
                                                                                                 System.Environment.Exit(1)                                                                                                 
-                                                                                | None       -> message.msgParam2 link                                                                                
-                                                         }
-                                                 Async.StartImmediate dispatch 
+                                                                                    | None       ->
+                                                                                                message.msgParam2 link  
+                                                        | None       -> 
+                                                                    message.msgParam2 link               
                       )    
 
     downloadTimetables client 
 
+    (*
     //for learning purposes only
     let downloadTimetablesRF client = 
         let l = filterTimetables |> List.length
@@ -194,7 +202,10 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                          {
                                                              progressBarContinuous message i l  //progressBarContinuous  
                                                              
-                                                             match async { return! downloadFileTaskAsync client link pathToFile } |> Async.RunSynchronously with 
+                                                             match async { 
+                                                                
+                                                                return! downloadFileTaskAsync client link pathToFile 
+                                                             } |> Async.RunSynchronously with 
                                                              | Ok value  -> ()     
                                                              | Error err -> 
                                                                             //Using Option.map and Option.defaultValue does not make much sense here
@@ -212,6 +223,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                       )    
 
     //downloadTimetablesRF client 
+    *)
     
     message.msgParam4 pathToDir
 

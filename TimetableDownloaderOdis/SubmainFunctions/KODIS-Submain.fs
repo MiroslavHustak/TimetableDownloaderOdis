@@ -9,6 +9,7 @@ open System.Text.RegularExpressions
 
 open Fugit
 open FSharp.Data
+open FsToolkit.ErrorHandling
 open Microsoft.FSharp.Reflection
 
 open Helpers
@@ -771,14 +772,19 @@ let internal downloadAndSaveTimetables (client: Http.HttpClient) message pathToD
         let l = filterTimetables |> List.length
         filterTimetables 
         |> List.iteri (fun i (link, pathToFile) ->  //Array.Parallel.iter tady nelze  
-                                                 let dispatch = 
-                                                     async                                                 
-                                                         {
-                                                             progressBarContinuous message i l
-                                                             async { return! downloadFileTaskAsync link pathToFile } |> Async.RunSynchronously
-                                                             //async { printfn"%s" pathToFile; return! Async.Sleep 0 } |> Async.RunSynchronously
-                                                         }
-                                                 Async.StartImmediate dispatch 
+                                                //async { printfn"%s" pathToFile; return! Async.Sleep 0 } //for testing
+                                                async                                                 
+                                                    {
+                                                        progressBarContinuous message i l
+                                                        return! downloadFileTaskAsync link pathToFile 
+                                                    }
+                                                    |> Async.Catch
+                                                    |> Async.RunSynchronously
+                                                    |> Result.ofChoice
+                                                    |> Result.toOption
+                                                    |> function
+                                                        | Some value -> ()                                                                                 
+                                                        | None       -> message.msgParam2 link                                                         
                       )                           
    
     downloadTimetables() 

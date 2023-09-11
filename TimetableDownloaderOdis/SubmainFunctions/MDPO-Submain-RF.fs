@@ -8,7 +8,7 @@ open System.Reflection
 open System.Net.NetworkInformation
 
 open FSharp.Data
-//open FsToolkit.ErrorHandling
+open FsToolkit.ErrorHandling
 open Microsoft.FSharp.Reflection
 
 open SettingsMDPO
@@ -135,58 +135,36 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
     let downloadTimetables client = 
         let l = filterTimetables |> List.length
         filterTimetables 
-        |> List.iteri (fun i (link, pathToFile) ->  
-                                                 let dispatch = 
-                                                     async                                                
-                                                         {
-                                                             progressBarContinuous message i l 
-                                                             
-                                                             match async { return! downloadFileTaskAsync client link pathToFile } |> Async.RunSynchronously with 
-                                                             | Ok value  -> ()     
-                                                             | Error err -> 
-                                                                            getDefaultRecordValues
-                                                                            |> List.tryFind (fun item -> err = item)
-                                                                            |> function
-                                                                                | Some value ->                                                                                                 
+        |> List.iteri (fun i (link, pathToFile) ->             
+                                                async                                                
+                                                    {
+                                                        progressBarContinuous message i l  //progressBarContinuous  
+                                                        return! downloadFileTaskAsync client link pathToFile                                                                                                                               
+                                                    } 
+                                                    |> Async.Catch
+                                                    |> Async.RunSynchronously
+                                                    |> Result.ofChoice
+                                                    |> Result.toOption
+                                                    |> function                                                 
+                                                        | Some value ->  
+                                                                    match value with 
+                                                                    | Ok value -> ()
+                                                                    | Error err -> 
+                                                                                getDefaultRecordValues
+                                                                                |> List.tryFind (fun item -> err = item)
+                                                                                |> function
+                                                                                    | Some value ->                                                                                                 
                                                                                                 message.msgParam1 value      
                                                                                                 Console.ReadKey() |> ignore 
                                                                                                 client.Dispose()
                                                                                                 System.Environment.Exit(1)                                                                                                 
-                                                                                | None       -> message.msgParam2 link                                                                                
-                                                         }
-                                                 Async.StartImmediate dispatch 
+                                                                                    | None       ->
+                                                                                                message.msgParam2 link  
+                                                        | None       -> 
+                                                                    message.msgParam2 link               
                       )    
 
     downloadTimetables client 
-
-    //for educational purposes only
-    let downloadTimetablesRF client = 
-        let l = filterTimetables |> List.length
-        filterTimetables 
-        |> List.iteri (fun i (link, pathToFile) ->  
-                                                 let dispatch = 
-                                                     async                                                
-                                                         {
-                                                             progressBarContinuous message i l  //progressBarContinuous  
-
-                                                             match async { return! downloadFileTaskAsync client link pathToFile } |> Async.RunSynchronously with 
-                                                             | Ok value  -> ()     
-                                                             | Error err -> 
-                                                                            //Using Option.map and Option.defaultValue does not make much sense here
-                                                                            getDefaultRecordValues
-                                                                            |> List.tryFind (fun item -> err = item)
-                                                                            |> Option.map (fun value ->
-                                                                                                        message.msgParam1 value
-                                                                                                        Console.ReadKey() |> ignore
-                                                                                                        client.Dispose()
-                                                                                                        System.Environment.Exit(1)
-                                                                                          )
-                                                                            |> Option.defaultValue (message.msgParam2 link)                                                                          
-                                                         }
-                                                 Async.StartImmediate dispatch 
-                      )    
-
-    //downloadTimetablesRF client 
     
     message.msgParam4 pathToDir
 

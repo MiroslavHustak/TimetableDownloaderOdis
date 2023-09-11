@@ -5,6 +5,14 @@ open System.IO
 
 open Parsing
 open DiscriminatedUnions
+            
+module Result = 
+                   
+    let internal toOption f : 'a option = 
+        f                      
+        |> function   
+            | Ok value -> Some value 
+            | Error _  -> None  
 
 module TryWithRF =
 
@@ -55,6 +63,12 @@ module Option =
         | true  -> Some value.Value
         | false -> None
 
+    let internal toResult err f : Result<'a, 'b> = 
+        f                      
+        |> function   
+            | Some value -> Ok value 
+            | None       -> Error err    
+
     //************************************************************************
 
     (*
@@ -78,9 +92,10 @@ module Option =
                             
 module Casting = 
     
-    let inline internal castAs<'a> (o: obj) : 'a option =    //the :? operator in F# is used for type testing     
+    //srpt resolved at compile time, generics at run time
+    let inline internal castAs<^a> (o: obj) : ^a option =    //the :? operator in F# is used for type testing     
         match Option.ofObj o with
-        | Some (:? 'a as result) -> Some result
+        | Some (:? ^a as result) -> Some result
         | _                      -> None
 
 module TryWith =
