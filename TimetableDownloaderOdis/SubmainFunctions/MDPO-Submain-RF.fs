@@ -147,21 +147,21 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                     |> Result.toOption
                                                     |> function                                                 
                                                         | Some value ->  
-                                                                    match value with 
-                                                                    | Ok value -> ()
-                                                                    | Error err -> 
-                                                                                getDefaultRecordValues
-                                                                                |> List.tryFind (fun item -> err = item)
-                                                                                |> function
-                                                                                    | Some value ->                                                                                                 
-                                                                                                message.msgParam1 value      
-                                                                                                Console.ReadKey() |> ignore 
-                                                                                                client.Dispose()
-                                                                                                System.Environment.Exit(1)                                                                                                 
-                                                                                    | None       ->
-                                                                                                message.msgParam2 link  
+                                                                     match value with 
+                                                                     | Ok value  -> ()
+                                                                     | Error err -> 
+                                                                                 getDefaultRecordValues
+                                                                                 |> List.tryFind (fun item -> err = item)
+                                                                                 |> function
+                                                                                     | Some value ->                                                                                                 
+                                                                                                  message.msgParam1 value      
+                                                                                                  Console.ReadKey() |> ignore 
+                                                                                                  client.Dispose()
+                                                                                                  System.Environment.Exit(1)                                                                                                 
+                                                                                     | None       ->
+                                                                                                  message.msgParam2 link  
                                                         | None       -> 
-                                                                    message.msgParam2 link               
+                                                                     message.msgParam2 link               
                       )    
 
     downloadTimetables client 
