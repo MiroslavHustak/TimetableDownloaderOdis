@@ -9,8 +9,6 @@ open Messages.Messages
 open ErrorHandling
 open ErrorHandling.TryWith
 
-//TODO pojmenovat ErrorPB4 atd. nejak lepe  :-)
-
 let private (++) a = (+) a 1
 
 let inline private updateProgressBar (message: Messages) (currentProgress : int) (totalProgress : int) : unit =
