@@ -29,7 +29,7 @@ let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =  //reflection nefungu
     |> Array.map (fun (prop: PropertyInfo) -> 
                                             match Casting.castAs<string> <| prop.GetValue(r) with
                                             | Some value -> value
-                                            | None       -> failwith "Error" 
+                                            | None       -> failwith "Chyba v průběhu stahování JŘ DPO." 
                  ) |> List.ofArray    
     
 let private getDefaultRecordValues = 
@@ -37,7 +37,7 @@ let private getDefaultRecordValues =
     try   
         getDefaultRcVal typeof<ConnErrorCode> ConnErrorCode.Default 
     with
-    | ex -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna 
+    | ex -> failwith "Chyba v průběhu stahování JŘ DPO." //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna 
 
 //************************Submain functions************************************************************************
 
@@ -81,7 +81,7 @@ let internal filterTimetables pathToDir (message: Messages) =
                               let document = 
                                   let f = Ok <| FSharp.Data.HtmlDocument.Load(url)   
 
-                                  tryWith f ()          
+                                  tryWith f ()           
                                   |> function    
                                       | Ok value -> value
                                       | Error ex -> 
@@ -148,7 +148,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                            return errorType     
                 with                                                         
                 | ex -> 
-                        message.msgParam1 (string ex)      
+                        message.msgParam1 "Chyba v průběhu stahování JŘ DPO."//(string ex)      
                         Console.ReadKey() |> ignore 
                         client.Dispose()
                         System.Environment.Exit(1)                                                     
@@ -162,7 +162,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
         filterTimetables 
         |> List.iteri (fun i (link, pathToFile) ->  
                                                 async                                                
-                                                    {
+                                                    {   
                                                         progressBarContinuous message i l  //progressBarContinuous  
                                                         return! downloadFileTaskAsync client link pathToFile                                                                                                                               
                                                     } 

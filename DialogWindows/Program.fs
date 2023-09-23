@@ -17,7 +17,9 @@ let internal openFolderBrowserDialog() =
         | true  -> folderBrowserDialog.SelectedPath, false
         | false -> String.Empty, true         
     with
-    | ex -> (string ex), true
+    | ex -> 
+         //(string ex), true
+         "Chyba při pokusu o vybrání adresáře.", true
                
 
     

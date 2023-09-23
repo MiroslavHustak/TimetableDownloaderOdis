@@ -96,7 +96,8 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                      message.msgParam2 uri 
                                                      return()                                              
                     | ex                          -> 
-                                                     deconstructorError <| message.msgParam1 (string ex) <| client.Dispose() 
+                                                     //deconstructorError <| message.msgParam1 (string ex) <| client.Dispose() 
+                                                     deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JŘ DPO." <| client.Dispose()
                                                      return()                                
                 }  
     

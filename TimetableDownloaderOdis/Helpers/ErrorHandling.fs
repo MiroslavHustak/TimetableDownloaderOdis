@@ -44,7 +44,7 @@ module TryWithRF =
             finally
                 f1
         with
-        | ex -> Error (string ex)
+        | ex -> Error "Chyba v průběhu stahování JŘ DPO nebo JŘ MDPO nebo JŘ KODIS."//(string ex)
 
 module Option = 
 
@@ -121,7 +121,8 @@ module TryWith =
         function
         | Success x       -> x                                                   
         | Failure (ex, y) -> 
-                             deconstructorError <| printError (string ex) <| ()                             
+                             //deconstructorError <| printError (string ex) <| ()  
+                             deconstructorError <| printError "Chyba v některé fázi procesu programu pro stahování JŘ." <| ()  
                              y   
 
 module Parsing =

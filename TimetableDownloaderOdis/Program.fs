@@ -28,7 +28,7 @@ let main argv =
     let myWebscraping_DPO x =
         Console.Clear()
         printfn "Hromadné stahování aktuálních JŘ ODIS (včetně výluk) dopravce DP Ostrava z webu https://www.dpo.cz"
-        printfn "Datum poslední aktualizace SW: 23-08-2023"
+        printfn "Datum poslední aktualizace SW: 23-09-2023"
         printfn "********************************************************************"
         printfn "Nyní je třeba vybrat si adresář pro uložení JŘ dopravce DP Ostrava."
         printfn "Pokud ve vybraném adresáři existuje následující podadresář, jeho obsah bude nahrazen nově staženými JŘ."
@@ -65,7 +65,7 @@ let main argv =
     let myWebscraping_MDPO x = 
         Console.Clear()
         printfn "Hromadné stahování aktuálních JŘ ODIS dopravce MDP Opava z webu https://www.mdpo.cz"           
-        printfn "Datum poslední aktualizace SW: 23-08-2023" 
+        printfn "Datum poslední aktualizace SW: 23-09-2023" 
         printfn "********************************************************************"
         printfn "Nyní je třeba vybrat si adresář pro uložení JŘ dopravce MDP Opava."
         printfn "Pokud ve vybraném adresáři existuje následující podadresář, jeho obsah bude nahrazen nově staženými JŘ."
@@ -102,7 +102,7 @@ let main argv =
     let myWebscraping_KODIS x = 
         Console.Clear()
         printfn "Hromadné stahování JŘ ODIS všech dopravců v systému ODIS z webu https://www.kodis.cz"           
-        printfn "Datum poslední aktualizace SW: 23-08-2023" 
+        printfn "Datum poslední aktualizace SW: 23-09-2023" 
         printfn "********************************************************************"
         printfn "Nyní je třeba vybrat si adresář pro uložení JŘ všech dopravců v systému ODIS."
         printfn "Pokud ve vybraném adresáři existují následující podadresáře, jejich obsah bude nahrazen nově staženými JŘ."
@@ -137,10 +137,10 @@ let main argv =
         printfn "3 = Pouze aktuální výlukové JŘ, JŘ NAD a JŘ X linek (krátkodobé i dlouhodobé)."
         printfn "4 = JŘ teoreticky dlouhodobě platné bez jakýchkoliv (i dlouhodobých) výluk či NAD."
         printfn "%c" <| char(32) 
-        printfn "Jakákoliv jiná klávesa = KOMPLETNÍ stažení všech variant JŘ.\r"        
+        printfn "Jakákoliv jiná klávesa plus ENTER = KOMPLETNÍ stažení všech variant JŘ.\r"        
         printfn "%c" <| char(32) 
         printfn "%c" <| char(32) 
-        printfn "Stačí stisknout ENTER pro KOMPLETNÍ stažení všech variant JŘ."
+        printfn "Stačí stisknout pouze ENTER pro KOMPLETNÍ stažení všech variant JŘ."
            
         let variant = 
             Console.ReadLine()
@@ -156,7 +156,7 @@ let main argv =
         webscraping_KODIS (string pathToFolder) variant 
            
         printfn "%c" <| char(32)  
-        printfn "Údaje KODISu nemají konzistentní řetězec, proto mohlo dojít i ke stažení něčeho, co do daného výběru nepatří."
+        printfn "Z důvodu nekonzistentnosti odkazů na JŘ v JSON souborech KODISu může dojít i ke stažení něčeho, co do daného výběru nepatří."
         printfn "JŘ s chybějícími údaji o platnosti (např. NAD bez dalších údajů) nebyly staženy."
         printfn "JŘ s chybnými údaji o platnosti pravděpodobně nebyly staženy (záleží na druhu chyby)."
         printfn "%c" <| char(32)   

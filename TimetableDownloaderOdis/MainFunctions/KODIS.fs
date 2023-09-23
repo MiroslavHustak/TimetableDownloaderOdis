@@ -44,7 +44,7 @@ let internal environment: Environment =
         deleteAllODISDirectories = deleteAllODISDirectories
         createFolders = createFolders
         downloadAndSave = downloadAndSave       
-        client = client (lazy (Messages.Default.msgParam7 "Error4")) Messages.Default.msgParam1 
+        client = client (lazy (Messages.Default.msgParam7 "Chyba v průběhu stahování JŘ KODIS.")) Messages.Default.msgParam1 
     }    
 
 let internal webscraping_KODIS pathToDir (variantList: Validity list) = 

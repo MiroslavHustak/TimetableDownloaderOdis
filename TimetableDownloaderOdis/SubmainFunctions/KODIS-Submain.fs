@@ -41,7 +41,7 @@ let private getDefaultRcVal (t: Type) (r: ODIS) itemNo = //record -> Array //ope
        |> Array.map (fun (prop: PropertyInfo) -> 
                                               match Casting.castAs<string> <| prop.GetValue(r) with
                                               | Some value -> value
-                                              | None       -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX
+                                              | None       -> failwith "Chyba v průběhu stahování JŘ KODIS." //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX
                                                     (*
                                                         For educational purposes
                                                         match prop.GetValue(r) with
@@ -53,7 +53,7 @@ let private getDefaultRcVal (t: Type) (r: ODIS) itemNo = //record -> Array //ope
        |> List.take itemNo     
    
    with
-   | ex -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna    
+   | ex -> failwith "Chyba v průběhu stahování JŘ KODIS." //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna    
 
 let private splitList message list = 
 
@@ -92,7 +92,7 @@ let private getDefaultRecordValues =
     try   
         getDefaultRcVal typeof<ODIS> ODIS.Default 4 //jen prvni 4 polozky jsou pro celo-KODIS variantu
     with
-    | ex -> failwith "Error" //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna 
+    | ex -> failwith "Chyba v průběhu stahování JŘ KODIS." //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna 
  
 
 //************************Main code***********************************************************
@@ -197,7 +197,8 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
                                                      | false -> None                                               
                                                  with
                                                  | ex -> 
-                                                      deconstructorError <| message.msgParam7 (string ex) <| ()                                                                                                     
+                                                      //deconstructorError <| message.msgParam7 (string ex) <| () 
+                                                      deconstructorError <| message.msgParam7 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()    
                                                       None       
                                       ) |> List.ofArray
 
@@ -221,7 +222,8 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
                                                                return contentLength
                                                            with
                                                            | ex -> 
-                                                                   deconstructorError <| message.msgParam7 (string ex) <| ()                                                                                                     
+                                                                   //deconstructorError <| message.msgParam7 (string ex) <| () 
+                                                                   deconstructorError <| message.msgParam7 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| () 
                                                                    return None
                                                        } |> Async.RunSynchronously                                                               
                                                      
@@ -232,7 +234,8 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
                                                                return! client.GetStringAsync(link) |> Async.AwaitTask 
                                                            with
                                                            | ex -> 
-                                                                   deconstructorError <| message.msgParam1 (string ex) <| ()
+                                                                   //deconstructorError <| message.msgParam1 (string ex) <| ()
+                                                                   deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
                                                                    return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
                                                        } |> Async.RunSynchronously
                                                       
@@ -281,7 +284,8 @@ let internal downloadAndSaveJson message (client: Http.HttpClient) =
                                                   return! client.GetStringAsync(item) |> Async.AwaitTask 
                                               with
                                               | ex -> 
-                                                      deconstructorError <| message.msgParam1 (string ex) <| ()
+                                                      deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
+                                                      //deconstructorError <| message.msgParam1 (string ex) <| ()
                                                       return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
                                           } |> Async.RunSynchronously                        
                          )  
@@ -352,7 +356,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
             |> Array.collect (fun pathToJson ->
                                               let fn1 (value: JsonProvider<pathJson>.Attachment array) = 
                                                   value //Option je v errorStr 
-                                                  |> Array.Parallel.map (fun item -> errorStr item.Url "Error7")
+                                                  |> Array.Parallel.map (fun item -> errorStr item.Url "Chyba v průběhu stahování JSON souborů pro JŘ KODIS.")
 
                                               let fn2 (item: JsonProvider<pathJson>.Vyluky) =  //quli tomuto je nutno Array     
                                                   item.Attachments |> Option.ofObj        
@@ -695,7 +699,7 @@ let internal deleteAllODISDirectories message pathToDir  =
         //smazeme pouze adresare obsahujici stare JR, ostatni ponechame   
         let deleteIt = 
             dirInfo.EnumerateDirectories()
-            |> Option.toSrtp (lazy (message.msgParam7 "Error11g")) Seq.empty  
+            |> Option.toSrtp (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
             |> Array.ofSeq
             |> Array.filter (fun item -> (getDefaultRecordValues |> List.contains item.Name)) //prunik dvou kolekci (plus jeste Array.distinct pro unique items)
             |> Array.distinct 
@@ -723,10 +727,10 @@ let internal deleteOneODISDirectory message variant pathToDir =
     let myDeleteFunction x = //I  
 
         //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
-        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toSrtp (lazy (message.msgParam7 "Error8")) (new DirectoryInfo(pathToDir))        
+        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toSrtp (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) (new DirectoryInfo(pathToDir))        
        
         dirInfo.EnumerateDirectories()
-        |> Option.toSrtp (lazy (message.msgParam7 "Error11h")) Seq.empty  
+        |> Option.toSrtp (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
         |> Seq.filter (fun item -> item.Name = createDirName variant) 
         |> Seq.iter (fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce
                   
@@ -760,7 +764,8 @@ let internal downloadAndSaveTimetables (client: Http.HttpClient) message pathToD
                                                      message.msgParam2 uri 
                                                      return()                                              
                     | ex                          -> 
-                                                     deconstructorError <| message.msgParam1 (string ex) <| client.Dispose()
+                                                     //deconstructorError <| message.msgParam1 (string ex) <| client.Dispose()
+                                                     deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JŘ KODIS." <| client.Dispose()
                                                      return()                                
                 }     
 
