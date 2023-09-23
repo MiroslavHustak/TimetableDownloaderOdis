@@ -4,8 +4,8 @@ module PattternBuilders =
    
     let private (>>==) condition nextFunc = //(>>==) double ==
         match condition with
-        | false -> '0'
-        | true  -> nextFunc() 
+        | Ok nextFunc -> nextFunc() 
+        | Error err   -> err
     
     [<Struct>]
     type internal MyBuilderCC = MyBuilderCC with            

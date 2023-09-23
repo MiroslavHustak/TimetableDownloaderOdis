@@ -26,21 +26,47 @@ open ErrorHandling.TryWithRF
 
 let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =  //reflection nefunguje s type internal
     
- FSharpType.GetRecordFields(t) 
- |> Array.map (fun (prop: PropertyInfo) -> 
-                                         match Casting.castAs<string> <| prop.GetValue(r) with
-                                         | Some value -> value
-                                         | None       -> failwith "Chyba v průběhu stahování JŘ MDPO." 
-              ) |> List.ofArray   
-
+    let list = 
+        FSharpType.GetRecordFields(t) 
+        |> Array.map (fun (prop: PropertyInfo) -> 
+                                                match Casting.castAs<string> <| prop.GetValue(r) with
+                                                | Some value -> Ok value
+                                                | None       -> Error "Chyba v průběhu stahování JŘ MDPO." 
+                     ) |> List.ofArray 
+               
+    let isDummy = 
+        list |> List.map (fun item ->
+                                    match item with
+                                    | Ok value -> value
+                                    | Error _  -> "Dummy"
+                         ) |> String.Concat
+                           
+    match isDummy.Contains("Dummy") with
+    | true  -> 
+            let err = 
+                list 
+                |> List.map (fun item ->
+                                        match item with
+                                        | Ok _      -> String.Empty
+                                        | Error err -> err
+                            ) |> List.head //One exception or None is enough for the calculation to fail
+            Error err
+    | false ->
+            let okList = 
+                list 
+                |> List.map (fun item -> 
+                                        match item with
+                                        | Ok value -> value
+                                        | _        -> String.Empty 
+                            )   
+            Ok okList      
+            
 let private getDefaultRecordValues = 
 
     try   
-        failwith "Trhni si" 
         getDefaultRcVal typeof<ConnErrorCode> ConnErrorCode.Default 
     with
-    | ex -> failwith "Chyba v průběhu stahování JŘ MDPO." //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna 
-
+    | ex -> Error "Chyba v průběhu stahování JŘ MDPO." 
 
 //************************Submain functions************************************************************************
 
@@ -133,8 +159,16 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
     
     message.msgParam3 pathToDir 
     
-    let downloadTimetables client = 
+    let downloadTimetables (client: HttpClient) = 
+
         let l = filterTimetables |> List.length
+
+        let closeIt err = 
+            message.msgParam1 err      
+            Console.ReadKey() |> ignore 
+            client.Dispose()
+            System.Environment.Exit(1)  
+
         filterTimetables 
         |> List.iteri (fun i (link, pathToFile) ->             
                                                 async                                                
@@ -144,25 +178,23 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                     } 
                                                     |> Async.Catch
                                                     |> Async.RunSynchronously
-                                                    |> Result.ofChoice
-                                                    |> Result.toOption
+                                                    |> Result.ofChoice                                                    
                                                     |> function                                                 
-                                                        | Some value ->  
+                                                        | Ok value ->  
                                                                      match value with 
                                                                      | Ok value  -> ()
                                                                      | Error err -> 
                                                                                  getDefaultRecordValues
-                                                                                 |> List.tryFind (fun item -> err = item)
                                                                                  |> function
-                                                                                     | Some value ->                                                                                                 
-                                                                                                  message.msgParam1 value      
-                                                                                                  Console.ReadKey() |> ignore 
-                                                                                                  client.Dispose()
-                                                                                                  System.Environment.Exit(1)                                                                                                 
-                                                                                     | None       ->
-                                                                                                  message.msgParam2 link  
-                                                        | None       -> 
-                                                                     message.msgParam2 link               
+                                                                                     | Ok value ->
+                                                                                                 value
+                                                                                                 |> List.tryFind (fun item -> err = item)
+                                                                                                 |> function
+                                                                                                     | Some err -> closeIt err                                                                      
+                                                                                                     | None     -> message.msgParam2 link 
+                                                                                     | Error err ->
+                                                                                                  closeIt err                                                                                  
+                                                        | Error _  -> message.msgParam2 link                     
                       )    
 
     downloadTimetables client 
