@@ -34,32 +34,28 @@ let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =  //reflection nefungu
                                                 | None       -> Error "Chyba v průběhu stahování JŘ MDPO." 
                      ) |> List.ofArray 
                
-    let isDummy = 
-        list |> List.map (fun item ->
-                                    match item with
-                                    | Ok value -> value
-                                    | Error _  -> "Dummy"
-                         ) |> String.Concat
-                           
-    match isDummy.Contains("Dummy") with
-    | true  -> 
-            let err = 
-                list 
-                |> List.map (fun item ->
-                                        match item with
-                                        | Ok _      -> String.Empty
-                                        | Error err -> err
-                            ) |> List.head //One exception or None is enough for the calculation to fail
-            Error err
-    | false ->
-            let okList = 
-                list 
-                |> List.map (fun item -> 
-                                        match item with
-                                        | Ok value -> value
-                                        | _        -> String.Empty 
-                            )   
-            Ok okList      
+    list 
+    |> List.choose (fun item -> item |> Result.toOption)
+    |> List.length > 0
+    |> function   
+        | true  -> 
+                let err = 
+                    list 
+                    |> List.map (fun item ->
+                                           match item with
+                                           | Ok _      -> String.Empty
+                                           | Error err -> err
+                                ) |> List.head //One exception or None is enough for the calculation to fail
+                Error err
+        | false ->
+                let okList = 
+                    list 
+                    |> List.map (fun item -> 
+                                            match item with
+                                            | Ok value -> value
+                                            | _        -> String.Empty 
+                                )   
+                Ok okList      
             
 let private getDefaultRecordValues = 
 
