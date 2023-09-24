@@ -13,6 +13,41 @@ module Result =
         |> function   
             | Ok value -> Some value 
             | Error _  -> None  
+        
+    let internal sequence aListOfResults =
+
+        let prepend firstR restR =
+            match firstR, restR with
+            | Ok first, Ok rest   -> Ok (first::rest) | Error err1, Ok _ -> Error err1
+            | Ok _, Error err2    -> Error err2
+            | Error err1, Error _ -> Error err1
+
+        let initialValue = Ok [] 
+        List.foldBack prepend aListOfResults initialValue
+
+    let internal sequence1 aListOfResults =            
+        aListOfResults 
+        |> List.choose (fun item -> item |> Result.toOption)
+        |> List.length
+        |> function   
+            | 0 -> 
+                let err = 
+                    aListOfResults 
+                    |> List.map (fun item ->
+                                          match item with
+                                          | Ok _      -> String.Empty
+                                          | Error err -> err
+                                ) |> List.head //One exception or None is enough for the calculation to fail
+                Error err
+            | _ ->
+                let okList = 
+                    aListOfResults 
+                    |> List.map (fun item -> 
+                                          match item with
+                                          | Ok value -> value
+                                          | _        -> String.Empty 
+                                )   
+                Ok okList 
 
 module TryWithRF =
 
@@ -122,7 +157,7 @@ module TryWith =
         | Success x       -> x                                                   
         | Failure (ex, y) -> 
                              //deconstructorError <| printError (string ex) <| ()  
-                             deconstructorError <| printError "Chyba v některé fázi procesu programu pro stahování JŘ." <| ()  
+                             deconstructorError <| printError "Chyba v některé fázi procesu programu pro stahování JŘ. Ověř, zdali nepoužíváš adresáře, které se odstraňují či do kterých se zapisuje, například zdali nemáš otevřený některý JŘ v dotčených adresářích. " <| ()  
                              y   
 
 module Parsing =

@@ -26,36 +26,12 @@ open ErrorHandling.TryWithRF
 
 let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =  //reflection nefunguje s type internal
     
-    let list = 
-        FSharpType.GetRecordFields(t) 
-        |> Array.map (fun (prop: PropertyInfo) -> 
-                                                match Casting.castAs<string> <| prop.GetValue(r) with
-                                                | Some value -> Ok value
-                                                | None       -> Error "Chyba v průběhu stahování JŘ MDPO." 
-                     ) |> List.ofArray 
-               
-    list 
-    |> List.choose (fun item -> item |> Result.toOption)
-    |> List.length > 0
-    |> function   
-        | true  -> 
-                let err = 
-                    list 
-                    |> List.map (fun item ->
-                                           match item with
-                                           | Ok _      -> String.Empty
-                                           | Error err -> err
-                                ) |> List.head //One exception or None is enough for the calculation to fail
-                Error err
-        | false ->
-                let okList = 
-                    list 
-                    |> List.map (fun item -> 
-                                            match item with
-                                            | Ok value -> value
-                                            | _        -> String.Empty 
-                                )   
-                Ok okList      
+    FSharpType.GetRecordFields(t) 
+    |> Array.map (fun (prop: PropertyInfo) -> 
+                                            match Casting.castAs<string> <| prop.GetValue(r) with
+                                            | Some value -> Ok value
+                                            | None       -> Error "Chyba v průběhu stahování JŘ MDPO." 
+                    ) |> List.ofArray |> Result.sequence          
             
 let private getDefaultRecordValues = 
 
@@ -177,19 +153,20 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                     |> Result.ofChoice                                                    
                                                     |> function                                                 
                                                         | Ok value ->  
-                                                                     match value with 
-                                                                     | Ok value  -> ()
-                                                                     | Error err -> 
-                                                                                 getDefaultRecordValues
-                                                                                 |> function
-                                                                                     | Ok value ->
-                                                                                                 value
-                                                                                                 |> List.tryFind (fun item -> err = item)
-                                                                                                 |> function
-                                                                                                     | Some err -> closeIt err                                                                      
-                                                                                                     | None     -> message.msgParam2 link 
-                                                                                     | Error err ->
-                                                                                                  closeIt err                                                                                  
+                                                                     value 
+                                                                     |> function
+                                                                         | Ok value  -> ()
+                                                                         | Error err -> 
+                                                                                     getDefaultRecordValues
+                                                                                     |> function
+                                                                                         | Ok value ->
+                                                                                                     value
+                                                                                                     |> List.tryFind (fun item -> err = item)
+                                                                                                     |> function
+                                                                                                         | Some err -> closeIt err                                                                      
+                                                                                                         | None     -> message.msgParam2 link 
+                                                                                         | Error err ->
+                                                                                                      closeIt err                                                                                  
                                                         | Error _  -> message.msgParam2 link                     
                       )    
 
