@@ -31,7 +31,7 @@ let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =  //reflection nefungu
                                             match Casting.castAs<string> <| prop.GetValue(r) with
                                             | Some value -> Ok value
                                             | None       -> Error "Chyba v průběhu stahování JŘ DPO." 
-                    ) |> List.ofArray |> Result.sequence   
+                 ) |> List.ofArray |> Result.sequence   
     
 let private getDefaultRecordValues = 
 

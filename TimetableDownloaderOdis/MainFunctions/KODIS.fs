@@ -61,27 +61,33 @@ let internal webscraping_KODIS pathToDir (variantList: Validity list) =
                                                  tryWith processStartTime (fun x -> ()) () String.Empty ()
                                                  |> deconstructor message.msgParam1
 
-        | DownloadAndSaveJson                 -> downloadAndSaveJson message environment.client  
+        | DownloadAndSaveJson                 -> downloadAndSaveJson message environment.client  //try with included
             
         | DownloadSelectedVariant variantList -> 
-                                                 match variantList |> List.length with
-                                                 //SingleVariantDownload
-                                                 | 1 -> 
-                                                        let variant = variantList |> List.head
-                                                        environment.deleteOneODISDirectory message variant pathToDir                                                        
-                                                        let dirList = createOneNewDirectory  //list -> aby bylo mozno pouzit funkci createFolders bez uprav  
-                                                                      <| pathToDir 
-                                                                      <| createDirName variant 
-                                                        environment.createFolders message dirList
-                                                        environment.downloadAndSave message variant (dirList |> List.head) environment.client 
+                                                 let downloadSelectedVariant x = 
+                                                     match variantList |> List.length with
+                                                     //SingleVariantDownload
+                                                     | 1 -> 
+                                                            let variant = variantList |> List.head
+                                                            environment.deleteOneODISDirectory message variant pathToDir                                                        
+                                                            let dirList = createOneNewDirectory  //list -> aby bylo mozno pouzit funkci createFolders bez uprav  
+                                                                          <| pathToDir 
+                                                                          <| createDirName variant 
+                                                            environment.createFolders message dirList
+                                                            environment.downloadAndSave message variant (dirList |> List.head) environment.client 
 
-                                                 //BulkVariantDownload       
-                                                 | _ ->  
-                                                        environment.deleteAllODISDirectories message pathToDir
-                                                        let dirList = createNewDirectories pathToDir
-                                                        environment.createFolders message dirList
-                                                        (variantList, dirList)
-                                                        ||> List.iter2 (fun variant dir -> environment.downloadAndSave message variant dir environment.client)                      
+                                                     //BulkVariantDownload       
+                                                     | _ ->  
+                                                            environment.deleteAllODISDirectories message pathToDir
+                                                            let dirList = createNewDirectories pathToDir
+                                                            environment.createFolders message dirList
+                                                            (variantList, dirList)
+                                                            ||> List.iter2 (fun variant dir -> environment.downloadAndSave message variant dir environment.client)         
+                                                 
+                                                 tryWith downloadSelectedVariant (fun x -> ()) () String.Empty ()
+                                                 |> deconstructor message.msgParam1  
+                                                 
+                                                 environment.client.Dispose()
            
         | EndProcess                         -> 
                                                 let processEndTime x =    
@@ -93,9 +99,7 @@ let internal webscraping_KODIS pathToDir (variantList: Validity list) =
     stateReducer State.Default Messages.Default StartProcess environment
     stateReducer State.Default Messages.Default DownloadAndSaveJson environment
     stateReducer State.Default Messages.Default (DownloadSelectedVariant variantList) environment
-    stateReducer State.Default Messages.Default EndProcess environment
-    
-    environment.client.Dispose()
+    stateReducer State.Default Messages.Default EndProcess environment   
     
     //*****************************************************************************************************************************************
 

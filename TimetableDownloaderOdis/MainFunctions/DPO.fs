@@ -86,14 +86,19 @@ let internal webscraping_DPO pathToDir =
 
         | FilterDownloadSave     -> 
                                     //filtering timetable links, downloading and saving timetables in the pdf format 
-                                    let pathToSubdir = dirList pathToDir |> List.head    
-                                    match pathToSubdir |> Directory.Exists with 
-                                    | false ->                                              
-                                               message.msgParam5 pathToSubdir   
-                                               message.msg1()                                                
-                                    | true  -> 
-                                               environment.filterTimetables pathToSubdir message
-                                               |> environment.downloadAndSaveTimetables environment.client message pathToSubdir   
+                                    let filterDownloadSave x = 
+                                        let pathToSubdir = dirList pathToDir |> List.head    
+                                        match pathToSubdir |> Directory.Exists with 
+                                        | false ->                                              
+                                                   message.msgParam5 pathToSubdir   
+                                                   message.msg1()                                                
+                                        | true  -> 
+                                                   environment.filterTimetables pathToSubdir message
+                                                   |> environment.downloadAndSaveTimetables environment.client message pathToSubdir   
+                                    tryWith filterDownloadSave (fun x -> ()) () String.Empty ()
+                                    |> deconstructor message.msgParam1
+                                    
+                                    environment.client.Dispose()
                                                
         | EndProcess             -> 
                                     let processEndTime x =    
