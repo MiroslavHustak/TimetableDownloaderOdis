@@ -130,7 +130,9 @@ let private jsonLinkList =
         sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=12&group_in%5B0%5D=S1-S34&group_in%5B1%5D=R8-R61&_sort=numeric_label"
         sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=0&group_in%5B0%5D=S1-S34&_sort=numeric_label"
         sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=0&group_in%5B0%5D=R8-R61&_sort=numeric_label"   
-        sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=0&group_in%5B0%5D=NAD&_sort=numeric_label"     
+        sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=0&group_in%5B0%5D=NAD&_sort=numeric_label"  
+        //https://kodis.cz/_next/data/hFUYZ3iUXPc_8qFuWn0fd/cs/changes/1099.json
+        //https://kodis.cz/_next/data/hFUYZ3iUXPc_8qFuWn0fd/cs/changes/1097.json
     ]
 
 let private pathToJsonList = 
@@ -384,15 +386,35 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
                                                                   [||]                                 
                              ) 
         
-        tryWith myFunction (fun x -> ()) () String.Empty [||] |> deconstructor message.msgParam1          
+        tryWith myFunction (fun x -> ()) () String.Empty [||] |> deconstructor message.msgParam1   
+    
+    //tohle KODIS strcil do uplne jinak strukturovaneho jsonu, tudiz nelze pouzit type provider
+    let addOn () = 
+        [
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/103_2023_09_29_2023_12_09_v_e3138db228.pdf"
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/109_2023_09_29_2023_12_09_v_fa6bbc27af.pdf"               
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/104_2023_09_29_2023_12_09_v_9ff8509043.pdf"               
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/105_2023_09_29_2023_12_09_v_9b07e8fb07.pdf"               
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/106_2023_09_29_2023_12_09_v_2c9256181b.pdf"
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/108_2023_09_29_2023_12_09_v_a00cf598fe.pdf"               
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/107_2023_09_29_2023_12_09_v_1782ef85e3.pdf"               
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/112_2023_09_29_2023_12_09_v_e0b9aa448a.pdf"
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/111_2023_09_29_2023_12_09_v_ca937c87b1.pdf"               
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/101_2023_09_29_2023_12_09_v_176b2431f7.pdf"
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/113_2023_09_29_2023_12_09_v_bb0eb7a26f.pdf"
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/102_2023_09_29_2023_12_09_v_228cdabde4.pdf"
+        ] |> List.toArray 
 
-    (Array.append <| kodisAttachments() <| kodisTimetables()) |> Set.ofArray //jen z vyukovych duvodu -> konverzi na Set vyhodime stejne polozky, jinak staci jen |> Array.distinct 
+    (Array.append (Array.append <| kodisAttachments() <| kodisTimetables()) <| addOn()) |> Set.ofArray //jen z vyukovych duvodu -> konverzi na Set vyhodime stejne polozky, jinak staci jen |> Array.distinct 
     //kodisAttachments() |> Set.ofArray //over cas od casu
     //kodisTimetables() |> Set.ofArray //over cas od casu
 
 let internal filterTimetables message param pathToDir diggingResult  = 
 
     //****************prvni filtrace odkazu na neplatne jizdni rady***********************   
+
+   
+       
     
     let myList = 
         let myFunction x =            
