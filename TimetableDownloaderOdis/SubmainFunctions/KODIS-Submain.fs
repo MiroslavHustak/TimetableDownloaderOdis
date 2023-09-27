@@ -411,10 +411,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
 
 let internal filterTimetables message param pathToDir diggingResult  = 
 
-    //****************prvni filtrace odkazu na neplatne jizdni rady***********************   
-
-   
-       
+    //****************prvni filtrace odkazu na neplatne jizdni rady***********************        
     
     let myList = 
         let myFunction x =            
