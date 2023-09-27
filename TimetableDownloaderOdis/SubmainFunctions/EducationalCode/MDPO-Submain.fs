@@ -20,7 +20,7 @@ open ErrorHandling.TryWith
 
 let internal client printToConsole1 printToConsole2 =  
 
-    let myClient x = new System.Net.Http.HttpClient() |> (Option.toSrtp <| printToConsole1 <| (new System.Net.Http.HttpClient()))    
+    let myClient x = new System.Net.Http.HttpClient() |> (Option.toGenerics <| printToConsole1 <| (new System.Net.Http.HttpClient()))    
     tryWith myClient (fun x -> ()) () String.Empty (new System.Net.Http.HttpClient()) |> deconstructor printToConsole2
 
 let internal filterTimetables pathToDir message =   

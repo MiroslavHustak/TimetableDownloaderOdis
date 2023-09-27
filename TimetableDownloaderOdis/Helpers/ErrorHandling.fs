@@ -116,14 +116,14 @@ module Option =
     with generic functions.
     *)
 
-    let inline internal toSrtp (printError: Lazy<unit>) (srtp: ^a) value = 
+    let inline internal toGenerics (printError: Lazy<unit>) (gen: 'a) value = 
         value
         |> Option.ofObj 
         |> function 
             | Some value -> value
             | None       -> 
                             printError.Force() 
-                            srtp  
+                            gen  
                             
 module Casting = 
     

@@ -27,10 +27,10 @@ open ErrorHandling
         let private processFile source destination message action =
             let sourceFilepath =
                 Path.GetFullPath(source)
-                |> Option.toSrtp (lazy (message.msgParam7 "Chyba při čtení cesty k souboru")) String.Empty 
+                |> Option.toGenerics (lazy (message.msgParam7 "Chyba při čtení cesty k souboru")) String.Empty 
             let destinFilepath =
                 Path.GetFullPath(destination) 
-                |> Option.toSrtp (lazy (message.msgParam7 "Chyba při čtení cesty k souboru")) String.Empty                 
+                |> Option.toGenerics (lazy (message.msgParam7 "Chyba při čtení cesty k souboru")) String.Empty                 
             let fInfodat: FileInfo = new FileInfo(sourceFilepath)  
             match fInfodat.Exists with 
             | true  -> action sourceFilepath destinFilepath

@@ -173,7 +173,7 @@ let private pathToJsonList =
 
 let internal client printToConsole1 printToConsole2 =  
 
-    let myClient x = new System.Net.Http.HttpClient() |> (Option.toSrtp <| printToConsole1 <| (new System.Net.Http.HttpClient()))    
+    let myClient x = new System.Net.Http.HttpClient() |> (Option.toGenerics <| printToConsole1 <| (new System.Net.Http.HttpClient()))    
     tryWith myClient (fun x -> ()) () String.Empty (new System.Net.Http.HttpClient()) |> deconstructor printToConsole2
 
 let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechano z vyukovych duvodu 
@@ -351,7 +351,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
 
         let myFunction x = 
             
-            let errorStr str err = str |> (Option.toSrtp <| lazy (message.msgParam7 err) <| String.Empty) 
+            let errorStr str err = str |> (Option.toGenerics <| lazy (message.msgParam7 err) <| String.Empty) 
 
             pathToJsonList
             |> Array.ofList 
@@ -713,12 +713,12 @@ let internal deleteAllODISDirectories message pathToDir  =
     let myDeleteFunction x =   
 
         //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
-        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toSrtp (lazy (message.msgParam7 "Error8")) (new DirectoryInfo(pathToDir))             
+        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toGenerics (lazy (message.msgParam7 "Error8")) (new DirectoryInfo(pathToDir))             
        
         //smazeme pouze adresare obsahujici stare JR, ostatni ponechame   
         let deleteIt = 
             dirInfo.EnumerateDirectories()
-            |> Option.toSrtp (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
+            |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
             |> Array.ofSeq
             |> Array.filter (fun item -> (getDefaultRecordValues |> List.contains item.Name)) //prunik dvou kolekci (plus jeste Array.distinct pro unique items)
             |> Array.distinct 
@@ -746,10 +746,10 @@ let internal deleteOneODISDirectory message variant pathToDir =
     let myDeleteFunction x = //I  
 
         //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
-        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toSrtp (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) (new DirectoryInfo(pathToDir))        
+        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) (new DirectoryInfo(pathToDir))        
        
         dirInfo.EnumerateDirectories()
-        |> Option.toSrtp (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
+        |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
         |> Seq.filter (fun item -> item.Name = createDirName variant) 
         |> Seq.iter (fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce
                   

@@ -16,10 +16,10 @@ let inline private updateProgressBar (message: Messages) (currentProgress : int)
     let myFunction x = 
 
         let bytes = //437 je tzv. Extended ASCII  
-            System.Text.Encoding.GetEncoding(437).GetBytes("█") |> Option.toSrtp (lazy (message.msgParam7 "Indikátor průběhu má problém, který ale neovlivní stahování JŘ.")) [||] 
+            System.Text.Encoding.GetEncoding(437).GetBytes("█") |> Option.toGenerics (lazy (message.msgParam7 "Indikátor průběhu má problém, který ale neovlivní stahování JŘ.")) [||] 
                    
         let output =
-            System.Text.Encoding.GetEncoding(852).GetChars(bytes) |> Option.toSrtp (lazy (message.msgParam7 "Indikátor průběhu má problém, který ale neovlivní stahování JŘ.")) [||]   
+            System.Text.Encoding.GetEncoding(852).GetChars(bytes) |> Option.toGenerics (lazy (message.msgParam7 "Indikátor průběhu má problém, který ale neovlivní stahování JŘ.")) [||]   
         
         let progressBar = 
             let barWidth = 50 //nastavit delku dle potreby            
@@ -27,8 +27,8 @@ let inline private updateProgressBar (message: Messages) (currentProgress : int)
             let barFill = (/) ((*) currentProgress barWidth) totalProgress // :-)  
                
             let characterToFill = string (Array.item 0 output) //moze byt baj "#"
-            let bar = String.replicate barFill characterToFill |> Option.toSrtp (lazy (message.msgParam7 "Indikátor průběhu má problém, který ale neovlivní stahování JŘ.")) String.Empty 
-            let remaining = String.replicate (barWidth - (++) barFill) "*" |> Option.toSrtp (lazy (message.msgParam7 "Indikátor průběhu má problém, který ale neovlivní stahování JŘ.")) String.Empty // :-)
+            let bar = String.replicate barFill characterToFill |> Option.toGenerics (lazy (message.msgParam7 "Indikátor průběhu má problém, který ale neovlivní stahování JŘ.")) String.Empty 
+            let remaining = String.replicate (barWidth - (++) barFill) "*" |> Option.toGenerics (lazy (message.msgParam7 "Indikátor průběhu má problém, který ale neovlivní stahování JŘ.")) String.Empty // :-)
               
             sprintf "<%s%s> %d%%" bar remaining percentComplete 
 
