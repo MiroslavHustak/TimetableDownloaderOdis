@@ -387,8 +387,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
                              ) 
         
         tryWith myFunction (fun x -> ()) () String.Empty [||] |> deconstructor message.msgParam1   
-    
-    
+        
     let addOn () = 
         [
             //pro pripad, kdy KODIS strci odkazy do uplne jinak strukturovaneho jsonu, tudiz nelze pouzit dany type provider
