@@ -220,9 +220,9 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
                                                                return contentLength
                                                            with
                                                            | ex -> 
-                                                                   //deconstructorError <| message.msgParam7 (string ex) <| () 
-                                                                   deconstructorError <| message.msgParam7 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| () 
-                                                                   return None
+                                                                 //deconstructorError <| message.msgParam7 (string ex) <| () 
+                                                                 deconstructorError <| message.msgParam7 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| () 
+                                                                 return None
                                                        } |> Async.RunSynchronously                                                               
                                                      
                                                let download() = 
@@ -232,9 +232,9 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
                                                                return! client.GetStringAsync(link) |> Async.AwaitTask 
                                                            with
                                                            | ex -> 
-                                                                   //deconstructorError <| message.msgParam1 (string ex) <| ()
-                                                                   deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
-                                                                   return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
+                                                                 //deconstructorError <| message.msgParam1 (string ex) <| ()
+                                                                 deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
+                                                                 return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
                                                        } |> Async.RunSynchronously
                                                       
                                                match length, webJsonLength link with
@@ -282,9 +282,9 @@ let internal downloadAndSaveJson message (client: Http.HttpClient) =
                                                   return! client.GetStringAsync(item) |> Async.AwaitTask 
                                               with
                                               | ex -> 
-                                                      deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
-                                                      //deconstructorError <| message.msgParam1 (string ex) <| ()
-                                                      return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
+                                                    deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
+                                                    //deconstructorError <| message.msgParam1 (string ex) <| ()
+                                                    return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
                                           } |> Async.RunSynchronously                        
                          )  
 
@@ -593,6 +593,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                                    result x
                                                    
                                   ) |> Array.toList |> List.distinct 
+
         //tryWith myFunction (fun x -> ()) () 0 [] |> deconstructor message.msgParam1
         tryWith myFunction (fun x -> ()) () String.Empty [] |> deconstructor message.msgParam1
     

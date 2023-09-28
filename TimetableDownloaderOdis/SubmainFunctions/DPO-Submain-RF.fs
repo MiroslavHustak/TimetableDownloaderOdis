@@ -5,7 +5,6 @@ open System.IO
 open System.Net
 open System.Net.Http
 open System.Reflection
-open System.Net.NetworkInformation
 
 open FSharp.Data
 open FsToolkit.ErrorHandling
@@ -16,11 +15,11 @@ open ProgressBarFSharp
 open Messages.Messages
 //open Messages.MessagesMocking
 
-open PatternBuilders.PattternBuilders
 open ErrorTypes.ErrorTypes
 
 open ErrorHandling
 open ErrorHandling.TryWithRF
+
 
 //************************Submain helpers**************************************************************************
 
@@ -167,7 +166,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
             Console.ReadKey() |> ignore 
             client.Dispose()
             System.Environment.Exit(1)  
-
+       
         filterTimetables 
         |> List.iteri (fun i (link, pathToFile) ->  
                                                 async                                                
@@ -186,19 +185,19 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                                          | Error err -> 
                                                                                      getDefaultRecordValues
                                                                                      |> function
-                                                                                         | Ok value ->
+                                                                                         | Ok value  ->
                                                                                                      value
                                                                                                      |> List.tryFind (fun item -> "" = item)
                                                                                                      |> function
                                                                                                          | Some err -> closeIt err                                                                      
                                                                                                          | None     -> message.msgParam2 link 
                                                                                          | Error err ->
-                                                                                                      closeIt err                                                                                  
+                                                                                                     closeIt err                                                                                  
                                                         | Error _  -> message.msgParam2 link                              
-                      )    
+                      ) 
 
-    downloadTimetables client 
-    
+    downloadTimetables client     
+   
     message.msgParam4 pathToDir
 
 

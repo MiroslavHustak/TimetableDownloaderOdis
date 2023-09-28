@@ -3,13 +3,13 @@
 module PattternBuilders =
    
     let private (>>==) condition nextFunc = //(>>==) double ==
-        match condition with
-        | Ok nextFunc -> nextFunc() 
-        | Error err   -> err
+        match fst condition with
+        | Ok nextFunc -> Ok <| nextFunc() 
+        | Error err   -> Error (snd condition)
     
     [<Struct>]
     type internal MyBuilderCC = MyBuilderCC with            
-        member _.Bind(condition, nextFunc) = (>>==) <| condition <| nextFunc 
+        member _.Bind(condition, nextFunc) = (>>==) condition nextFunc 
         member _.Return x = x  
     
     let private (>>=) condition nextFunc =
