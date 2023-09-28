@@ -4,7 +4,6 @@ open System
 open System.IO
 open System.Net
 open System.Reflection
-open System.Security.Cryptography
 open System.Text.RegularExpressions
 
 open Fugit
@@ -12,7 +11,6 @@ open FSharp.Data
 open FsToolkit.ErrorHandling
 open Microsoft.FSharp.Reflection
 
-open Helpers
 open SettingsKODIS
 open Messages.Messages
 open ProgressBarFSharp
@@ -23,8 +21,6 @@ open PatternBuilders.PattternBuilders
 open ErrorHandling
 open ErrorHandling.TryWith
 open ErrorHandling.Parsing
-
-//TODO pojmenovat Errors atd. nejak lepe  :-)
 
 type internal KodisTimetables = JsonProvider<pathJson> 
 
@@ -178,7 +174,7 @@ let internal client printToConsole1 printToConsole2 =
 
 let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechano z vyukovych duvodu 
 
-    //nepouzito, zjistovani delky json souboru trva tady stejne dlouho, jako jejich stazeni  
+    //nepouzito, zjistovani delky json souboru trva tady stejne dluho, jako jejich stazeni  
     //v pripade stahovani velkych souboru by uz mohl byt zjevny rozdil, tra vyzkusat    
     
     let updateJson x =          
