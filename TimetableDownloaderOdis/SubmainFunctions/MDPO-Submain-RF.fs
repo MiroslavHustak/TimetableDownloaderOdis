@@ -123,7 +123,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                            return errorType     
                 with                                                         
                 | ex -> 
-                        closeIt client message "Chyba v průběhu stahování JŘ MDPO."//(string ex)                                                 
+                        closeIt client message "Chyba v průběhu stahování JŘ, v případě MDPO se to někdy stává. Zkus to za chvíli znovu."//(string ex)                                                 
                         return Error String.Empty    
             }   
     
