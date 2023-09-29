@@ -157,14 +157,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
     let downloadTimetables (client: HttpClient) = 
        
         let l = filterTimetables |> List.length
-        (*
-        let closeIt err = 
-            message.msgParam1 err      
-            Console.ReadKey() |> ignore 
-            client.Dispose()
-            System.Environment.Exit(1)  
-       *)
-
+       
         filterTimetables 
         |> List.iteri (fun i (link, pathToFile) ->  
                                                 async                                                
