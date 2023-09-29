@@ -18,8 +18,8 @@ open Messages.Messages
 open ErrorTypes.ErrorTypes
 
 open ErrorHandling
+open ErrorHandling.TryWith
 open ErrorHandling.TryWithRF
-
 
 //************************Submain helpers**************************************************************************
 
@@ -147,11 +147,8 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                | _                                  -> Error "418 I'm a teapot. Look for a coffee maker elsewhere."                                                                               
                                            return errorType     
                 with                                                         
-                | ex -> 
-                        message.msgParam1 "Chyba v průběhu stahování JŘ DPO."//(string ex)      
-                        Console.ReadKey() |> ignore 
-                        client.Dispose()
-                        System.Environment.Exit(1)                                                     
+                | ex ->                        
+                        closeIt client message "Chyba v průběhu stahování JŘ DPO."//(string ex) 
                         return Error String.Empty    
             }   
     
@@ -160,13 +157,14 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
     let downloadTimetables (client: HttpClient) = 
        
         let l = filterTimetables |> List.length
-        
+        (*
         let closeIt err = 
             message.msgParam1 err      
             Console.ReadKey() |> ignore 
             client.Dispose()
             System.Environment.Exit(1)  
-       
+       *)
+
         filterTimetables 
         |> List.iteri (fun i (link, pathToFile) ->  
                                                 async                                                
@@ -189,10 +187,10 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                                                                      value
                                                                                                      |> List.tryFind (fun item -> "" = item)
                                                                                                      |> function
-                                                                                                         | Some err -> closeIt err                                                                      
+                                                                                                         | Some err -> closeIt client message err                                                                      
                                                                                                          | None     -> message.msgParam2 link 
                                                                                          | Error err ->
-                                                                                                     closeIt err                                                                                  
+                                                                                                     closeIt client message err                                                                                   
                                                         | Error _  -> message.msgParam2 link                              
                       ) 
 

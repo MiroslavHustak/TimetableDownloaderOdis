@@ -5,6 +5,9 @@ open System.IO
 
 open Parsing
 open DiscriminatedUnions
+
+open Messages.Messages
+open System.Net.Http
             
 module Result = 
                    
@@ -159,6 +162,12 @@ module TryWith =
                              //deconstructorError <| printError (string ex) <| ()  
                              deconstructorError <| printError "Chyba v některé fázi procesu programu pro stahování JŘ. Ověř, zdali nepoužíváš adresáře, které se odstraňují či do kterých se zapisuje, například zdali nemáš otevřený některý JŘ v dotčených adresářích. " <| ()  
                              y   
+
+    let internal closeIt (client: HttpClient) (message: Messages) err = 
+        message.msgParam1 err      
+        Console.ReadKey() |> ignore 
+        client.Dispose()
+        System.Environment.Exit(1)  
 
 module Parsing =
        

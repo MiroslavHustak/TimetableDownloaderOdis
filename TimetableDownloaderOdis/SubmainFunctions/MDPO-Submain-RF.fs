@@ -19,6 +19,7 @@ open Messages.Messages
 open ErrorTypes.ErrorTypes
 
 open ErrorHandling
+open ErrorHandling.TryWith
 open ErrorHandling.TryWithRF
 
 
@@ -122,10 +123,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                            return errorType     
                 with                                                         
                 | ex -> 
-                        message.msgParam1 "Chyba v průběhu stahování JŘ MDPO."//(string ex)      
-                        Console.ReadKey() |> ignore 
-                        client.Dispose()
-                        System.Environment.Exit(1)                                                     
+                        closeIt client message "Chyba v průběhu stahování JŘ MDPO."//(string ex)                                                 
                         return Error String.Empty    
             }   
     
@@ -134,12 +132,6 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
     let downloadTimetables (client: HttpClient) = 
 
         let l = filterTimetables |> List.length
-
-        let closeIt err = 
-            message.msgParam1 err      
-            Console.ReadKey() |> ignore 
-            client.Dispose()
-            System.Environment.Exit(1)  
 
         filterTimetables 
         |> List.iteri (fun i (link, pathToFile) ->             
@@ -163,10 +155,10 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                                                                      value
                                                                                                      |> List.tryFind (fun item -> err = item)
                                                                                                      |> function
-                                                                                                         | Some err -> closeIt err                                                                      
+                                                                                                         | Some err -> closeIt client message err                                                                      
                                                                                                          | None     -> message.msgParam2 link 
                                                                                          | Error err ->
-                                                                                                      closeIt err                                                                                  
+                                                                                                      closeIt client message err                                                                                  
                                                         | Error _  -> message.msgParam2 link                     
                       )    
 
