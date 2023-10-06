@@ -190,5 +190,3 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
     downloadTimetables client     
    
     message.msgParam4 pathToDir
-
-

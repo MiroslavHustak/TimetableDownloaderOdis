@@ -31,7 +31,7 @@ let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =  //reflection nefungu
     |> Array.map (fun (prop: PropertyInfo) -> 
                                             match Casting.castAs<string> <| prop.GetValue(r) with
                                             | Some value -> Ok value
-                                            | None       -> Error "Chyba v průběhu stahování JŘ MDPO." 
+                                            | None       -> Error "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu." 
                  ) |> List.ofArray |> Result.sequence          
             
 let private getDefaultRecordValues = 
@@ -39,7 +39,7 @@ let private getDefaultRecordValues =
     try   
         getDefaultRcVal typeof<ConnErrorCode> ConnErrorCode.Default 
     with
-    | ex -> Error "Chyba v průběhu stahování JŘ MDPO." 
+    | ex -> Error "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu." 
 
 //************************Submain functions************************************************************************
 
@@ -123,7 +123,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                            return errorType     
                 with                                                         
                 | ex -> 
-                        closeIt client message "Chyba v průběhu stahování JŘ, u MDPO se to někdy stává. Zkus to za chvíli znovu."//(string ex)                                                 
+                        closeIt client message "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu."//(string ex)                                                 
                         return Error String.Empty    
             }   
     
@@ -165,7 +165,3 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
     downloadTimetables client 
     
     message.msgParam4 pathToDir
-
-
-
-

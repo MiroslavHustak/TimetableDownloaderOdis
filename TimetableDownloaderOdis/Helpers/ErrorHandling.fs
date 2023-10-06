@@ -17,7 +17,7 @@ module Result =
             | Ok value -> Some value 
             | Error _  -> None  
         
-    let internal sequence aListOfResults =
+    let internal sequence aListOfResults = //gets the first error - see the book Domain Modelling Made Functional
 
         let prepend firstR restR =
             match firstR, restR with
