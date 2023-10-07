@@ -49,7 +49,7 @@ let internal client (printToConsole1 : Lazy<unit>) (printToConsole2: string -> u
     //doSomethingWithResult
     tryWithLazy printToConsole2 (optionToResultPrint f printToConsole1) ()           
     |> function    
-        | Ok value  -> value
+        | Ok value  -> value 
         | Error err -> 
                        err.Force()
                        new System.Net.Http.HttpClient()  
