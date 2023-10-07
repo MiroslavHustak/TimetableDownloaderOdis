@@ -28,11 +28,12 @@ open ErrorHandling.TryWithRF
 let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =  //reflection nefunguje s type internal
     
     FSharpType.GetRecordFields(t) 
-    |> Array.map (fun (prop: PropertyInfo) -> 
-                                            match Casting.castAs<string> <| prop.GetValue(r) with
-                                            | Some value -> Ok value
-                                            | None       -> Error "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu." 
-                 ) |> List.ofArray |> Result.sequence          
+    |> Array.map 
+        (fun (prop: PropertyInfo) -> 
+                                    match Casting.castAs<string> <| prop.GetValue(r) with
+                                    | Some value -> Ok value
+                                    | None       -> Error "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu." 
+        ) |> List.ofArray |> Result.sequence          
             
 let private getDefaultRecordValues = 
 
@@ -62,36 +63,37 @@ let internal filterTimetables pathToDir (message: Messages) =
         ]
     
     urlList
-    |> List.collect (fun url -> 
-                              let document = 
-                                  let f = Ok <| FSharp.Data.HtmlDocument.Load(url)   
+    |> List.collect 
+        (fun url -> 
+                  let document = 
+                      let f = Ok <| FSharp.Data.HtmlDocument.Load(url)   
 
-                                  tryWith f ()          
-                                  |> function    
-                                      | Ok value -> value
-                                      | Error ex -> 
-                                                    message.msgParam7 (string ex)     
-                                                    Console.ReadKey() |> ignore 
-                                                    System.Environment.Exit(1)  
-                                                    FSharp.Data.HtmlDocument.Load(@"https://google.com")
+                      tryWith f ()          
+                      |> function    
+                          | Ok value -> value
+                          | Error ex -> 
+                                      message.msgParam7 (string ex)     
+                                      Console.ReadKey() |> ignore 
+                                      System.Environment.Exit(1)  
+                                      FSharp.Data.HtmlDocument.Load(@"https://google.com")
                                                     
-                              document.Descendants "a"
-                              |> Seq.choose (fun htmlNode ->
-                                                           htmlNode.TryGetAttribute("href") //inner text zatim nepotrebuji, cisla linek mam resena jinak 
-                                                           |> Option.map (fun a -> string <| htmlNode.InnerText(), string <| a.Value())                                           
-                                            )      
-                              |> Seq.filter (fun (_ , item2) -> item2.Contains @"/qr/" && item2.Contains ".pdf")
-                              |> Seq.map (fun (_ , item2)    ->                                                                 
-                                                                let linkToPdf = 
-                                                                    sprintf"%s%s" pathMdpoWeb item2  //https://www.mdpo.cz // /qr/201.pdf
-                                                                let lineName = item2.Replace(@"/qr/", String.Empty)  
-                                                                let pathToFile = 
-                                                                    sprintf "%s/%s" pathToDir lineName
-                                                                linkToPdf, pathToFile
-                                         )                          
-                              |> Seq.toList
-                              |> List.distinct
-                    )  
+                  document.Descendants "a"
+                  |> Seq.choose (fun htmlNode ->
+                                              htmlNode.TryGetAttribute("href") //inner text zatim nepotrebuji, cisla linek mam resena jinak 
+                                              |> Option.map (fun a -> string <| htmlNode.InnerText(), string <| a.Value())                                           
+                                )      
+                  |> Seq.filter (fun (_ , item2) -> item2.Contains @"/qr/" && item2.Contains ".pdf")
+                  |> Seq.map (fun (_ , item2)    ->                                                                 
+                                                 let linkToPdf = 
+                                                     sprintf"%s%s" pathMdpoWeb item2  //https://www.mdpo.cz // /qr/201.pdf
+                                                 let lineName = item2.Replace(@"/qr/", String.Empty)  
+                                                 let pathToFile = 
+                                                     sprintf "%s/%s" pathToDir lineName
+                                                 linkToPdf, pathToFile
+                            )                          
+                  |> Seq.toList
+                  |> List.distinct
+        )  
 
 let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: string) (filterTimetables: (string*string) list) =  
 
@@ -107,61 +109,74 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                         
                                match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
                                | true  -> 
-                                           let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask    
-                                           use fileStream = new FileStream(path, FileMode.CreateNew) 
-                                           do! stream.CopyToAsync(fileStream) |> Async.AwaitTask
-                                           return Ok ()
+                                        let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask    
+                                        use fileStream = new FileStream(path, FileMode.CreateNew) 
+                                        do! stream.CopyToAsync(fileStream) |> Async.AwaitTask
+
+                                        return Ok ()
+
                                | false -> 
-                                           let errorType = 
-                                               match response.StatusCode with
-                                               | HttpStatusCode.BadRequest          -> Error "400 Bad Request"
-                                               | HttpStatusCode.InternalServerError -> Error "500 Internal Server Error"
-                                               | HttpStatusCode.NotImplemented      -> Error "501 Not Implemented"
-                                               | HttpStatusCode.ServiceUnavailable  -> Error "503 Service Unavailable"
-                                               | HttpStatusCode.NotFound            -> Error uri  
-                                               | _                                  -> Error "418 I'm a teapot. Look for a coffee maker elsewhere."                                                                               
-                                           return errorType     
+                                        let errorType = 
+                                            match response.StatusCode with
+                                            | HttpStatusCode.BadRequest          -> Error "400 Bad Request"
+                                            | HttpStatusCode.InternalServerError -> Error "500 Internal Server Error"
+                                            | HttpStatusCode.NotImplemented      -> Error "501 Not Implemented"
+                                            | HttpStatusCode.ServiceUnavailable  -> Error "503 Service Unavailable"
+                                            | HttpStatusCode.NotFound            -> Error uri  
+                                            | _                                  -> Error "418 I'm a teapot. Look for a coffee maker elsewhere." 
+                                            
+                                        return errorType     
                 with                                                         
                 | ex -> 
-                        closeIt client message "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu."//(string ex)                                                 
-                        return Error String.Empty    
+                      closeIt client message "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu."//(string ex)                                                 
+                      return Error String.Empty    
             }   
     
     message.msgParam3 pathToDir 
     
     let downloadTimetables (client: HttpClient) = 
-
+        
         let l = filterTimetables |> List.length
-
+        
         filterTimetables 
-        |> List.iteri (fun i (link, pathToFile) ->             
-                                                async                                                
-                                                    {
-                                                        progressBarContinuous message i l  //progressBarContinuous  
-                                                        return! downloadFileTaskAsync client link pathToFile                                                                                                                               
-                                                    } 
-                                                    |> Async.Catch
-                                                    |> Async.RunSynchronously
-                                                    |> Result.ofChoice                                                    
-                                                    |> function                                                 
-                                                        | Ok value ->  
-                                                                     value 
-                                                                     |> function
-                                                                         | Ok value  -> ()
-                                                                         | Error err -> 
-                                                                                     getDefaultRecordValues
-                                                                                     |> function
-                                                                                         | Ok value ->
-                                                                                                     value
-                                                                                                     |> List.tryFind (fun item -> err = item)
-                                                                                                     |> function
-                                                                                                         | Some err -> closeIt client message err                                                                      
-                                                                                                         | None     -> message.msgParam2 link 
-                                                                                         | Error err ->
-                                                                                                      closeIt client message err                                                                                  
-                                                        | Error _  -> message.msgParam2 link                     
-                      )    
+        |> List.iteri
+            (fun i (link, pathToFile) ->                                                     
+                                       let mapErr3 err p =                  
+                                           p
+                                           |> function
+                                               | Ok value  ->
+                                                            value
+                                                            |> List.tryFind (fun item -> err = item)
+                                                            |> function
+                                                                | Some err -> closeIt client message err                                                                      
+                                                                | None     -> message.msgParam2 link 
+                                               | Error err ->
+                                                            closeIt client message err              
+
+                                       let mapErr2 (p: Result<unit, string>) =           
+                                           p                      
+                                           |> function
+                                               | Ok value  -> value |> ignore
+                                               | Error err -> mapErr3 err getDefaultRecordValues 
+                                                 
+                                       async                                                
+                                           {   
+                                                progressBarContinuous message i l  //progressBarContinuous  
+                                                return! downloadFileTaskAsync client link pathToFile                                                                                                                               
+                                           } 
+                                           |> Async.Catch
+                                           |> Async.RunSynchronously
+                                           |> Result.ofChoice  
+                                           |> Result.mapErr mapErr2 (lazy message.msgParam2 link)                                                   
+            ) 
+    
 
     downloadTimetables client 
     
     message.msgParam4 pathToDir
+
+
+
+
+
+

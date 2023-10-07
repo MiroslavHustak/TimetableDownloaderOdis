@@ -2,10 +2,10 @@
 
 module PattternBuilders =
    
-    let private (>>==) condition nextFunc = //(>>==) double ==
-        match fst condition with
-        | Ok nextFunc -> Ok <| nextFunc() 
-        | Error err   -> Error (snd condition)
+    let private (>>==) resultFn nextFunc = //(>>==) double ==
+        match resultFn with
+        | Ok resultFn -> Ok <| nextFunc() 
+        | Error err   -> Error err
     
     [<Struct>]
     type internal MyBuilderCC = MyBuilderCC with            

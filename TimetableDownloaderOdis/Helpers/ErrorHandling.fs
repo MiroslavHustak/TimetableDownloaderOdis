@@ -10,6 +10,12 @@ open Messages.Messages
 open System.Net.Http
             
 module Result = 
+
+    let internal mapErr fOk (fErr: Lazy<'a>) p = 
+        p                      
+        |> function
+            | Ok value -> value |> fOk
+            | Error _  -> fErr.Force()       
                    
     let internal toOption f : 'a option = 
         f                      
