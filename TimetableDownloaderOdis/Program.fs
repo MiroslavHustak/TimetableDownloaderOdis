@@ -28,7 +28,7 @@ let main argv =
     let myWebscraping_DPO x =
         Console.Clear()
         printfn "Hromadné stahování aktuálních JŘ ODIS (včetně výluk) dopravce DP Ostrava z webu https://www.dpo.cz"
-        printfn "Datum poslední aktualizace SW: 23-09-2023"
+        printfn "Datum poslední aktualizace SW: 08-10-2023"
         printfn "********************************************************************"
         printfn "Nyní je třeba vybrat si adresář pro uložení JŘ dopravce DP Ostrava."
         printfn "Pokud ve vybraném adresáři existuje následující podadresář, jeho obsah bude nahrazen nově staženými JŘ."

@@ -318,11 +318,13 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
         
     let addOn () = 
         [
-            //pro pripad, kdy KODIS strci odkazy do uplne jinak strukturovaneho jsonu, tudiz nelze pouzit dany type provider
+            //pro pripad, kdy KODIS strci odkazy bud do uplne jinak strukturovaneho jsonu, tudiz nelze pouzit dany type provider, anebo je vubec do jsonu neda
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/76_2023_10_09_2023_10_20_v_f2b77c8fad.pdf"
+            @"https://kodis-files.s3.eu-central-1.amazonaws.com/64_2023_10_09_2023_10_20_v_02e6717b5c.pdf"            
         ] |> List.toArray 
    
-    //(Array.append (Array.append <| kodisAttachments() <| kodisTimetables()) <| addOn()) |> Set.ofArray //jen z vyukovych duvodu -> konverzi na Set vyhodime stejne polozky, jinak staci jen |> Array.distinct 
-    (Array.append <| kodisAttachments () <| kodisTimetables ()) |> Set.ofArray //jen z vyukovych duvodu -> konverzi na Set vyhodime stejne polozky, jinak staci jen |> Array.distinct 
+    (Array.append (Array.append <| kodisAttachments () <| kodisTimetables ()) <| addOn()) |> Set.ofArray  
+    //(Array.append <| kodisAttachments () <| kodisTimetables ()) |> Set.ofArray //jen z vyukovych duvodu -> konverzi na Set vyhodime stejne polozky, jinak staci jen |> Array.distinct 
 
     //kodisAttachments() |> Set.ofArray //over cas od casu
     //kodisTimetables() |> Set.ofArray //over cas od casu
