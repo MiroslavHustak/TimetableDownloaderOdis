@@ -25,14 +25,14 @@ open ErrorHandling.TryWithRF
 
 //************************Submain helpers**************************************************************************
 
-let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =  //reflection nefunguje s type internal
+let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =
     
     FSharpType.GetRecordFields(t) 
     |> Array.map 
         (fun (prop: PropertyInfo) -> 
-                                    match Casting.castAs<string> <| prop.GetValue(r) with
-                                    | Some value -> Ok value
-                                    | None       -> Error "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu." 
+                                   match Casting.castAs<string> <| prop.GetValue(r) with
+                                   | Some value -> Ok value
+                                   | None       -> Error "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu." 
         ) |> List.ofArray |> Result.sequence          
             
 let private getDefaultRecordValues = 
@@ -46,14 +46,15 @@ let private getDefaultRecordValues =
 
 let internal client (printToConsole1 : Lazy<unit>) (printToConsole2: string -> unit) : HttpClient = 
     
-    let f = new HttpClient() |> Option.ofObj 
+    let f = new HttpClient() |> Option.ofNull
     
     tryWithLazy printToConsole2 (optionToResultPrint f printToConsole1) ()           
     |> function    
-        | Ok value  -> value
+        | Ok value  -> 
+                     value
         | Error err -> 
-                       err.Force()
-                       new System.Net.Http.HttpClient()  
+                     err.Force()
+                     new System.Net.Http.HttpClient()  
 
 let internal filterTimetables pathToDir (message: Messages) = 
     
@@ -66,11 +67,15 @@ let internal filterTimetables pathToDir (message: Messages) =
     |> List.collect 
         (fun url -> 
                   let document = 
-                      let f = Ok <| FSharp.Data.HtmlDocument.Load(url)   
+                      let f =
+                          FSharp.Data.HtmlDocument.Load(url)
+                          |> Option.ofNull
+                          |> Option.toResult "Chyba v průběhu stahování JŘ MDPO." 
 
                       tryWith f ()          
                       |> function    
-                          | Ok value -> value
+                          | Ok value -> 
+                                      value
                           | Error ex -> 
                                       message.msgParam7 (string ex)     
                                       Console.ReadKey() |> ignore 
@@ -78,19 +83,22 @@ let internal filterTimetables pathToDir (message: Messages) =
                                       FSharp.Data.HtmlDocument.Load(@"https://google.com")
                                                     
                   document.Descendants "a"
-                  |> Seq.choose (fun htmlNode ->
-                                              htmlNode.TryGetAttribute("href") //inner text zatim nepotrebuji, cisla linek mam resena jinak 
-                                              |> Option.map (fun a -> string <| htmlNode.InnerText(), string <| a.Value())                                           
-                                )      
-                  |> Seq.filter (fun (_ , item2) -> item2.Contains @"/qr/" && item2.Contains ".pdf")
-                  |> Seq.map (fun (_ , item2)    ->                                                                 
-                                                 let linkToPdf = 
-                                                     sprintf"%s%s" pathMdpoWeb item2  //https://www.mdpo.cz // /qr/201.pdf
-                                                 let lineName = item2.Replace(@"/qr/", String.Empty)  
-                                                 let pathToFile = 
-                                                     sprintf "%s/%s" pathToDir lineName
-                                                 linkToPdf, pathToFile
-                            )                          
+                  |> Seq.choose 
+                      (fun htmlNode    ->
+                                        htmlNode.TryGetAttribute("href") //inner text zatim nepotrebuji, cisla linek mam resena jinak 
+                                        |> Option.map (fun a -> string <| htmlNode.InnerText(), string <| a.Value())                                           
+                      )      
+                  |> Seq.filter 
+                      (fun (_ , item2) -> 
+                                        item2.Contains @"/qr/" && item2.Contains ".pdf"
+                      )
+                  |> Seq.map 
+                      (fun (_ , item2) ->                                                                 
+                                        let linkToPdf = sprintf"%s%s" pathMdpoWeb item2  //https://www.mdpo.cz // /qr/201.pdf
+                                        let lineName = item2.Replace(@"/qr/", String.Empty)  
+                                        let pathToFile = sprintf "%s/%s" pathToDir lineName
+                                        linkToPdf, pathToFile
+                      )                          
                   |> Seq.toList
                   |> List.distinct
         )  
@@ -161,8 +169,8 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                                  
                                        async                                                
                                            {   
-                                                progressBarContinuous message i l  //progressBarContinuous  
-                                                return! downloadFileTaskAsync client link pathToFile                                                                                                                               
+                                               progressBarContinuous message i l  //progressBarContinuous  
+                                               return! downloadFileTaskAsync client link pathToFile                                                                                                                               
                                            } 
                                            |> Async.Catch
                                            |> Async.RunSynchronously

@@ -121,9 +121,8 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
                                     | false -> None                                               
                                 with
                                 | ex -> 
-                                    //deconstructorError <| message.msgParam7 (string ex) <| () 
-                                    deconstructorError <| message.msgParam7 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()    
-                                    None       
+                                      deconstructorError <| message.msgParam7 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()    
+                                      None       
                     ) |> List.ofArray
 
             (jsonLinkList, fileLengthList)
@@ -211,9 +210,8 @@ let internal downloadAndSaveJson message (client: Http.HttpClient) =
                                         return! client.GetStringAsync(item) |> Async.AwaitTask 
                                     with
                                     | ex -> 
-                                        deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
-                                        //deconstructorError <| message.msgParam1 (string ex) <| ()
-                                        return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
+                                          deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
+                                          return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
                                 } |> Async.RunSynchronously                        
                 )  
 
@@ -289,7 +287,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
                                     |> Array.Parallel.map (fun item -> errorStr item.Url "Chyba v průběhu stahování JSON souborů pro JŘ KODIS.")
 
                                 let fn2 (item: JsonProvider<pathJson>.Vyluky) =  //quli tomuto je nutno Array     
-                                    item.Attachments |> Option.ofObj        
+                                    item.Attachments |> Option.ofNull        
                                     |> function 
                                         | Some value -> value |> fn1
                                         | None       -> 
@@ -597,11 +595,12 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                     let str = item
                                     let str =
                                         match str.Substring(0, 2).Equals("00") with
-                                        | true   -> str.Remove(0, 2)
-                                        | false  ->
-                                                    match str.Substring(0, 1).Equals("0") || str.Substring(0, 1).Equals("_") with
-                                                    | false -> item
-                                                    | true  -> str.Remove(0, 1)                                                                                  
+                                        | true  ->
+                                                str.Remove(0, 2)
+                                        | false ->
+                                                match str.Substring(0, 1).Equals("0") || str.Substring(0, 1).Equals("_") with
+                                                | false -> item
+                                                | true  -> str.Remove(0, 1)                                                                                  
                                              
                                     let link = 
                                         match item.Contains("_t") with 
@@ -623,17 +622,18 @@ let internal filterTimetables message param pathToDir diggingResult  =
         tryWith myFunction (fun x -> ()) () String.Empty [] |> deconstructor message.msgParam1   
     
     myList4 
-    |> List.filter (fun item -> 
-                              (not <| String.IsNullOrWhiteSpace(fst item) 
-                              && 
-                              not <| String.IsNullOrEmpty(fst item)) 
-                              ||
-                              (not <| String.IsNullOrWhiteSpace(snd item)
-                              && 
-                              not <| String.IsNullOrEmpty(snd item))                                         
-                   ) |> List.sort                                             
+    |> List.filter
+        (fun item -> 
+                  (not <| String.IsNullOrWhiteSpace(fst item) 
+                  && 
+                  not <| String.IsNullOrEmpty(fst item)) 
+                  ||
+                  (not <| String.IsNullOrWhiteSpace(snd item)
+                  && 
+                  not <| String.IsNullOrEmpty(snd item))                                         
+        ) |> List.sort                                             
         
-let internal deleteAllODISDirectories message pathToDir  = 
+let internal deleteAllODISDirectories message pathToDir = 
 
     let myDeleteFunction x =   
 
@@ -668,7 +668,7 @@ let internal deleteOneODISDirectory message variant pathToDir =
 
     //smazeme pouze jeden adresar obsahujici stare JR, ostatni ponechame
 
-    let myDeleteFunction x = //I  
+    let myDeleteFunction x = 
 
         //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
         let dirInfo = new DirectoryInfo(pathToDir) |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) (new DirectoryInfo(pathToDir))        
@@ -716,7 +716,7 @@ let internal downloadAndSaveTimetables (client: Http.HttpClient) message pathToD
     //tryWith je ve funkci downloadFileTaskAsync
     message.msgParam3 pathToDir 
         
-    let downloadTimetables filterTimetables = //concurrent?
+    let downloadTimetables filterTimetables = 
 
         let l = filterTimetables |> List.length
         filterTimetables 
@@ -741,13 +741,13 @@ let internal downloadAndSaveTimetables (client: Http.HttpClient) message pathToD
     
     message.msgParam4 pathToDir 
 
-let internal downloadAndSave message variant dir client  = 
+let internal downloadAndSave message variant dir client = 
 
     match dir |> Directory.Exists with 
     | false -> 
-               message.msgParam5 dir 
-               message.msg13()                                                
+             message.msgParam5 dir 
+             message.msg13()                                                
     | true  ->                  
-               digThroughJsonStructure message 
-               |> filterTimetables message variant dir 
-               |> downloadAndSaveTimetables client message dir  
+             digThroughJsonStructure message 
+             |> filterTimetables message variant dir 
+             |> downloadAndSaveTimetables client message dir  

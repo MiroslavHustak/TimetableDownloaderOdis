@@ -26,6 +26,7 @@ let main argv =
     //*****************************WebScraping1******************************   
 
     let myWebscraping_DPO x =
+
         Console.Clear()
         printfn "Hromadné stahování aktuálních JŘ ODIS (včetně výluk) dopravce DP Ostrava z webu https://www.dpo.cz"
         printfn "Datum poslední aktualizace SW: 08-10-2023"
@@ -63,6 +64,7 @@ let main argv =
         Console.ReadKey() |> ignore
 
     let myWebscraping_MDPO x = 
+
         Console.Clear()
         printfn "Hromadné stahování aktuálních JŘ ODIS dopravce MDP Opava z webu https://www.mdpo.cz"           
         printfn "Datum poslední aktualizace SW: 23-09-2023" 
@@ -100,6 +102,7 @@ let main argv =
         Console.ReadKey() |> ignore
     
     let myWebscraping_KODIS x = 
+
         Console.Clear()
         printfn "Hromadné stahování JŘ ODIS všech dopravců v systému ODIS z webu https://www.kodis.cz"           
         printfn "Datum poslední aktualizace SW: 27-09-2023" 
@@ -155,8 +158,7 @@ let main argv =
            
         webscraping_KODIS (string pathToFolder) variant 
            
-        printfn "%c" <| char(32)  
-        printfn "Z důvodu nekonzistentnosti odkazů na JŘ v JSON souborech KODISu může dojít i ke stažení něčeho, co do daného výběru nepatří."
+        printfn "%c" <| char(32)         
         printfn "JŘ s chybějícími údaji o platnosti (např. NAD bez dalších údajů) nebyly staženy."
         printfn "JŘ s chybnými údaji o platnosti pravděpodobně nebyly staženy (záleží na druhu chyby)."
         printfn "%c" <| char(32)   

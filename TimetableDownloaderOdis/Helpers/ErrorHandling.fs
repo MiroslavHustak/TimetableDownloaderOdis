@@ -2,12 +2,13 @@
 
 open System
 open System.IO
+open System.Net.Http
+open FsToolkit.ErrorHandling
 
 open Parsing
 open DiscriminatedUnions
 
 open Messages.Messages
-open System.Net.Http
             
 module Result = 
 
@@ -127,7 +128,7 @@ module Option =
 
     let inline internal toGenerics (printError: Lazy<unit>) (gen: 'a) value = 
         value
-        |> Option.ofObj 
+        |> Option.ofNull
         |> function 
             | Some value -> value
             | None       -> 
@@ -138,7 +139,7 @@ module Casting =
     
     //srpt resolved at compile time, generics at run time
     let inline internal castAs<^a> (o: obj) : ^a option =    //the :? operator in F# is used for type testing     
-        match Option.ofObj o with
+        match Option.ofNull o with
         | Some (:? ^a as result) -> Some result
         | _                      -> None
 
@@ -163,11 +164,11 @@ module TryWith =
 
     let internal deconstructor (printError: string -> unit) =        
         function
-        | Success x       -> x                                                   
+        | Success x       -> 
+                           x                                                   
         | Failure (ex, y) -> 
-                             //deconstructorError <| printError (string ex) <| ()  
-                             deconstructorError <| printError "Chyba v některé fázi procesu programu pro stahování JŘ. Ověř, zdali nepoužíváš adresáře, které se odstraňují či do kterých se zapisuje, například zdali nemáš otevřený některý JŘ v dotčených adresářích. " <| ()  
-                             y   
+                           deconstructorError <| printError "Chyba v některé fázi procesu programu pro stahování JŘ. Ověř, zdali nepoužíváš adresáře, které se odstraňují či do kterých se zapisuje, například zdali nemáš otevřený některý JŘ v dotčených adresářích. " <| ()  
+                           y   
 
     let internal closeIt (client: HttpClient) (message: Messages) err = 
         message.msgParam1 err      
@@ -184,10 +185,11 @@ module Parsing =
            
        let rec inline internal parseMeInt printError line =
            function            
-           | TryParserInt.Int i -> f i 
+           | TryParserInt.Int i -> 
+                                 f i 
            | notANumber         ->  
-                                   printError notANumber line 
-                                   -1 
+                                 printError notANumber line 
+                                 -1 
        
        //DateTime
        let internal f_date x = 
@@ -196,7 +198,8 @@ module Parsing =
            
        let rec inline internal parseMeDate (printError: string -> unit) =
            function            
-           | TryParserDate.Date d -> f_date d 
+           | TryParserDate.Date d ->
+                                  f_date d 
            | notADate             -> 
-                                     printError notADate
-                                     DateTime.MinValue
+                                  printError notADate
+                                  DateTime.MinValue
