@@ -37,12 +37,6 @@ let private getDefaultRcVal (t: Type) (r: ODIS) itemNo =
                                       match Casting.castAs<string> <| prop.GetValue(r) with
                                       | Some value -> value
                                       | None       -> failwith "Chyba v průběhu stahování JŘ KODIS." //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX
-                                            (*
-                                                For educational purposes
-                                                match prop.GetValue(r) with
-                                                | :? string as str -> str //the :? operator in F# is used for type testing and downcasting
-                                                | _                -> failwith "Error" 
-                                            *)
            )            
        |> List.ofArray 
        |> List.take itemNo     
