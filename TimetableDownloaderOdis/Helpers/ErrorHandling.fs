@@ -137,10 +137,9 @@ module Option =
                             
 module Casting = 
     
-    //srpt resolved at compile time, generics at run time
-    let inline internal castAs<^a> (o: obj) : ^a option =    //the :? operator in F# is used for type testing     
+    let inline internal castAs<'a> (o: obj) : 'a option =    //the :? operator in F# is used for type testing     srtp tady nefunguje
         match Option.ofNull o with
-        | Some (:? ^a as result) -> Some result
+        | Some (:? 'a as result) -> Some result
         | _                      -> None
 
 module TryWith =
