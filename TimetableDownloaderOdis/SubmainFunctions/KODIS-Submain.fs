@@ -28,7 +28,7 @@ type internal KodisTimetables = JsonProvider<pathJson>
 
 let private getDefaultRcVal (t: Type) (r: ODIS) itemNo = 
 
-   //reflection nefunguje s type internal
+   //reflection nefunguje s type internal  //reflection for educational purposes
    
    try 
        FSharpType.GetRecordFields(t) 
@@ -76,7 +76,7 @@ let private splitList1 (list: string list) : string list list =
 
     list |> List.groupBy (fun (item: string) -> item.Substring(0, lineNumberLength)) |> List.map (fun (key, group) -> group) 
 
-let private getDefaultRecordValues = 
+let internal getDefaultRcValKodis = 
 
     try   
         getDefaultRcVal typeof<ODIS> ODIS.Default 4 //jen prvni 4 polozky jsou pro celo-KODIS variantu
@@ -92,94 +92,110 @@ let internal client printToConsole1 printToConsole2 =
     tryWith myClient (fun x -> ()) () String.Empty (new System.Net.Http.HttpClient()) |> deconstructor printToConsole2
 
 let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechano z vyukovych duvodu 
-
+        
     //nepouzito, zjistovani delky json souboru trva tady stejne dluho, jako jejich stazeni  
     //v pripade stahovani velkych souboru by uz mohl byt zjevny rozdil, tra vyzkusat    
     
-    let updateJson x =          
+    let updateJson x =     //Reader monad for educational purposes only      
         
-        let loadAndSaveJsonFiles = 
+        let loadAndSaveJsonFiles : Reader<string list*string list, string list> = 
 
-            let l = jsonLinkList |> List.length             
+            reader 
+                { 
+                    let! (jsonLinkList, pathToJsonList) = fun env -> env
+                        
+                    let l = jsonLinkList |> List.length             
+                    
+                    let fileLengthList = 
+                        pathToJsonList
+                        |> List.toArray
+                        |> Array.Parallel.map 
+                            (fun item ->                                          
+                                       let fileInfo = new FileInfo(Path.GetFullPath(item))
+                                                                       
+                                       try   
+                                           match fileInfo.Exists with
+                                           | true  -> Some fileInfo.Length 
+                                           | false -> None                                               
+                                       with
+                                       | ex -> 
+                                             deconstructorError <| message.msgParam7 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()    
+                                             None       
+                            ) |> List.ofArray
 
-            let fileLengthList = 
-                pathToJsonList
-                |> List.toArray
-                |> Array.Parallel.map 
-                    (fun item ->                                          
-                                let fileInfo = new FileInfo(Path.GetFullPath(item))
-                                                   
-                                try   
-                                    match fileInfo.Exists with
-                                    | true  -> Some fileInfo.Length 
-                                    | false -> None                                               
-                                with
-                                | ex -> 
-                                      deconstructorError <| message.msgParam7 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()    
-                                      None       
-                    ) |> List.ofArray
+                    return 
+                        (jsonLinkList, fileLengthList)
+                        ||> List.mapi2
+                            (fun i link length ->                                                
+                                                progressBarContinuous message i l 
+                                                //updateJson x nezachyti exception v async
+                                                                  
+                                                let webJsonLength (url: string) =                                          
+                                                    async  
+                                                        { 
+                                                            try 
+                                                                let! httpResponse = client.GetAsync(url) |> Async.AwaitTask
+                                                                let response = httpResponse.Content.Headers
+                                                                                  
+                                                                let contentLength = 
+                                                                    response.ContentLength
+                                                                    |> Option.ofNullable    
+                                                                    |> Option.map (fun value -> value)
+                                                                                     
+                                                                return contentLength
+                                                            with
+                                                            | ex -> 
+                                                                  deconstructorError <| message.msgParam7 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| () 
+                                                                  return None
+                                                        } |> Async.RunSynchronously                                                               
+                                                                         
+                                                let download() = 
+                                                    async  
+                                                        { 
+                                                            try 
+                                                                return! client.GetStringAsync(link) |> Async.AwaitTask 
+                                                            with
+                                                            | ex -> 
+                                                                  deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
+                                                                  return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
+                                                        } |> Async.RunSynchronously
+                                                                          
+                                                match length, webJsonLength link with
+                                                | Some hdLength, Some webLength
+                                                    when hdLength = webLength + 2L -> nonJsonString                                                                                                                                                                                                       
+                                                | _                                -> download()  
+                            )                         
+                }     
+                
+        let saveUpdatedJsonFiles : Reader<string list*string list, unit> = //Reader monad for educational purposes only      
 
-            (jsonLinkList, fileLengthList)
-            ||> List.mapi2
-                (fun i link length ->                                                
-                                    progressBarContinuous message i l 
-                                    //updateJson x nezachyti exception v async
-                                              
-                                    let webJsonLength (url: string) =                                          
-                                        async  
-                                            { 
-                                                try 
-                                                    let! httpResponse = client.GetAsync(url) |> Async.AwaitTask
-                                                    let response = httpResponse.Content.Headers
-                                                              
-                                                    let contentLength = 
-                                                        response.ContentLength
-                                                        |> Option.ofNullable    
-                                                        |> Option.map (fun value -> value)
-                                                                 
-                                                    return contentLength
-                                                with
-                                                | ex -> 
-                                                        //deconstructorError <| message.msgParam7 (string ex) <| () 
-                                                        deconstructorError <| message.msgParam7 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| () 
-                                                        return None
-                                            } |> Async.RunSynchronously                                                               
-                                                     
-                                    let download() = 
-                                        async  
-                                            { 
-                                                try 
-                                                    return! client.GetStringAsync(link) |> Async.AwaitTask 
-                                                with
-                                                | ex -> 
-                                                        //deconstructorError <| message.msgParam1 (string ex) <| ()
-                                                        deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
-                                                        return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
-                                            } |> Async.RunSynchronously
-                                                      
-                                    match length, webJsonLength link with
-                                    | Some hdLength, Some webLength
-                                        when hdLength = webLength + 2L -> nonJsonString                                                                                                                                                                                                       
-                                    | _                                -> download()  
-                )     
-        
-        //save updated json files
-        match (<>) (pathToJsonList |> List.length) (loadAndSaveJsonFiles |> List.length) with
-        | true  ->                   
-                  message.msg1()                  
-                  do Console.ReadKey() |> ignore 
-                  do System.Environment.Exit(1)
-        | false ->
-                  (pathToJsonList, loadAndSaveJsonFiles)
-                  ||> List.iteri2 
-                      (fun i path json -> 
-                                        match json.Equals(nonJsonString) with
-                                        | true  -> ()
-                                        | false ->                                                       
-                                                    use streamWriter = new StreamWriter(Path.GetFullPath(path))                   
-                                                    streamWriter.WriteLine(json)     
-                                                    streamWriter.Flush()   
-                      ) 
+            reader
+                {
+                    let! (jsonLinkList, pathToJsonList) = fun env -> env 
+
+                    let loadAndSaveJsonFiles = loadAndSaveJsonFiles (jsonLinkList, pathToJsonList)
+                    
+                    //save updated json files
+                    return
+                        match (<>) (pathToJsonList |> List.length) (loadAndSaveJsonFiles |> List.length) with
+                        | true  ->                   
+                                  message.msg1()                  
+                                  Console.ReadKey() |> ignore 
+                                  System.Environment.Exit(1)
+                        | false ->
+                                  (pathToJsonList, loadAndSaveJsonFiles)
+                                  ||> List.iteri2 
+                                      (fun i path json -> 
+                                                        match json.Equals(nonJsonString) with
+                                                        | true  -> ()
+                                                        | false ->                                                       
+                                                                    use streamWriter = new StreamWriter(Path.GetFullPath(path))                   
+                                                                    streamWriter.WriteLine(json)     
+                                                                    streamWriter.Flush()   
+                                      ) 
+                }        
+            
+        saveUpdatedJsonFiles (jsonLinkList, pathToJsonList)
 
     message.msg2() 
 
@@ -191,38 +207,58 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
 let internal downloadAndSaveJson message (client: Http.HttpClient) = 
 
     let updateJson x = 
-        let loadAndSaveJsonFiles = 
-            let l = jsonLinkList |> List.length
-            jsonLinkList
-            |> List.mapi
-                (fun i item ->                                                
-                            progressBarContinuous message i l 
-                            //updateJson x nezachyti exception v async
-                            async  
-                                { 
-                                    try 
-                                        return! client.GetStringAsync(item) |> Async.AwaitTask 
-                                    with
-                                    | ex -> 
-                                          deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
-                                          return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
-                                } |> Async.RunSynchronously                        
-                )  
 
-        //save updated json files
-        match (<>) (pathToJsonList |> List.length) (loadAndSaveJsonFiles |> List.length) with
-        | true  -> 
-                  message.msg1()
-                  do Console.ReadKey() |> ignore 
-                  do System.Environment.Exit(1)
-        | false ->
-                  (pathToJsonList, loadAndSaveJsonFiles)
-                  ||> List.iteri2 
-                      (fun i path json ->                                                                          
-                                        use streamWriter = new StreamWriter(Path.GetFullPath(path))                   
-                                        streamWriter.WriteLine(json)     
-                                        streamWriter.Flush()   
-                      ) 
+        let loadAndSaveJsonFiles : Reader<string list*string list, string list> = //Reader monad for educational purposes only      
+        
+            reader 
+                { 
+                    let! (jsonLinkList, pathToJsonList) = fun env -> env
+
+                    let l = jsonLinkList |> List.length
+
+                    return 
+                        jsonLinkList
+                        |> List.mapi
+                            (fun i item ->                                                
+                                        progressBarContinuous message i l 
+                                        //updateJson x nezachyti exception v async
+                                        async  
+                                            { 
+                                                try 
+                                                    return! client.GetStringAsync(item) |> Async.AwaitTask 
+                                                with
+                                                | ex -> 
+                                                        deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
+                                                        return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
+                                            } |> Async.RunSynchronously                        
+                            )  
+                }
+            
+        let saveUpdatedJsonFiles : Reader<string list*string list, unit> = //Reader monad for educational purposes only      
+
+            reader
+                {  
+                    let! (jsonLinkList, pathToJsonList) = fun env -> env 
+                    
+                    let loadAndSaveJsonFiles = loadAndSaveJsonFiles (jsonLinkList, pathToJsonList)
+
+                    return 
+                        match (<>) (pathToJsonList |> List.length) (loadAndSaveJsonFiles |> List.length) with //save updated json files
+                        | true  -> 
+                                  message.msg1()
+                                  do Console.ReadKey() |> ignore 
+                                  do System.Environment.Exit(1)
+                        | false ->
+                                  (pathToJsonList, loadAndSaveJsonFiles)
+                                  ||> List.iteri2 
+                                      (fun i path json ->                                                                          
+                                                        use streamWriter = new StreamWriter(Path.GetFullPath(path))                   
+                                                        streamWriter.WriteLine(json)     
+                                                        streamWriter.Flush()   
+                                      ) 
+                }
+        
+        saveUpdatedJsonFiles (jsonLinkList, pathToJsonList)
 
     message.msg2() 
 
@@ -233,27 +269,33 @@ let internal downloadAndSaveJson message (client: Http.HttpClient) =
    
 let internal digThroughJsonStructure message = //prohrabeme se strukturou json souboru //printfn -> additional 4 parameters
     
-    let kodisTimetables () = 
+    let kodisTimetables : Reader<string list, string array> = //Reader monad for educational purposes only
 
-        let myFunction x = 
-            pathToJsonList 
-            |> Array.ofList 
-            |> Array.collect 
-                (fun pathToJson ->   
-                                let kodisJsonSamples = KodisTimetables.Parse(File.ReadAllText pathToJson) |> Option.ofObj //I
-                                //let kodisJsonSamples = kodisJsonSamples.GetSample() |> Option.ofObj  //v pripade jen jednoho json               
+        reader 
+            {
+                let! pathToJsonList = fun env -> env 
+
+                let myFunction x = 
+                    pathToJsonList 
+                    |> Array.ofList 
+                    |> Array.collect 
+                        (fun pathToJson ->   
+                                        let kodisJsonSamples = KodisTimetables.Parse(File.ReadAllText pathToJson) |> Option.ofObj //I
+                                        //let kodisJsonSamples = kodisJsonSamples.GetSample() |> Option.ofObj  //v pripade jen jednoho json               
                 
-                                kodisJsonSamples 
-                                |> function 
-                                    | Some value -> value |> Array.map (fun item -> item.Timetable) //quli tomuto je nutno Array
-                                    | None       -> 
-                                                    message.msg5() 
-                                                    [||]    
-                ) 
+                                        kodisJsonSamples 
+                                        |> function 
+                                            | Some value -> 
+                                                          value |> Array.map (fun item -> item.Timetable) //quli tomuto je nutno Array
+                                            | None       -> 
+                                                          message.msg5() 
+                                                          [||]    
+                        ) 
         
-        tryWith myFunction (fun x -> ()) () String.Empty [||] |> deconstructor message.msgParam1
+                return tryWith myFunction (fun x -> ()) () String.Empty [||] |> deconstructor message.msgParam1
+            }
 
-    let kodisAttachments () = 
+    let kodisAttachments : Reader<string list, string array> = //Reader monad for educational purposes only
 
         (*
         //ponechavam pro pochopeni struktury u json type provider (pri pouziti option se to tahne az k susedovi)
@@ -266,47 +308,55 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
                                                                     |> Array.Parallel.map (fun item -> item.Url)
                                                          ) 
                              )   
-        *)            
-
-        let myFunction x = 
-            
-            let errorStr str err = str |> (Option.toGenerics <| lazy (message.msgParam7 err) <| String.Empty) 
-
-            pathToJsonList
-            |> Array.ofList 
-            |> Array.collect
-                (fun pathToJson ->
-                                let fn1 (value: JsonProvider<pathJson>.Attachment array) = 
-                                    value //Option je v errorStr 
-                                    |> Array.Parallel.map (fun item -> errorStr item.Url "Chyba v průběhu stahování JSON souborů pro JŘ KODIS.")
-
-                                let fn2 (item: JsonProvider<pathJson>.Vyluky) =  //quli tomuto je nutno Array     
-                                    item.Attachments |> Option.ofNull        
-                                    |> function 
-                                        | Some value -> value |> fn1
-                                        | None       -> 
-                                                        message.msg6() 
-                                                        [||]                 
-
-                                let fn3 (item: JsonProvider<pathJson>.Root) =  //quli tomuto je nutno Array 
-                                    item.Vyluky |> Option.ofObj
-                                    |> function 
-                                        | Some value -> value |> Array.collect fn2 
-                                        | None       ->
-                                                        message.msg7() 
-                                                        [||] 
-                                              
-                                let kodisJsonSamples = KodisTimetables.Parse(File.ReadAllText pathToJson) |> Option.ofObj 
-                                              
-                                kodisJsonSamples 
-                                |> function 
-                                    | Some value -> value |> Array.collect fn3 
-                                    | None       -> 
-                                                    message.msg8() 
-                                                    [||]                                 
-                ) 
+        *)     
         
-        tryWith myFunction (fun x -> ()) () String.Empty [||] |> deconstructor message.msgParam1   
+        reader 
+            {
+                let! pathToJsonList = fun env -> env 
+                    
+                let myFunction x = 
+                    
+                    let errorStr str err = str |> (Option.toGenerics <| lazy (message.msgParam7 err) <| String.Empty) 
+
+                    pathToJsonList
+                    |> Array.ofList 
+                    |> Array.collect
+                        (fun pathToJson ->
+                                        let fn1 (value: JsonProvider<pathJson>.Attachment array) = 
+                                            value //Option je v errorStr 
+                                            |> Array.Parallel.map (fun item -> errorStr item.Url "Chyba v průběhu stahování JSON souborů pro JŘ KODIS.")
+
+                                        let fn2 (item: JsonProvider<pathJson>.Vyluky) =  //quli tomuto je nutno Array     
+                                            item.Attachments |> Option.ofNull        
+                                            |> function 
+                                                | Some value ->
+                                                              value |> fn1
+                                                | None       -> 
+                                                              message.msg6() 
+                                                              [||]                 
+
+                                        let fn3 (item: JsonProvider<pathJson>.Root) =  //quli tomuto je nutno Array 
+                                            item.Vyluky |> Option.ofObj
+                                            |> function 
+                                                | Some value ->
+                                                              value |> Array.collect fn2 
+                                                | None       ->
+                                                              message.msg7() 
+                                                              [||] 
+                                                      
+                                        let kodisJsonSamples = KodisTimetables.Parse(File.ReadAllText pathToJson) |> Option.ofObj 
+                                                      
+                                        kodisJsonSamples 
+                                        |> function 
+                                            | Some value -> 
+                                                          value |> Array.collect fn3 
+                                            | None       -> 
+                                                          message.msg8() 
+                                                          [||]                                 
+                        ) 
+                
+                return tryWith myFunction (fun x -> ()) () String.Empty [||] |> deconstructor message.msgParam1 
+            }
         
     let addOn () = 
         [
@@ -315,7 +365,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
             @"https://kodis-files.s3.eu-central-1.amazonaws.com/64_2023_10_09_2023_10_20_v_02e6717b5c.pdf"            
         ] |> List.toArray 
    
-    (Array.append (Array.append <| kodisAttachments () <| kodisTimetables ()) <| addOn()) |> Set.ofArray  
+    (Array.append (Array.append <| kodisAttachments pathToJsonList <| kodisTimetables pathToJsonList) <| addOn()) |> Set.ofArray  
     //(Array.append <| kodisAttachments () <| kodisTimetables ()) |> Set.ofArray //jen z vyukovych duvodu -> konverzi na Set vyhodime stejne polozky, jinak staci jen |> Array.distinct 
 
     //kodisAttachments() |> Set.ofArray //over cas od casu
@@ -397,7 +447,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                     let b range = range |> List.contains (fileName.Substring(0, 3))
 
                                     let fileNameFullA = 
-                                        MyBuilder
+                                        pyramidOfHell
                                             {
                                                 let!_ = not <| fileName.Contains("NAD"), fileName 
                                                 let!_ = (<>) (a 0 range) [], fileName 
@@ -418,106 +468,107 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                         | false -> 25  //25 -> 113_2022_12_11_2023_12_09......
                                                                                                                                                                                                                    
                                     match not (fileNameFull |> String.length >= numberOfChar) with 
-                                    | true  -> String.Empty
+                                    | true  ->
+                                            String.Empty
                                     | false ->                                                                        
-                                                let yearValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(4 + x, 4) 
-                                                let monthValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(9 + x, 2) 
-                                                let dayValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(12 + x, 2) 
+                                            let yearValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(4 + x, 4) 
+                                            let monthValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(9 + x, 2) 
+                                            let dayValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(12 + x, 2) 
                                                                    
-                                                let yearValidityEnd x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(15 + x, 4) 
-                                                let monthValidityEnd x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(20 + x, 2) 
-                                                let dayValidityEnd x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(23 + x, 2) 
+                                            let yearValidityEnd x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(15 + x, 4) 
+                                            let monthValidityEnd x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(20 + x, 2) 
+                                            let dayValidityEnd x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(23 + x, 2) 
                                                                    
-                                                let a x =
-                                                    [ 
-                                                        yearValidityStart x
-                                                        monthValidityStart x
-                                                        dayValidityStart x
-                                                        yearValidityEnd x
-                                                        monthValidityEnd x
-                                                        dayValidityEnd x
-                                                    ]
+                                            let a x =
+                                                [ 
+                                                    yearValidityStart x
+                                                    monthValidityStart x
+                                                    dayValidityStart x
+                                                    yearValidityEnd x
+                                                    monthValidityEnd x
+                                                    dayValidityEnd x
+                                                ]
                                                                    
-                                                let result x = 
+                                            let result x = 
 
-                                                    match (a x) |> List.contains -1 with
-                                                    | true  -> 
+                                                match (a x) |> List.contains -1 with
+                                                | true  -> 
+                                                        let cond = 
+                                                            match param with 
+                                                            | CurrentValidity           -> true //s tim nic nezrobim, nekonzistentni informace v retezci
+                                                            | FutureValidity            -> true //s tim nic nezrobim, nekonzistentni informace v retezci
+                                                            | ReplacementService        -> 
+                                                                                            fileNameFull.Contains("_v") 
+                                                                                            || fileNameFull.Contains("X")
+                                                                                            || fileNameFull.Contains("NAD")
+                                                            | WithoutReplacementService -> 
+                                                                                            not <| fileNameFull.Contains("_v") 
+                                                                                            && not <| fileNameFull.Contains("X")
+                                                                                            && not <| fileNameFull.Contains("NAD")
+
+                                                        match cond with
+                                                        | true  -> fileNameFull
+                                                        | false -> String.Empty 
+                                                                              
+                                                | false -> 
+                                                        try                                                                                  
+                                                            let dateValidityStart x = new DateTime(yearValidityStart x, monthValidityStart x, dayValidityStart x)                                                                                       
+                                                            let dateValidityEnd x = new DateTime(yearValidityEnd x, monthValidityEnd x, dayValidityEnd x) 
+                                                                                
                                                             let cond = 
                                                                 match param with 
-                                                                | CurrentValidity           -> true //s tim nic nezrobim, nekonzistentni informace v retezci
-                                                                | FutureValidity            -> true //s tim nic nezrobim, nekonzistentni informace v retezci
-                                                                | ReplacementService        -> 
-                                                                                                fileNameFull.Contains("_v") 
-                                                                                                || fileNameFull.Contains("X")
-                                                                                                || fileNameFull.Contains("NAD")
-                                                                | WithoutReplacementService -> 
-                                                                                                not <| fileNameFull.Contains("_v") 
-                                                                                                && not <| fileNameFull.Contains("X")
-                                                                                                && not <| fileNameFull.Contains("NAD")
+                                                                | CurrentValidity           -> 
+                                                                                                (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
+                                                                                                && 
+                                                                                                dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                                ||
+                                                                                                ((dateValidityStart x).Equals(currentTime) 
+                                                                                                && 
+                                                                                                (dateValidityEnd x).Equals(currentTime))
 
+                                                                | FutureValidity            -> dateValidityStart x |> Fugit.isAfter currentTime
+
+                                                                | ReplacementService        -> 
+                                                                                                (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime
+                                                                                                && 
+                                                                                                dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                                &&
+                                                                                                (fileNameFull.Contains("_v") 
+                                                                                                || fileNameFull.Contains("X")
+                                                                                                || fileNameFull.Contains("NAD"))
+
+                                                                | WithoutReplacementService ->
+                                                                                                (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime
+                                                                                                && 
+                                                                                                dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                                &&
+                                                                                                (not <| fileNameFull.Contains("_v") 
+                                                                                                && not <| fileNameFull.Contains("X")
+                                                                                                && not <| fileNameFull.Contains("NAD"))
+                                                                                
                                                             match cond with
                                                             | true  -> fileNameFull
-                                                            | false -> String.Empty 
-                                                                              
-                                                    | false -> 
-                                                            try                                                                                  
-                                                                let dateValidityStart x = new DateTime(yearValidityStart x, monthValidityStart x, dayValidityStart x)                                                                                       
-                                                                let dateValidityEnd x = new DateTime(yearValidityEnd x, monthValidityEnd x, dayValidityEnd x) 
-                                                                                
-                                                                let cond = 
-                                                                    match param with 
-                                                                    | CurrentValidity           -> 
-                                                                                                    (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
-                                                                                                    && 
-                                                                                                    dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
-                                                                                                    ||
-                                                                                                    ((dateValidityStart x).Equals(currentTime) 
-                                                                                                    && 
-                                                                                                    (dateValidityEnd x).Equals(currentTime))
-
-                                                                    | FutureValidity            -> dateValidityStart x |> Fugit.isAfter currentTime
-
-                                                                    | ReplacementService        -> 
-                                                                                                    (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime
-                                                                                                    && 
-                                                                                                    dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
-                                                                                                    &&
-                                                                                                    (fileNameFull.Contains("_v") 
-                                                                                                    || fileNameFull.Contains("X")
-                                                                                                    || fileNameFull.Contains("NAD"))
-
-                                                                    | WithoutReplacementService ->
-                                                                                                    (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime
-                                                                                                    && 
-                                                                                                    dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
-                                                                                                    &&
-                                                                                                    (not <| fileNameFull.Contains("_v") 
-                                                                                                    && not <| fileNameFull.Contains("X")
-                                                                                                    && not <| fileNameFull.Contains("NAD"))
-                                                                                
-                                                                match cond with
-                                                                | true  -> fileNameFull
-                                                                | false -> String.Empty                                                                                
+                                                            | false -> String.Empty                                                                                
                                                                                
-                                                            with 
-                                                            | _ -> String.Empty  
+                                                        with 
+                                                        | _ -> String.Empty  
 
-                                                let condNAD (rangeN: string list) =                                                                     
-                                                    rangeN
-                                                    |> List.tryFind (fun item -> fileNameFull.Contains(item))                                                                                    
-                                                    |> Option.isSome   
+                                            let condNAD (rangeN: string list) =                                                                     
+                                                rangeN
+                                                |> List.tryFind (fun item -> fileNameFull.Contains(item))                                                                                    
+                                                |> Option.isSome   
                                                                                
-                                                let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
+                                            let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
                                                                                 
-                                                let x = //int hodnota je korekce pozice znaku v retezci
-                                                    MyBuilder
-                                                        {
-                                                            let!_ = not (fileNameFull.Contains("NAD") && condNAD = true), 2
-                                                            let!_ = not (List.exists (fun item -> fileNameFull.Contains(item: string)) rangeX2), 1
-                                                            return 0
-                                                        }
+                                            let x = //int hodnota je korekce pozice znaku v retezci
+                                                pyramidOfHell
+                                                    {
+                                                        let!_ = not (fileNameFull.Contains("NAD") && condNAD = true), 2
+                                                        let!_ = not (List.exists (fun item -> fileNameFull.Contains(item: string)) rangeX2), 1
+                                                        return 0
+                                                    }
                                                                        
-                                                result x
+                                            result x
                                                    
                 ) |> Array.toList |> List.distinct 
 
@@ -537,42 +588,43 @@ let internal filterTimetables message param pathToDir diggingResult  =
             |> List.collect
                 (fun list ->  
                             match (>) (list |> List.length) 1 with 
-                            | false -> list 
+                            | false -> 
+                                    list 
                             | true  -> 
-                                       let latestValidityStart =  
-                                           list
-                                           |> List.map
-                                               (fun item -> 
-                                                          let item = string item                                                                              
-                                                          try
-                                                              let condNAD (rangeN: string list) =                                                                     
-                                                                  rangeN
-                                                                  |> List.tryFind (fun item1 -> item.Contains(item1))                                                                                    
-                                                                  |> Option.isSome                                                                                           
+                                    let latestValidityStart =  
+                                        list
+                                        |> List.map
+                                            (fun item -> 
+                                                        let item = string item                                                                              
+                                                        try
+                                                            let condNAD (rangeN: string list) =                                                                     
+                                                                rangeN
+                                                                |> List.tryFind (fun item1 -> item.Contains(item1))                                                                                    
+                                                                |> Option.isSome                                                                                           
                                                                                               
-                                                              let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
+                                                            let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
                                                                                
-                                                              let x = //int hodnota je korekce pozice znaku v retezci
-                                                                  MyBuilder
-                                                                      {
-                                                                          let!_ = not (item.Contains("NAD") && condNAD = true), 2
-                                                                          let!_ = not (List.exists (fun item1 -> item.Contains(item1: string)) rangeX2), 1
-                                                                          return 0
-                                                                      } 
+                                                            let x = //int hodnota je korekce pozice znaku v retezci
+                                                                pyramidOfHell
+                                                                    {
+                                                                        let!_ = not (item.Contains("NAD") && condNAD = true), 2
+                                                                        let!_ = not (List.exists (fun item1 -> item.Contains(item1: string)) rangeX2), 1
+                                                                        return 0
+                                                                    } 
                                                                                       
-                                                              let yearValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(4 + x, 4) //overovat, jestli se v jsonu neco nezmenilo //113_2022_12_11_2023_12_09.....
-                                                              let monthValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(9 + x, 2) 
-                                                              let dayValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(12 + x, 2)
+                                                            let yearValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(4 + x, 4) //overovat, jestli se v jsonu neco nezmenilo //113_2022_12_11_2023_12_09.....
+                                                            let monthValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(9 + x, 2) 
+                                                            let dayValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(12 + x, 2)
                                                               
-                                                              let yearValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(15 + x, 4) 
-                                                              let monthValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(20 + x, 2) 
-                                                              let dayValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(23 + x, 2) 
-                                                              item, new DateTime(yearValidityStart x, monthValidityStart x, dayValidityStart x) 
-                                                                //item, new DateTime(yearValidityEnd x, monthValidityEnd x, dayValidityEnd x) //pro pripadnou zmenu logiky
-                                                          with 
-                                                          | _ -> item, currentTime
-                                               ) |> List.maxBy snd                                                        
-                                       [ fst latestValidityStart ]                                                   
+                                                            let yearValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(15 + x, 4) 
+                                                            let monthValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(20 + x, 2) 
+                                                            let dayValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(23 + x, 2) 
+                                                            item, new DateTime(yearValidityStart x, monthValidityStart x, dayValidityStart x) 
+                                                            //item, new DateTime(yearValidityEnd x, monthValidityEnd x, dayValidityEnd x) //pro pripadnou zmenu logiky
+                                                        with 
+                                                        | _ -> item, currentTime
+                                            ) |> List.maxBy snd                                                        
+                                    [ fst latestValidityStart ]                                                   
                 ) |> List.distinct                              
         
         tryWith myFunction (fun x -> ()) () String.Empty [] |> deconstructor message.msgParam1
@@ -629,54 +681,79 @@ let internal filterTimetables message param pathToDir diggingResult  =
         
 let internal deleteAllODISDirectories message pathToDir = 
 
-    let myDeleteFunction x =   
+    let deleteIt : Reader<string list, unit> = //readerMonad for educational purposes only
+    
+            reader
+                {
+                    let! getDefaultRecordValues = fun env -> env
 
-        //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
-        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toGenerics (lazy (message.msgParam7 "Error8")) (new DirectoryInfo(pathToDir))             
-       
-        //smazeme pouze adresare obsahujici stare JR, ostatni ponechame   
-        let deleteIt = 
-            dirInfo.EnumerateDirectories()
-            |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
-            |> Array.ofSeq
-            |> Array.filter (fun item -> (getDefaultRecordValues |> List.contains item.Name)) //prunik dvou kolekci (plus jeste Array.distinct pro unique items)
-            |> Array.distinct 
-            |> Array.Parallel.iter (fun item -> item.Delete(true))     
-        deleteIt 
-        
-    tryWith myDeleteFunction (fun x -> ()) () String.Empty () |> deconstructor message.msgParam1
+                    let myDeleteFunction x = 
+                        
+                        //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+                        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toGenerics (lazy (message.msgParam7 "Error8")) (new DirectoryInfo(pathToDir)) 
+                        
+                        let deleteIt = //smazeme pouze adresare obsahujici stare JR, ostatni ponechame                
+                            dirInfo.EnumerateDirectories()
+                            |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
+                            |> Array.ofSeq
+                            |> Array.filter (fun item -> (getDefaultRecordValues |> List.contains item.Name)) //prunik dvou kolekci (plus jeste Array.distinct pro unique items)
+                            |> Array.distinct 
+                            |> Array.Parallel.iter (fun item -> item.Delete(true))                 
+                        deleteIt 
+                        
+                    return tryWith myDeleteFunction (fun x -> ()) () String.Empty () |> deconstructor message.msgParam1
+                }
+
+    deleteIt getDefaultRcValKodis  
 
     message.msg10() 
     message.msg11() 
  
-let internal createNewDirectories pathToDir = getDefaultRecordValues |> List.map (fun item -> sprintf"%s\%s"pathToDir item)  
+let internal createNewDirectories pathToDir =
+    reader { let! getDefaultRecordValues = fun env -> env in return getDefaultRecordValues |> List.map (fun item -> sprintf"%s\%s"pathToDir item) } 
 
-let internal createDirName variant =
-    match variant with 
-    | CurrentValidity           -> getDefaultRecordValues |> List.item 0
-    | FutureValidity            -> getDefaultRecordValues |> List.item 1
-    | ReplacementService        -> getDefaultRecordValues |> List.item 2                                
-    | WithoutReplacementService -> getDefaultRecordValues |> List.item 3
+let internal createDirName variant : Reader<string list, string> = //readerMonad for educational purposes only
+
+    reader
+        {
+            let! getDefaultRecordValues = fun env -> env
+
+            return 
+                match variant with 
+                | CurrentValidity           -> getDefaultRecordValues |> List.item 0
+                | FutureValidity            -> getDefaultRecordValues |> List.item 1
+                | ReplacementService        -> getDefaultRecordValues |> List.item 2                                
+                | WithoutReplacementService -> getDefaultRecordValues |> List.item 3
+        } 
 
 let internal deleteOneODISDirectory message variant pathToDir =
 
     //smazeme pouze jeden adresar obsahujici stare JR, ostatni ponechame
 
-    let myDeleteFunction x = 
+    let deleteIt : Reader<string list, unit> =  //readerMonad for educational purposes only
 
-        //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
-        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) (new DirectoryInfo(pathToDir))        
+        reader
+            {
+                let! getDefaultRecordValues = fun env -> env
+
+                let myDeleteFunction x = 
+
+                    //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
+                    let dirInfo = new DirectoryInfo(pathToDir) |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) (new DirectoryInfo(pathToDir))        
        
-        dirInfo.EnumerateDirectories()
-        |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
-        |> Seq.filter (fun item -> item.Name = createDirName variant) 
-        |> Seq.iter (fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce
-                  
-    tryWith myDeleteFunction (fun x -> ()) () String.Empty () |> deconstructor message.msgParam1
+                    dirInfo.EnumerateDirectories()
+                    |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
+                    |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
+                    |> Seq.iter (fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce
+                 
+                return tryWith myDeleteFunction (fun x -> ()) () String.Empty () |> deconstructor message.msgParam1                          
+            }
+
+    deleteIt getDefaultRcValKodis    
 
     message.msg10() 
-    message.msg11()        
-
+    message.msg11()   
+ 
 let internal createOneNewDirectory pathToDir dirName = [ sprintf"%s\%s"pathToDir dirName ] //list -> aby bylo mozno pouzit funkci createFolders bez uprav  
 
 let internal createFolders message dirList =  

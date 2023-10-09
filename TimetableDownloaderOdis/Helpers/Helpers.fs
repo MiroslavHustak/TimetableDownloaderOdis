@@ -20,7 +20,7 @@ module ConsoleFixers =
 
 module LogicalAliases =         
 
-    let internal xor a b = (a && not b) || (not a && b) //P    
+    let internal xor a b = (a && not b) || (not a && b)   
 
 module CopyingOrMovingFiles =    //not used yet   
          
@@ -32,6 +32,7 @@ module CopyingOrMovingFiles =    //not used yet
             Path.GetFullPath(destination) 
             |> Option.toGenerics (lazy (message.msgParam7 "Chyba při čtení cesty k souboru")) String.Empty                 
         let fInfodat: FileInfo = new FileInfo(sourceFilepath)  
+
         match fInfodat.Exists with 
         | true  -> action sourceFilepath destinFilepath
         | false -> message.msgParam11 source  
@@ -51,15 +52,16 @@ module CopyingOrMovingFiles =    //not used yet
 module MyString = 
         
     [<CompiledName "GetString">]  //priklad pouziti: getString(8, "0")//tuple a compiled nazev velkym kvuli DLL pro C#
-    let getString (numberOfStrings: int, stringToAdd: string): string =   //P
+    let getString (numberOfStrings: int, stringToAdd: string): string =   
         let initialString = String.Empty                //initial value of the string
         let listRange = [ 1 .. numberOfStrings ]
         let rec loop list acc auxStringToAdd =
             match list with 
-            | []        -> acc
+            | []        ->
+                         acc
             | _ :: tail -> 
-                            let finalString = (+) acc auxStringToAdd
-                            loop tail finalString auxStringToAdd //Tail-recursive function calls that have their parameters passed by the pipe operator are not optimized as loops #6984
+                         let finalString = (+) acc auxStringToAdd
+                         loop tail finalString auxStringToAdd //Tail-recursive function calls that have their parameters passed by the pipe operator are not optimized as loops #6984
         loop listRange initialString stringToAdd //Tail-recursive function calls ... viz vyse   
          
 

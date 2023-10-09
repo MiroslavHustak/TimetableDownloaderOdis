@@ -25,7 +25,7 @@ open ErrorHandling.TryWithRF
 
 //************************Submain helpers**************************************************************************
 
-let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =
+let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =   //reflection for educational purposes
     
     FSharpType.GetRecordFields(t) 
     |> Array.map 
@@ -35,7 +35,7 @@ let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =
                                    | None       -> Error "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu." 
         ) |> List.ofArray |> Result.sequence          
             
-let private getDefaultRecordValues = 
+let private getDefaultRcValMdpo = 
 
     try   
         getDefaultRcVal typeof<ConnErrorCode> ConnErrorCode.Default 
@@ -165,7 +165,7 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                            p                      
                                            |> function
                                                | Ok value  -> value |> ignore
-                                               | Error err -> mapErr3 err getDefaultRecordValues 
+                                               | Error err -> mapErr3 err getDefaultRcValMdpo 
                                                  
                                        async                                                
                                            {   

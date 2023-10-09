@@ -72,15 +72,15 @@ let internal webscraping_KODIS pathToDir (variantList: Validity list) =
                                                             environment.deleteOneODISDirectory message variant pathToDir                                                        
                                                             let dirList = createOneNewDirectory  //list -> aby bylo mozno pouzit funkci createFolders bez uprav  
                                                                           <| pathToDir 
-                                                                          <| createDirName variant 
+                                                                          <| createDirName variant getDefaultRcValKodis 
                                                             environment.createFolders message dirList
                                                             environment.downloadAndSave message variant (dirList |> List.head) environment.client 
 
                                                      //BulkVariantDownload       
                                                      | _ ->  
                                                             environment.deleteAllODISDirectories message pathToDir
-                                                            let dirList = createNewDirectories pathToDir
-                                                            environment.createFolders message dirList
+                                                            let dirList = createNewDirectories pathToDir getDefaultRcValKodis
+                                                            environment.createFolders message dirList 
                                                             (variantList, dirList)
                                                             ||> List.iter2 (fun variant dir -> environment.downloadAndSave message variant dir environment.client)         
                                                  
