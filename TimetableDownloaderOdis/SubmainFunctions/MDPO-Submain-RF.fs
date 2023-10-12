@@ -26,14 +26,21 @@ open ErrorHandling.TryWithRF
 //************************Submain helpers**************************************************************************
 
 let private getDefaultRcVal (t: Type) (r: ConnErrorCode) =   //reflection for educational purposes
-    
-    FSharpType.GetRecordFields(t) 
-    |> Array.map 
-        (fun (prop: PropertyInfo) -> 
-                                   match Casting.castAs<string> <| prop.GetValue(r) with
-                                   | Some value -> Ok value
-                                   | None       -> Error "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu." 
-        ) |> List.ofArray |> Result.sequence          
+        
+    let list = 
+        FSharpType.GetRecordFields(t) 
+        |> Array.map 
+            (fun (prop: PropertyInfo) -> 
+                                       match Casting.castAs<string> <| prop.GetValue(r) with
+                                       | Some value -> Ok value
+                                       | None       -> Error "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu." 
+            ) 
+            |> List.ofArray 
+
+    list 
+    |> function
+        | [] -> Error "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu."  
+        | _  -> list |> Result.sequence 
             
 let private getDefaultRcValMdpo = 
 
@@ -153,11 +160,14 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                            p
                                            |> function
                                                | Ok value  ->
-                                                            value
-                                                            |> List.tryFind (fun item -> err = item)
-                                                            |> function
-                                                                | Some err -> closeIt client message err                                                                      
-                                                                | None     -> message.msgParam2 link 
+                                                            value                                                             
+                                                            |> function           
+                                                                | [] -> message.msgParam2 link
+                                                                | _  -> value   
+                                                                        |> List.tryFind (fun item -> err = item)
+                                                                        |> function
+                                                                            | Some err -> closeIt client message err                                                                      
+                                                                            | None     -> message.msgParam2 link 
                                                | Error err ->
                                                             closeIt client message err              
 

@@ -31,16 +31,18 @@ let private getDefaultRcVal (t: Type) (r: ODIS) itemNo =
    //reflection nefunguje s type internal  //reflection for educational purposes
    
    try 
-       FSharpType.GetRecordFields(t) 
-       |> Array.map
-           (fun (prop: PropertyInfo) -> 
-                                      match Casting.castAs<string> <| prop.GetValue(r) with
-                                      | Some value -> value
-                                      | None       -> failwith "Chyba v průběhu stahování JŘ KODIS." //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX
-           )            
-       |> List.ofArray 
-       |> List.take itemNo     
-   
+       let list = FSharpType.GetRecordFields(t) 
+                   |> Array.map
+                       (fun (prop: PropertyInfo) -> 
+                                                  match Casting.castAs<string> <| prop.GetValue(r) with
+                                                  | Some value -> value
+                                                  | None       -> failwith "Chyba v průběhu stahování JŘ KODIS." //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX
+                       ) |> List.ofArray 
+
+       list 
+       |> function           
+           | [] -> failwith "Chyba v průběhu stahování JŘ KODIS." //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX
+           | _  -> list |> List.take itemNo    
    with
    | ex -> failwith "Chyba v průběhu stahování JŘ KODIS." //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX, chyba je stejne malo pravdepodobna    
 
@@ -438,10 +440,18 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                     
                                     let charList = 
                                         match fileName |> String.length >= lineNumberLength with  
-                                        | true  -> fileName.ToCharArray() |> Array.toList |> List.take lineNumberLength
+                                        | true  -> 
+                                                 let list = fileName.ToCharArray() |> Array.toList
+                                                 list 
+                                                 |> function 
+                                                     | [] -> 
+                                                           message.msg9()
+                                                           []
+                                                     | _  -> 
+                                                           list |> List.take lineNumberLength
                                         | false -> 
-                                                    message.msg9() 
-                                                    []
+                                                 message.msg9() 
+                                                 []
                                              
                                     let a i range = range |> List.filter (fun item -> (charList |> List.item i = item)) 
                                     let b range = range |> List.contains (fileName.Substring(0, 3))
@@ -553,10 +563,13 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                         with 
                                                         | _ -> String.Empty  
 
-                                            let condNAD (rangeN: string list) =                                                                     
+                                            let condNAD (rangeN: string list) =   
                                                 rangeN
-                                                |> List.tryFind (fun item -> fileNameFull.Contains(item))                                                                                    
-                                                |> Option.isSome   
+                                                |> function           
+                                                    | [] -> failwith "Programátor zase něco udělal blbě v SettingsKODIS." //vyjimecne ponechavam takto, bo empty list moze vzniknut jen moji chybou v settings
+                                                    | _  -> rangeN   
+                                                            |> List.tryFind (fun item -> fileNameFull.Contains(item))  
+                                                            |> Option.isSome       
                                                                                
                                             let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
                                                                                 
@@ -599,8 +612,11 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                         try
                                                             let condNAD (rangeN: string list) =                                                                     
                                                                 rangeN
-                                                                |> List.tryFind (fun item1 -> item.Contains(item1))                                                                                    
-                                                                |> Option.isSome                                                                                           
+                                                                |> function           
+                                                                    | [] -> failwith "Programátor zase něco udělal blbě v SettingsKODIS." //vyjimecne ponechavam takto, bo empty list moze vzniknut jen moji chybou v settings
+                                                                    | _  -> rangeN   
+                                                                            |> List.tryFind (fun item1 -> item.Contains(item1))  
+                                                                            |> Option.isSome                                               
                                                                                               
                                                             let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
                                                                                
