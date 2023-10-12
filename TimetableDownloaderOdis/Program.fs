@@ -105,7 +105,7 @@ let main argv =
 
         Console.Clear()
         printfn "Hromadné stahování JŘ ODIS všech dopravců v systému ODIS z webu https://www.kodis.cz"           
-        printfn "Datum poslední aktualizace SW: 27-09-2023" 
+        printfn "Datum poslední aktualizace SW: 13-10-2023" 
         printfn "********************************************************************"
         printfn "Nyní je třeba vybrat si adresář pro uložení JŘ všech dopravců v systému ODIS."
         printfn "Pokud ve vybraném adresáři existují následující podadresáře, jejich obsah bude nahrazen nově staženými JŘ."
