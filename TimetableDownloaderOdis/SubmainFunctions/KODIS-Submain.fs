@@ -508,13 +508,13 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                             | CurrentValidity           -> true //s tim nic nezrobim, nekonzistentni informace v retezci
                                                             | FutureValidity            -> true //s tim nic nezrobim, nekonzistentni informace v retezci
                                                             | ReplacementService        -> 
-                                                                                            fileNameFull.Contains("_v") 
-                                                                                            || fileNameFull.Contains("X")
-                                                                                            || fileNameFull.Contains("NAD")
+                                                                                           fileNameFull.Contains("_v") 
+                                                                                           || fileNameFull.Contains("X")
+                                                                                           || fileNameFull.Contains("NAD")
                                                             | WithoutReplacementService -> 
-                                                                                            not <| fileNameFull.Contains("_v") 
-                                                                                            && not <| fileNameFull.Contains("X")
-                                                                                            && not <| fileNameFull.Contains("NAD")
+                                                                                           not <| fileNameFull.Contains("_v") 
+                                                                                           && not <| fileNameFull.Contains("X")
+                                                                                           && not <| fileNameFull.Contains("NAD")
 
                                                         match cond with
                                                         | true  -> fileNameFull
@@ -528,33 +528,33 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                             let cond = 
                                                                 match param with 
                                                                 | CurrentValidity           -> 
-                                                                                                (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
-                                                                                                && 
-                                                                                                dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
-                                                                                                ||
-                                                                                                ((dateValidityStart x).Equals(currentTime) 
-                                                                                                && 
-                                                                                                (dateValidityEnd x).Equals(currentTime))
+                                                                                               (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
+                                                                                               && 
+                                                                                               dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                               ||
+                                                                                               ((dateValidityStart x).Equals(currentTime) 
+                                                                                               && 
+                                                                                               (dateValidityEnd x).Equals(currentTime))
 
                                                                 | FutureValidity            -> dateValidityStart x |> Fugit.isAfter currentTime
 
                                                                 | ReplacementService        -> 
-                                                                                                (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime
-                                                                                                && 
-                                                                                                dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
-                                                                                                &&
-                                                                                                (fileNameFull.Contains("_v") 
-                                                                                                || fileNameFull.Contains("X")
-                                                                                                || fileNameFull.Contains("NAD"))
+                                                                                               (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime
+                                                                                               && 
+                                                                                               dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                               &&
+                                                                                               (fileNameFull.Contains("_v") 
+                                                                                               || fileNameFull.Contains("X")
+                                                                                               || fileNameFull.Contains("NAD"))
 
                                                                 | WithoutReplacementService ->
-                                                                                                (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime
-                                                                                                && 
-                                                                                                dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
-                                                                                                &&
-                                                                                                (not <| fileNameFull.Contains("_v") 
-                                                                                                && not <| fileNameFull.Contains("X")
-                                                                                                && not <| fileNameFull.Contains("NAD"))
+                                                                                               (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime
+                                                                                               && 
+                                                                                               dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                               &&
+                                                                                               (not <| fileNameFull.Contains("_v") 
+                                                                                               && not <| fileNameFull.Contains("X")
+                                                                                               && not <| fileNameFull.Contains("NAD"))
                                                                                 
                                                             match cond with
                                                             | true  -> fileNameFull
@@ -639,7 +639,13 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                             //item, new DateTime(yearValidityEnd x, monthValidityEnd x, dayValidityEnd x) //pro pripadnou zmenu logiky
                                                         with 
                                                         | _ -> item, currentTime
-                                            ) |> List.maxBy snd                                                        
+                                            )
+                                            
+                                    let latestValidityStart : string*DateTime = 
+                                        latestValidityStart 
+                                        |> List.isEmpty 
+                                        |> function true -> String.Empty, currentTime | false -> latestValidityStart |> List.maxBy snd      
+                                        
                                     [ fst latestValidityStart ]                                                   
                 ) |> List.distinct                              
         
