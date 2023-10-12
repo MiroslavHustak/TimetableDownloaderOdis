@@ -189,11 +189,12 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
                                   ||> List.iteri2 
                                       (fun i path json -> 
                                                         match json.Equals(nonJsonString) with
-                                                        | true  -> ()
+                                                        | true  -> 
+                                                                 ()
                                                         | false ->                                                       
-                                                                    use streamWriter = new StreamWriter(Path.GetFullPath(path))                   
-                                                                    streamWriter.WriteLine(json)     
-                                                                    streamWriter.Flush()   
+                                                                 use streamWriter = new StreamWriter(Path.GetFullPath(path))                   
+                                                                 streamWriter.WriteLine(json)     
+                                                                 streamWriter.Flush()   
                                       ) 
                 }        
             
@@ -229,9 +230,9 @@ let internal downloadAndSaveJson message (client: Http.HttpClient) =
                                                 try 
                                                     return! client.GetStringAsync(item) |> Async.AwaitTask 
                                                 with
-                                                | ex -> 
-                                                        deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
-                                                        return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
+                                                | _ -> 
+                                                     deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JSON souborů pro JŘ KODIS." <| ()
+                                                     return! client.GetStringAsync(String.Empty) |> Async.AwaitTask //whatever of that type
                                             } |> Async.RunSynchronously                        
                             )  
                 }
@@ -564,12 +565,9 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                         | _ -> String.Empty  
 
                                             let condNAD (rangeN: string list) =   
-                                                rangeN
-                                                |> function           
-                                                    | [] -> failwith "Programátor zase něco udělal blbě v SettingsKODIS." //vyjimecne ponechavam takto, bo empty list moze vzniknut jen moji chybou v settings
-                                                    | _  -> rangeN   
-                                                            |> List.tryFind (fun item -> fileNameFull.Contains(item))  
-                                                            |> Option.isSome       
+                                                rangeN                                                  
+                                                |> List.tryFind (fun item -> fileNameFull.Contains(item))  
+                                                |> Option.isSome       
                                                                                
                                             let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
                                                                                 
@@ -610,13 +608,10 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                             (fun item -> 
                                                         let item = string item                                                                              
                                                         try
-                                                            let condNAD (rangeN: string list) =                                                                     
-                                                                rangeN
-                                                                |> function           
-                                                                    | [] -> failwith "Programátor zase něco udělal blbě v SettingsKODIS." //vyjimecne ponechavam takto, bo empty list moze vzniknut jen moji chybou v settings
-                                                                    | _  -> rangeN   
-                                                                            |> List.tryFind (fun item1 -> item.Contains(item1))  
-                                                                            |> Option.isSome                                               
+                                                            let condNAD (rangeN: string list) = 
+                                                                rangeN   
+                                                                |> List.tryFind (fun item1 -> item.Contains(item1))  
+                                                                |> Option.isSome                                               
                                                                                               
                                                             let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
                                                                                
@@ -798,12 +793,12 @@ let internal downloadAndSaveTimetables (client: Http.HttpClient) message pathToD
                         return! stream.CopyToAsync(fileStream) |> Async.AwaitTask                        
                     with 
                     | :? AggregateException as ex -> 
-                                                     message.msgParam2 uri 
-                                                     return()                                              
+                                                   message.msgParam2 uri 
+                                                   return()                                              
                     | ex                          -> 
-                                                     //deconstructorError <| message.msgParam1 (string ex) <| client.Dispose()
-                                                     deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JŘ KODIS." <| client.Dispose()
-                                                     return()                                
+                                                   //deconstructorError <| message.msgParam1 (string ex) <| client.Dispose()
+                                                   deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JŘ KODIS." <| client.Dispose()
+                                                   return()                                
                 }     
 
     //tryWith je ve funkci downloadFileTaskAsync

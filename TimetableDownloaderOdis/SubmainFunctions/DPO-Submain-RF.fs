@@ -186,14 +186,11 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                            p
                                            |> function
                                                | Ok value  ->
-                                                            value                                                             
-                                                            |> function           
-                                                                | [] -> message.msgParam2 link
-                                                                | _  -> value   
-                                                                        |> List.tryFind (fun item -> err = item)
-                                                                        |> function
-                                                                            | Some err -> closeIt client message err                                                                      
-                                                                            | None     -> message.msgParam2 link 
+                                                            value    
+                                                            |> List.tryFind (fun item -> err = item)
+                                                            |> function
+                                                                | Some err -> closeIt client message err                                                                      
+                                                                | None     -> message.msgParam2 link 
                                                | Error err ->
                                                             closeIt client message err              
 
