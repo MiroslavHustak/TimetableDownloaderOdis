@@ -61,7 +61,7 @@ let internal webscraping_DPO pathToDir =
                                     let processStartTime x =    
                                         let processStartTime = sprintf "Začátek procesu: %s" <| DateTime.Now.ToString("HH:mm:ss") 
                                         message.msgParam7 processStartTime 
-                                    tryWith processStartTime (fun x -> ()) () String.Empty ()
+                                    tryWith processStartTime (fun x -> ()) ()
                                     |> deconstructor message.msgParam1
 
         | DeleteOneODISDirectory ->                                     
@@ -74,14 +74,14 @@ let internal webscraping_DPO pathToDir =
                                         |> Seq.filter (fun item -> item.Name = dirName) 
                                         |> Seq.iter (fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce    
                                     message.msg12()    
-                                    tryWith myDeleteFunction (fun x -> ()) () String.Empty () 
+                                    tryWith myDeleteFunction (fun x -> ()) () 
                                     |> deconstructor message.msgParam1   
                                     
         | CreateFolders          -> 
                                     let myFolderCreation x = 
                                         dirList pathToDir
                                         |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)                    
-                                    tryWith myFolderCreation (fun x -> ()) () String.Empty ()
+                                    tryWith myFolderCreation (fun x -> ()) ()
                                     |> deconstructor message.msgParam1  
 
         | FilterDownloadSave     -> 
@@ -95,7 +95,7 @@ let internal webscraping_DPO pathToDir =
                                         | true  -> 
                                                    environment.filterTimetables pathToSubdir message
                                                    |> environment.downloadAndSaveTimetables environment.client message pathToSubdir   
-                                    tryWith filterDownloadSave (fun x -> ()) () String.Empty ()
+                                    tryWith filterDownloadSave (fun x -> ()) ()
                                     |> deconstructor message.msgParam1
                                     
                                     environment.client.Dispose()
@@ -104,7 +104,7 @@ let internal webscraping_DPO pathToDir =
                                     let processEndTime x =    
                                         let processEndTime = sprintf "Konec procesu: %s" <| DateTime.Now.ToString("HH:mm:ss")                       
                                         message.msgParam7 processEndTime
-                                    tryWith processEndTime (fun x -> ()) () String.Empty () 
+                                    tryWith processEndTime (fun x -> ()) () 
                                     |> deconstructor message.msgParam1
     
     stateReducer State.Default Messages.Default StartProcess environment

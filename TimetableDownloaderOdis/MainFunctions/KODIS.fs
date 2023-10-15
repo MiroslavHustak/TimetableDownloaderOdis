@@ -58,7 +58,7 @@ let internal webscraping_KODIS pathToDir (variantList: Validity list) =
                                                  let processStartTime x =    
                                                      let processStartTime = sprintf "Začátek procesu: %s" <| DateTime.Now.ToString("HH:mm:ss") 
                                                      message.msgParam7 processStartTime 
-                                                 tryWith processStartTime (fun x -> ()) () String.Empty ()
+                                                 tryWith processStartTime (fun x -> ()) ()
                                                  |> deconstructor message.msgParam1
 
         | DownloadAndSaveJson                 -> downloadAndSaveJson message environment.client  //try with included
@@ -85,7 +85,7 @@ let internal webscraping_KODIS pathToDir (variantList: Validity list) =
                                                             (variantList, dirList)
                                                             ||> List.iter2 (fun variant dir -> environment.downloadAndSave message variant dir environment.client)         
                                                  
-                                                 tryWith downloadSelectedVariant (fun x -> ()) () String.Empty ()
+                                                 tryWith downloadSelectedVariant (fun x -> ()) ()
                                                  |> deconstructor message.msgParam1  
                                                  
                                                  environment.client.Dispose()
@@ -94,7 +94,7 @@ let internal webscraping_KODIS pathToDir (variantList: Validity list) =
                                                 let processEndTime x =    
                                                     let processEndTime = sprintf "Konec procesu: %s" <| DateTime.Now.ToString("HH:mm:ss")                       
                                                     message.msgParam7 processEndTime
-                                                tryWith processEndTime (fun x -> ()) () String.Empty () 
+                                                tryWith processEndTime (fun x -> ()) () 
                                                 |> deconstructor message.msgParam1                                     
     
     stateReducer State.Default Messages.Default StartProcess environment

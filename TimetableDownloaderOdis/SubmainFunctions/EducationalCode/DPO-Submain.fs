@@ -22,7 +22,7 @@ open ErrorHandling.TryWith
 let internal client printToConsole1 printToConsole2 =  
 
     let myClient x = new System.Net.Http.HttpClient() |> (Option.toGenerics <| printToConsole1 <| (new System.Net.Http.HttpClient()))    
-    tryWith myClient (fun x -> ()) () String.Empty (new System.Net.Http.HttpClient()) |> deconstructor printToConsole2
+    tryWith myClient (fun x -> ()) (new System.Net.Http.HttpClient()) |> deconstructor printToConsole2
 
 let internal filterTimetables pathToDir (message: Messages) = //I
 
@@ -51,7 +51,7 @@ let internal filterTimetables pathToDir (message: Messages) = //I
     |> List.collect (fun url -> 
                               let document = 
                                   let myDocument x = FSharp.Data.HtmlDocument.Load(url)  
-                                  tryWith myDocument (fun x -> ()) () String.Empty (FSharp.Data.HtmlDocument.Load(@"https://google.com")) |> deconstructor message.msgParam7
+                                  tryWith myDocument (fun x -> ()) (FSharp.Data.HtmlDocument.Load(@"https://google.com")) |> deconstructor message.msgParam7
                                                              
                               document.Descendants "a"
                               |> Seq.choose (fun htmlNode ->

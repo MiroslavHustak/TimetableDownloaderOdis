@@ -45,7 +45,7 @@ let [<Literal>] internal pathKodisWeb = @"https://kodisweb-backend.herokuapp.com
 let [<Literal>] internal pathKodisAmazonLink = @"https://kodis-files.s3.eu-central-1.amazonaws.com/" 
 let [<Literal>] internal nonJsonString = "12345 #$%&*()"
 
-let internal currentTime = Fugit.now()//.AddDays(-1.0)   // new DateTime(2023, 04, 11)
+let internal currentTime = Fugit.today() //nelze Fugit.now //.AddDays(-1.0)   // new DateTime(2023, 04, 11)
 let internal regularValidityStart = new DateTime(2022, 12, 11) //zmenit pri pravidelne zmene JR 
 let internal regularValidityEnd = new DateTime(2023, 12, 09) //zmenit pri pravidelne zmene JR 
 let internal range = [ '1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9'; '0' ]
@@ -73,7 +73,13 @@ let internal jsonLinkList = //pri zmene jsonu na strankach KODISu zmenit aji naz
         sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=0&group_in%5B0%5D=MHD%20Nový%20Jičín&_sort=numeric_label"
         sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=0&group_in%5B0%5D=MHD%20Opava&_sort=numeric_label"
         sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=0&group_in%5B0%5D=MHD%20Orlová&_sort=numeric_label"
+        sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=12&group_in%5B0%5D=MHD%20Ostrava&_sort=numeric_label"
+        sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=24&group_in%5B0%5D=MHD%20Ostrava&_sort=numeric_label"
+        sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=36&group_in%5B0%5D=MHD%20Ostrava&_sort=numeric_label" 
+        sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=48&group_in%5B0%5D=MHD%20Ostrava&_sort=numeric_label"
+        sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=60&group_in%5B0%5D=MHD%20Ostrava&_sort=numeric_label"
         sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=72&group_in%5B0%5D=MHD%20Ostrava&_sort=numeric_label" 
+        sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=84&group_in%5B0%5D=MHD%20Ostrava&_sort=numeric_label"
         sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=0&group_in%5B0%5D=MHD%20Studénka&_sort=numeric_label"
         sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=0&group_in%5B0%5D=MHD%20Třinec&_sort=numeric_label"
         sprintf "%s%s" pathKodisWeb @"linky?_limit=12&_start=0&group_in%5B0%5D=NAD%20MHD&_sort=numeric_label"
@@ -107,7 +113,13 @@ let internal pathToJsonList =
         sprintf "%s%s" partialPathJson @"kodisMHDNJ.json"
         sprintf "%s%s" partialPathJson @"kodisMHDOpava.json"
         sprintf "%s%s" partialPathJson @"kodisMHDOrlova.json"
+        sprintf "%s%s" partialPathJson @"kodisMHDOstrava0.json"
         sprintf "%s%s" partialPathJson @"kodisMHDOstrava1.json"
+        sprintf "%s%s" partialPathJson @"kodisMHDOstrava2.json"
+        sprintf "%s%s" partialPathJson @"kodisMHDOstrava3.json"
+        sprintf "%s%s" partialPathJson @"kodisMHDOstrava4.json"
+        sprintf "%s%s" partialPathJson @"kodisMHDOstrava5.json"
+        sprintf "%s%s" partialPathJson @"kodisMHDOstrava6.json"
         sprintf "%s%s" partialPathJson @"kodisMHDStudenka.json"
         sprintf "%s%s" partialPathJson @"kodisMHDTrinec.json"
         sprintf "%s%s" partialPathJson @"kodisMHDNAD.json"

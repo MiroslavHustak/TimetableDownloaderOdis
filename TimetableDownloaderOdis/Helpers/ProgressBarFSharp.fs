@@ -36,7 +36,7 @@ let inline private updateProgressBar (message: Messages) (currentProgress : int)
         | true  -> message.msgParam8 progressBar
         | false -> message.msgParam9 progressBar
 
-    tryWith myFunction (fun x -> ()) () String.Empty () |> deconstructor Messages.Default.msgParam1
+    tryWith myFunction (fun x -> ()) () |> deconstructor Messages.Default.msgParam1
 
 let internal progressBarContinuous (message: Messages) (currentProgress : int) (totalProgress : int) : unit =
 

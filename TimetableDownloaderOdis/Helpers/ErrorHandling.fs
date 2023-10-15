@@ -144,15 +144,11 @@ module Casting =
 
 module TryWith =
 
-    let internal tryWith f1 f2 f3 x y = 
+    let internal tryWith f1 x y = 
         try
-            try          
-               f1 x |> Success
-            finally
-               f2 x
+            f1 x |> Success
         with
         | ex -> 
-               f3
                Failure (ex.Message, y)      
 
     let internal deconstructorError fn1 fn2 =  

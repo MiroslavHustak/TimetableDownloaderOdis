@@ -105,7 +105,7 @@ let main argv =
 
         Console.Clear()
         printfn "Hromadné stahování JŘ ODIS všech dopravců v systému ODIS z webu https://www.kodis.cz"           
-        printfn "Datum poslední aktualizace SW: 13-10-2023" 
+        printfn "Datum poslední aktualizace SW: 14-10-2023" 
         printfn "********************************************************************"
         printfn "Nyní je třeba vybrat si adresář pro uložení JŘ všech dopravců v systému ODIS."
         printfn "Pokud ve vybraném adresáři existují následující podadresáře, jejich obsah bude nahrazen nově staženými JŘ."
@@ -174,9 +174,9 @@ let main argv =
            
         Console.ReadLine()
         |> function 
-            | "1" -> tryWith myWebscraping_DPO (fun x -> ()) () String.Empty () |> deconstructor Messages.Default.msgParam1
-            | "2" -> tryWith myWebscraping_MDPO (fun x -> ()) () String.Empty () |> deconstructor Messages.Default.msgParam1   
-            | "3" -> tryWith myWebscraping_KODIS (fun x -> ()) () String.Empty () |> deconstructor Messages.Default.msgParam1
+            | "1" -> tryWith myWebscraping_DPO (fun x -> ()) () |> deconstructor Messages.Default.msgParam1
+            | "2" -> tryWith myWebscraping_MDPO (fun x -> ()) () |> deconstructor Messages.Default.msgParam1   
+            | "3" -> tryWith myWebscraping_KODIS (fun x -> ()) () |> deconstructor Messages.Default.msgParam1
             | _   ->
                      printfn "Varianta nebyla vybrána. Prosím zadej znovu."
                      variant()

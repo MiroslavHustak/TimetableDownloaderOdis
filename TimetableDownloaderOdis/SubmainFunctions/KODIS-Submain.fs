@@ -56,7 +56,7 @@ let private splitList message list =
             | _           -> [a], cur::acc
         let result = List.foldBack folder (List.pairwise list) ([ List.last list ], []) 
         (fst result)::(snd result)
-    tryWith mySplitting (fun x -> ()) () String.Empty [ [] ] |> deconstructor message.msgParam1
+    tryWith mySplitting (fun x -> ()) [ [] ] |> deconstructor message.msgParam1
 
     (*
     splitList will split the input list into groups of adjacent elements that have the same prefix.
@@ -71,7 +71,7 @@ let private splitListByPrefix message (list: string list) : string list list =
         let filteredGroups = groups |> List.filter (fun (k, _) -> k.Substring(0, lineNumberLength) = k.Substring(0, lineNumberLength))
         let result = filteredGroups |> List.map snd
         result
-    tryWith mySplitting (fun x -> ()) () String.Empty [ [] ] |> deconstructor message.msgParam1
+    tryWith mySplitting (fun x -> ()) [ [] ] |> deconstructor message.msgParam1
 
 //ekvivalent splitListByPrefix za predpokladu existence teto podminky shodnosti k.Substring(0, lineNumberLength) = k.Substring(0, lineNumberLength)   
 let private splitList1 (list: string list) : string list list = 
@@ -91,7 +91,7 @@ let internal getDefaultRcValKodis =
 let internal client printToConsole1 printToConsole2 =  
 
     let myClient x = new System.Net.Http.HttpClient() |> (Option.toGenerics <| printToConsole1 <| (new System.Net.Http.HttpClient()))    
-    tryWith myClient (fun x -> ()) () String.Empty (new System.Net.Http.HttpClient()) |> deconstructor printToConsole2
+    tryWith myClient (fun x -> ()) (new System.Net.Http.HttpClient()) |> deconstructor printToConsole2
 
 let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechano z vyukovych duvodu 
         
@@ -202,7 +202,7 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
 
     message.msg2() 
 
-    tryWith updateJson (fun x -> ()) () String.Empty () |> deconstructor message.msgParam1    
+    tryWith updateJson (fun x -> ()) () |> deconstructor message.msgParam1    
 
     message.msg3() 
     message.msg4() 
@@ -265,7 +265,7 @@ let internal downloadAndSaveJson message (client: Http.HttpClient) =
 
     message.msg2() 
 
-    tryWith updateJson (fun x -> ()) () String.Empty () |> deconstructor message.msgParam1    
+    tryWith updateJson (fun x -> ()) () |> deconstructor message.msgParam1    
 
     message.msg3() 
     message.msg4() 
@@ -295,7 +295,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
                                                           [||]    
                         ) 
         
-                return tryWith myFunction (fun x -> ()) () String.Empty [||] |> deconstructor message.msgParam1
+                return tryWith myFunction (fun x -> ()) [||] |> deconstructor message.msgParam1
             }
 
     let kodisAttachments : Reader<string list, string array> = //Reader monad for educational purposes only
@@ -358,7 +358,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
                                                           [||]                                 
                         ) 
                 
-                return tryWith myFunction (fun x -> ()) () String.Empty [||] |> deconstructor message.msgParam1 
+                return tryWith myFunction (fun x -> ()) [||] |> deconstructor message.msgParam1 
             }
         
     let addOn () = 
@@ -382,6 +382,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
         let myFunction x =            
             diggingResult
             |> Set.toArray 
+            |> Array.filter(fun item -> not (String.IsNullOrEmpty(item) || String.IsNullOrWhiteSpace(item)))
             |> Array.Parallel.map
                 (fun (item: string) ->   
                                     let item = string item
@@ -439,7 +440,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                         | true  -> item.Replace(pathKodisAmazonLink, String.Empty).Replace("timetables/", String.Empty).Replace(".pdf", "_t.pdf")
                                         | false -> item.Replace(pathKodisAmazonLink, String.Empty)  
                                                     
-                                    let charList = 
+                                    let charList =                                         
                                         match fileName |> String.length >= lineNumberLength with  
                                         | true  -> 
                                                  let list = fileName.ToCharArray() |> Array.toList
@@ -450,7 +451,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                            []
                                                      | _  -> 
                                                            list |> List.take lineNumberLength
-                                        | false -> 
+                                        | false ->                                                  
                                                  message.msg9() 
                                                  []
                                              
@@ -479,7 +480,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                         | false -> 25  //25 -> 113_2022_12_11_2023_12_09......
                                                                                                                                                                                                                    
                                     match not (fileNameFull |> String.length >= numberOfChar) with 
-                                    | true  ->
+                                    | true  ->                                           
                                             String.Empty
                                     | false ->                                                                        
                                             let yearValidityStart x = parseMeInt <| message.msgParam10 <| fileNameFull <| fileNameFull.Substring(4 + x, 4) 
@@ -527,38 +528,47 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                             let dateValidityEnd x = new DateTime(yearValidityEnd x, monthValidityEnd x, dayValidityEnd x) 
                                                                                 
                                                             let cond = 
+
                                                                 match param with 
-                                                                | CurrentValidity           -> 
-                                                                                               (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
+                                                                | CurrentValidity           ->  
+                                                                                               ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
                                                                                                && 
                                                                                                dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
                                                                                                ||
                                                                                                ((dateValidityStart x).Equals(currentTime) 
                                                                                                && 
-                                                                                               (dateValidityEnd x).Equals(currentTime))
+                                                                                               (dateValidityEnd x).Equals(currentTime)))
 
                                                                 | FutureValidity            -> dateValidityStart x |> Fugit.isAfter currentTime
 
                                                                 | ReplacementService        -> 
-                                                                                               (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime
+                                                                                               ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
                                                                                                && 
                                                                                                dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                               ||
+                                                                                               ((dateValidityStart x).Equals(currentTime) 
+                                                                                               && 
+                                                                                               (dateValidityEnd x).Equals(currentTime)))
                                                                                                &&
                                                                                                (fileNameFull.Contains("_v") 
                                                                                                || fileNameFull.Contains("X")
                                                                                                || fileNameFull.Contains("NAD"))
 
                                                                 | WithoutReplacementService ->
-                                                                                               (dateValidityStart x |> Fugit.isBeforeOrEqual currentTime
+                                                                                               ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
                                                                                                && 
                                                                                                dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                               ||
+                                                                                               ((dateValidityStart x).Equals(currentTime) 
+                                                                                               && 
+                                                                                               (dateValidityEnd x).Equals(currentTime)))
                                                                                                &&
                                                                                                (not <| fileNameFull.Contains("_v") 
                                                                                                && not <| fileNameFull.Contains("X")
                                                                                                && not <| fileNameFull.Contains("NAD"))
-                                                                                
+                                                            
                                                             match cond with
-                                                            | true  -> fileNameFull
+                                                            | true  -> fileNameFull                                                                       
                                                             | false -> String.Empty                                                                                
                                                                                
                                                         with 
@@ -582,12 +592,12 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                             result x
                                                    
                 ) |> Array.toList |> List.distinct 
-
+       
         //tryWith myFunction (fun x -> ()) () 0 [] |> deconstructor message.msgParam1
-        tryWith myFunction (fun x -> ()) () String.Empty [] |> deconstructor message.msgParam1
-    
+        tryWith myFunction (fun x -> ()) [] |> deconstructor message.msgParam1
+            
     let myList1 = 
-        myList |> List.filter (fun item -> not <| String.IsNullOrWhiteSpace(item) && not <| String.IsNullOrEmpty(item))     
+        myList |> List.filter (fun item -> not (String.IsNullOrEmpty(item) || String.IsNullOrWhiteSpace(item)))    
     
     //****************druha filtrace odkazu na neplatne jizdni rady***********************
    
@@ -644,11 +654,11 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                     [ fst latestValidityStart ]                                                   
                 ) |> List.distinct                              
         
-        tryWith myFunction (fun x -> ()) () String.Empty [] |> deconstructor message.msgParam1
+        tryWith myFunction (fun x -> ()) [] |> deconstructor message.msgParam1
         
     let myList3 = 
-        myList2 |> List.filter (fun item -> not <| String.IsNullOrWhiteSpace(item) && not <| String.IsNullOrEmpty(item))
-  
+        myList2 |> List.filter (fun item -> not (String.IsNullOrEmpty(item) || String.IsNullOrWhiteSpace(item)))
+        
     let myList4 = 
         let myFunction x = 
             myList3 
@@ -682,8 +692,8 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                     link, path 
             )
         
-        tryWith myFunction (fun x -> ()) () String.Empty [] |> deconstructor message.msgParam1   
-    
+        tryWith myFunction (fun x -> ()) [] |> deconstructor message.msgParam1   
+
     myList4 
     |> List.filter
         (fun item -> 
@@ -694,7 +704,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                   (not <| String.IsNullOrWhiteSpace(snd item)
                   && 
                   not <| String.IsNullOrEmpty(snd item))                                         
-        ) |> List.sort                                             
+        ) |> List.sort      
         
 let internal deleteAllODISDirectories message pathToDir = 
 
@@ -718,7 +728,7 @@ let internal deleteAllODISDirectories message pathToDir =
                             |> Array.Parallel.iter (fun item -> item.Delete(true))                 
                         deleteIt 
                         
-                    return tryWith myDeleteFunction (fun x -> ()) () String.Empty () |> deconstructor message.msgParam1
+                    return tryWith myDeleteFunction (fun x -> ()) () |> deconstructor message.msgParam1
                 }
 
     deleteIt getDefaultRcValKodis  
@@ -763,7 +773,7 @@ let internal deleteOneODISDirectory message variant pathToDir =
                     |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
                     |> Seq.iter (fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce
                  
-                return tryWith myDeleteFunction (fun x -> ()) () String.Empty () |> deconstructor message.msgParam1                          
+                return tryWith myDeleteFunction (fun x -> ()) () |> deconstructor message.msgParam1                          
             }
 
     deleteIt getDefaultRcValKodis    
@@ -778,7 +788,7 @@ let internal createFolders message dirList =
    let myFolderCreation x = 
        dirList |> List.iter (fun dir -> Directory.CreateDirectory(dir) |> ignore)  
               
-   tryWith myFolderCreation (fun x -> ()) () String.Empty () |> deconstructor message.msgParam1   
+   tryWith myFolderCreation (fun x -> ()) () |> deconstructor message.msgParam1   
 
 let internal downloadAndSaveTimetables (client: Http.HttpClient) message pathToDir (filterTimetables: (string*string) list)  = 
 
