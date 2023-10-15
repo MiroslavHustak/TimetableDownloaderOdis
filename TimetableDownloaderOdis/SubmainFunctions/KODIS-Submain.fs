@@ -12,6 +12,7 @@ open FsToolkit.ErrorHandling
 open Microsoft.FSharp.Reflection
 
 open SettingsKODIS
+open Types.DirNames
 open Messages.Messages
 open ProgressBarFSharp
 open DiscriminatedUnions
@@ -31,13 +32,14 @@ let private getDefaultRcVal (t: Type) (r: ODIS) itemNo =
    //reflection nefunguje s type internal  //reflection for educational purposes
    
    try 
-       let list = FSharpType.GetRecordFields(t) 
-                   |> Array.map
-                       (fun (prop: PropertyInfo) -> 
-                                                  match Casting.castAs<string> <| prop.GetValue(r) with
-                                                  | Some value -> value
-                                                  | None       -> failwith "Chyba v průběhu stahování JŘ KODIS." //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX
-                       ) |> List.ofArray 
+       let list = 
+           FSharpType.GetRecordFields(t) 
+           |> Array.map
+               (fun (prop: PropertyInfo) -> 
+                                          match Casting.castAs<string> <| prop.GetValue(r) with
+                                          | Some value -> value
+                                          | None       -> failwith "Chyba v průběhu stahování JŘ KODIS." //vyjimecne ponechavam takto, bo se mi to nechce predelavat na message.msgParamX
+               ) |> List.ofArray 
 
        list 
        |> function           
@@ -528,7 +530,8 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                             let dateValidityEnd x = new DateTime(yearValidityEnd x, monthValidityEnd x, dayValidityEnd x) 
                                                                                 
                                                             let cond = 
-
+                                                                //Code with Fugit.now() will be comparing the current date and time, including the precise time down to the second,
+                                                                //that is why only Fugit.today() shall be used.
                                                                 match param with 
                                                                 | CurrentValidity           ->  
                                                                                                ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 

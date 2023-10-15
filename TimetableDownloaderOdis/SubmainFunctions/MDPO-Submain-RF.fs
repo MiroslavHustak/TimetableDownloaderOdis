@@ -16,7 +16,7 @@ open ProgressBarFSharp
 open Messages.Messages
 //open Messages.MessagesMocking
 
-open ErrorTypes.ErrorTypes
+open Types.ErrorTypes
 
 open ErrorHandling
 open ErrorHandling.TryWith
@@ -113,24 +113,25 @@ let internal filterTimetables pathToDir (message: Messages) =
 let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: string) (filterTimetables: (string*string) list) =  
 
     let downloadFileTaskAsync (client: Http.HttpClient) (uri: string) (path: string) : Async<Result<unit, string>> =  
-        
-        async
-            {                      
-                try                       
-                    match File.Exists(path) with
-                    | true  -> return Ok () 
-                    | false -> 
-                               let! response = client.GetAsync(uri) |> Async.AwaitTask
-                        
-                               match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
-                               | true  -> 
+            
+            async
+                {                      
+                    try    
+                        match File.Exists(path) with
+                        | true  -> 
+                                return Ok () 
+                        | false -> 
+                                let! response = client.GetAsync(uri) |> Async.AwaitTask
+                             
+                                match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
+                                | true  -> 
                                         let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask    
                                         use fileStream = new FileStream(path, FileMode.CreateNew) 
                                         do! stream.CopyToAsync(fileStream) |> Async.AwaitTask
-
+                                           
                                         return Ok ()
 
-                               | false -> 
+                                | false -> 
                                         let errorType = 
                                             match response.StatusCode with
                                             | HttpStatusCode.BadRequest          -> Error "400 Bad Request"
@@ -138,14 +139,14 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
                                             | HttpStatusCode.NotImplemented      -> Error "501 Not Implemented"
                                             | HttpStatusCode.ServiceUnavailable  -> Error "503 Service Unavailable"
                                             | HttpStatusCode.NotFound            -> Error uri  
-                                            | _                                  -> Error "418 I'm a teapot. Look for a coffee maker elsewhere." 
-                                            
+                                            | _                                  -> Error "418 I'm a teapot. Look for a coffee maker elsewhere."   
+                                               
                                         return errorType     
-                with                                                         
-                | ex -> 
-                      closeIt client message "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu."//(string ex)                                                 
-                      return Error String.Empty    
-            }   
+                    with                                                         
+                    | ex ->                        
+                        closeIt client message "Chyba v průběhu stahování JŘ, u JŘ MDPO se to někdy stává. Zkus to za chvíli znovu."//(string ex)                                                 
+                        return Error String.Empty    
+                }                 
     
     message.msgParam3 pathToDir 
     

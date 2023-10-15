@@ -15,11 +15,13 @@ open ProgressBarFSharp
 open Messages.Messages
 //open Messages.MessagesMocking
 
-open ErrorTypes.ErrorTypes
+open Types.DirNames
+open Types.ErrorTypes
 
 open ErrorHandling
 open ErrorHandling.TryWith
 open ErrorHandling.TryWithRF
+
 
 //************************Submain helpers**************************************************************************
 
@@ -144,29 +146,30 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
             {                      
                 try    
                     match File.Exists(path) with
-                    | true  -> return Ok () 
+                    | true  -> 
+                             return Ok () 
                     | false -> 
-                               let! response = client.GetAsync(uri) |> Async.AwaitTask
+                             let! response = client.GetAsync(uri) |> Async.AwaitTask
                         
-                               match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
-                               | true  -> 
-                                        let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask    
-                                        use fileStream = new FileStream(path, FileMode.CreateNew) 
-                                        do! stream.CopyToAsync(fileStream) |> Async.AwaitTask
+                             match response.IsSuccessStatusCode with //true if StatusCode was in the range 200-299; otherwise, false.
+                             | true  -> 
+                                      let! stream = response.Content.ReadAsStreamAsync() |> Async.AwaitTask    
+                                      use fileStream = new FileStream(path, FileMode.CreateNew) 
+                                      do! stream.CopyToAsync(fileStream) |> Async.AwaitTask
+                                      
+                                      return Ok ()
 
-                                        return Ok ()
-
-                               | false -> 
-                                        let errorType = 
-                                            match response.StatusCode with
-                                            | HttpStatusCode.BadRequest          -> Error "400 Bad Request"
-                                            | HttpStatusCode.InternalServerError -> Error "500 Internal Server Error"
-                                            | HttpStatusCode.NotImplemented      -> Error "501 Not Implemented"
-                                            | HttpStatusCode.ServiceUnavailable  -> Error "503 Service Unavailable"
-                                            | HttpStatusCode.NotFound            -> Error uri  
-                                            | _                                  -> Error "418 I'm a teapot. Look for a coffee maker elsewhere."   
-                                            
-                                        return errorType     
+                             | false -> 
+                                      let errorType = 
+                                          match response.StatusCode with
+                                          | HttpStatusCode.BadRequest          -> Error "400 Bad Request"
+                                          | HttpStatusCode.InternalServerError -> Error "500 Internal Server Error"
+                                          | HttpStatusCode.NotImplemented      -> Error "501 Not Implemented"
+                                          | HttpStatusCode.ServiceUnavailable  -> Error "503 Service Unavailable"
+                                          | HttpStatusCode.NotFound            -> Error uri  
+                                          | _                                  -> Error "418 I'm a teapot. Look for a coffee maker elsewhere."   
+                                          
+                                      return errorType     
                 with                                                         
                 | ex ->                        
                       closeIt client message "Chyba v průběhu stahování JŘ DPO."//(string ex) 

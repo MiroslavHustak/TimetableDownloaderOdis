@@ -4,7 +4,7 @@ open System
 open System.IO
 open System.Net
 
-open SettingsKODIS
+open Types.DirNames
 
 //open DPO_Submain
 open DPO_Submain_RF
@@ -14,6 +14,7 @@ open Messages.Messages
 
 open ErrorHandling
 open ErrorHandling.TryWith
+
 
 //************************Main code********************************************************************************
 

@@ -1,9 +1,7 @@
-﻿//namespace TestProject
-
-open System
+﻿open System
 open System.Data
 
-open SettingsKODIS
+open Types.DirNames
 
 open WebScraping1_DPO
 open WebScraping1_MDPO
@@ -15,6 +13,7 @@ open BrowserDialogWindow
 open Helpers.ConsoleFixers
 
 open ErrorHandling.TryWith
+
 
 [<EntryPoint; STAThread>]
 let main argv =
@@ -29,7 +28,7 @@ let main argv =
 
         Console.Clear()
         printfn "Hromadné stahování aktuálních JŘ ODIS (včetně výluk) dopravce DP Ostrava z webu https://www.dpo.cz"
-        printfn "Datum poslední aktualizace SW: 08-10-2023"
+        printfn "Datum poslední aktualizace SW: 16-10-2023"
         printfn "********************************************************************"
         printfn "Nyní je třeba vybrat si adresář pro uložení JŘ dopravce DP Ostrava."
         printfn "Pokud ve vybraném adresáři existuje následující podadresář, jeho obsah bude nahrazen nově staženými JŘ."
@@ -67,7 +66,7 @@ let main argv =
 
         Console.Clear()
         printfn "Hromadné stahování aktuálních JŘ ODIS dopravce MDP Opava z webu https://www.mdpo.cz"           
-        printfn "Datum poslední aktualizace SW: 23-09-2023" 
+        printfn "Datum poslední aktualizace SW: 16-10-2023" 
         printfn "********************************************************************"
         printfn "Nyní je třeba vybrat si adresář pro uložení JŘ dopravce MDP Opava."
         printfn "Pokud ve vybraném adresáři existuje následující podadresář, jeho obsah bude nahrazen nově staženými JŘ."
@@ -105,7 +104,7 @@ let main argv =
 
         Console.Clear()
         printfn "Hromadné stahování JŘ ODIS všech dopravců v systému ODIS z webu https://www.kodis.cz"           
-        printfn "Datum poslední aktualizace SW: 14-10-2023" 
+        printfn "Datum poslední aktualizace SW: 16-10-2023" 
         printfn "********************************************************************"
         printfn "Nyní je třeba vybrat si adresář pro uložení JŘ všech dopravců v systému ODIS."
         printfn "Pokud ve vybraném adresáři existují následující podadresáře, jejich obsah bude nahrazen nově staženými JŘ."

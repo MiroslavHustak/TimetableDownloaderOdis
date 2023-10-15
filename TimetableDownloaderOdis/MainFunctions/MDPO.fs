@@ -7,7 +7,7 @@ open System.Net
 //open MDPO_Submain
 open MDPO_Submain_RF
 
-open SettingsKODIS
+open Types.DirNames
 open Messages.Messages
 //open Messages.MessagesMocking
 

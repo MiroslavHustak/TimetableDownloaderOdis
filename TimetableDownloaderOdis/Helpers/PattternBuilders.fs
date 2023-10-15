@@ -1,27 +1,23 @@
 ﻿namespace PatternBuilders
 
 module PattternBuilders =
-   
-    let private (>>==) resultFn nextFunc = //(>>==) double ==
-        match resultFn with
-        | Ok resultFn -> Ok <| nextFunc() 
-        | Error err   -> Error err
-    
+           
     [<Struct>]
     type internal MyBuilderCC = MyBuilderCC with    //zatim nevyuzito        
-        member _.Bind(condition, nextFunc) = (>>==) condition nextFunc 
+        member _.Bind(resultFn, nextFunc) = 
+            match resultFn with
+            | Ok resultFn -> Ok <| nextFunc() 
+            | Error err   -> Error err
         member _.Return x = x  
 
     //**************************************************************************************
-    
-    let private (>>=) condition nextFunc =
-        match fst condition with
-        | false -> snd condition
-        | true  -> nextFunc()  
-    
+
     [<Struct>]
     type internal MyBuilder = MyBuilder with    
-        member _.Bind(condition, nextFunc) = (>>=) <| condition <| nextFunc
+        member _.Bind(condition, nextFunc) =
+            match fst condition with
+            | false -> snd condition
+            | true  -> nextFunc()  
         member _.Return x = x
 
     let internal pyramidOfHell = MyBuilder
