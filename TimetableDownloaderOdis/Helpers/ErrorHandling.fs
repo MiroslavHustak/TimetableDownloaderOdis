@@ -35,7 +35,8 @@ module Result =
         let initialValue = Ok [] 
         List.foldBack prepend aListOfResults initialValue
 
-    let internal sequence1 aListOfResults =            
+    let internal sequence1 aListOfResults =       
+        
         aListOfResults 
         |> List.choose (fun item -> item |> Result.toOption)
         |> List.length
@@ -130,10 +131,11 @@ module Option =
         value
         |> Option.ofNull
         |> function 
-            | Some value -> value
+            | Some value ->
+                          value
             | None       -> 
-                            printError.Force() 
-                            gen  
+                          printError.Force() 
+                          gen  
                             
 module Casting = 
     
@@ -194,7 +196,7 @@ module Parsing =
        let rec inline internal parseMeDate (printError: string -> unit) =
            function            
            | TryParserDate.Date d ->
-                                  f_date d 
+                                   f_date d 
            | notADate             -> 
-                                  printError notADate
-                                  DateTime.MinValue
+                                   printError notADate
+                                   DateTime.MinValue

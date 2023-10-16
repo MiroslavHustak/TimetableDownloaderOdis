@@ -809,7 +809,6 @@ let internal downloadAndSaveTimetables (client: Http.HttpClient) message pathToD
                                                    message.msgParam2 uri 
                                                    return()                                              
                     | ex                          -> 
-                                                   //deconstructorError <| message.msgParam1 (string ex) <| client.Dispose()
                                                    deconstructorError <| message.msgParam1 "Chyba v průběhu stahování JŘ KODIS." <| client.Dispose()
                                                    return()                                
                 }     
