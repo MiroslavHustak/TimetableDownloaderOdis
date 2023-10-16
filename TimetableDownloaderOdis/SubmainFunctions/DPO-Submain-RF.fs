@@ -130,7 +130,7 @@ let internal filterTimetables pathToDir (message: Messages) =
                                         let lineName = 
                                             let s adaptedLineName = sprintf"%s_%s" (getLastThreeCharacters adaptedLineName) adaptedLineName  
                                             let s1 s = removeLastFourCharacters s 
-                                            sprintf"%s%s" ((s >> s1) adaptedLineName) ".pdf"
+                                            sprintf"%s%s" <| (s >> s1) adaptedLineName <| ".pdf"
                                             
                                         let pathToFile = sprintf "%s/%s" pathToDir lineName
 
