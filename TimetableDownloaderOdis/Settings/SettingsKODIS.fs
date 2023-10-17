@@ -29,28 +29,32 @@ let internal currentTime = Fugit.today() //nelze Fugit.now //.AddDays(-1.0)   //
 let internal regularValidityStart = new DateTime(2022, 12, 11) //zmenit pri pravidelne zmene JR 
 let internal regularValidityEnd = new DateTime(2023, 12, 09) //zmenit pri pravidelne zmene JR 
 
-let internal range = [ '1'; '2'; '3'; '4'; '5'; '6'; '7'; '8'; '9'; '0' ] //nema souvislost s nize uvedenym
+let internal range = [ 0..9 ] |> List.map (fun item -> char (int '0' + item))  //[ '1'; '2'; .... ] //nema souvislost s nize uvedenym
+//int '0': Converts the character '0' to its Unicode code point, which is equivalent to the integer 48.
+//int '0' + item: Adds the current integer item to 48, effectively converting it to the ASCII value of the corresponding digit character.
+//For example, if item is 3, this part results in 51, which corresponds to the ASCII value of the character '3'.
 
-let internal rangeS = [ 1..9 ] |> List.map (fun item -> sprintf "S%s_" <| string item)  //[ "S1_"; "S2_"; "S3_"; "S4_"; "S5_"; "S6_"; "S7_"; "S8_"; "S9_" ]
-let internal rangeR = [ 1..9 ] |> List.map (fun item -> sprintf "R%s_" <| string item)  //[ "R1_"; "R2_"; "R3_"; "R4_"; "R5_"; "R6_"; "R7_"; "R8_"; "R9_" ]
+let internal rangeS = [ 1..9 ] |> List.map (fun item -> sprintf "S%s_" <| string item)  //[ "S1_"; "S2_"; ..... ]
+let internal rangeR = [ 1..9 ] |> List.map (fun item -> sprintf "R%s_" <| string item)  //[ "R1_"; "R2_"; ..... ]
 
 let internal rangeS1 = [ 10..99 ] |> List.map (fun item -> sprintf "S%s_" <| string item) //trimistne, jen pro tvorbu rangeNS1
 let internal rangeR1 = [ 10..99 ] |> List.map (fun item -> sprintf "R%s_" <| string item)  //trimistne, jen pro tvorbu rangeNR1
 
-let internal rangeX = [ 1..9 ] |> List.map (fun item -> sprintf "X%s_" <| string item) // [ "X1_"; "X2_"; "X3_"; "X4_"; "X5_"; "X6_"; "X7_"; "X8_"; "X9_" ]
+let internal rangeX = [ 1..9 ] |> List.map (fun item -> sprintf "X%s_" <| string item)  //[ "X1_"; "X2_"; ..... ]
 //let internal rangeX1 = [ 10..99 ] |> List.map (fun item -> sprintf "X%s_" <| string item) //trimistne
 let internal rangeX2_1 = [ 100..119 ] |> List.map (fun item -> sprintf "X%s_" <| string item) //DPO
-let internal rangeX2_2 = [ 201..229 ] |> List.map (fun item -> sprintf "X%s_" <| string item) //MDPO [ "X201_"; "X202_"; "X203_"; "X204_"; "X205_"; "X206_"; "X207_"; "X208_"; "X209_"; "X210_" ]
+let internal rangeX2_2 = [ 201..229 ] |> List.map (fun item -> sprintf "X%s_" <| string item) //MDPO [ "X201_"; "X202_"; ..... ]
 let internal rangeX2 = List.append rangeX2_1 rangeX2_2
 
 let internal rangeA = [ "AE_" ] //ponechan prostor pro pripadne cislovani AE
 
-let internal rangeN1 = [ 1..9 ] |> List.map (fun item -> sprintf "NAD_%s_" <| string item) //[ "NAD_1_"; "NAD_2_"; "NAD_3_"; "NAD_4_"; "NAD_5_"; "NAD_6_"; "NAD_7_"; "NAD_8_"; "NAD_9_" ]
-let internal rangeN2 = [ 10..19 ] |> List.map (fun item -> sprintf "NAD_%s_" <| string item) //[ "NAD_10_"; "NAD_11_"; "NAD_12_"; "NAD_13_"; "NAD_14_"; "NAD_15_"; "NAD_16_"; "NAD_17_"; "NAD_18_"; "NAD_19_" ]
+let internal rangeN1 = [ 1..9 ] |> List.map (fun item -> sprintf "NAD_%s_" <| string item) //[ "NAD_1_"; "NAD_2_"; ........... ]
+let internal rangeN2 = [ 10..19 ] |> List.map (fun item -> sprintf "NAD_%s_" <| string item) //[ "NAD_10_"; "NAD_11_"; ....... ]
 let internal rangeN3 = [ 230..999 ] |> List.map (fun item -> sprintf "NAD_%s_" <| string item)
+
 let internal rangeNS = rangeS |> List.map (fun item -> sprintf "NAD_%s_" <| string item)
-let internal rangeNR = rangeR |> List.map (fun item -> sprintf "NAD_%s_" <| string item) //NAD_S1_2023
-let internal rangeNS1 = rangeS1 |> List.map (fun item -> sprintf "NAD_%s_" <| string item) //NAD_S11_2023
+let internal rangeNR = rangeR |> List.map (fun item -> sprintf "NAD_%s_" <| string item) 
+let internal rangeNS1 = rangeS1 |> List.map (fun item -> sprintf "NAD_%s_" <| string item) 
 let internal rangeNR1 = rangeR1 |> List.map (fun item -> sprintf "NAD_%s_" <| string item)
 
 let [<Literal>] internal lineNumberLength = 3 //3 je delka retezce pouze pro linky 001 az 999

@@ -165,7 +165,7 @@ let main argv =
         Console.ReadKey() |> ignore    
            
     let rec variant() = 
-           
+
         printfn "Zdravím nadšence do klasických jízdních řádů. Nyní prosím zadejte číslici plus ENTER pro výběr varianty."        
         printfn "1 = Hromadné stahování jízdních řádů ODIS pouze dopravce DP Ostrava z webu https://www.dpo.cz"
         printfn "2 = Hromadné stahování jízdních řádů ODIS pouze dopravce MDP Opava z webu https://www.mdpo.cz"
