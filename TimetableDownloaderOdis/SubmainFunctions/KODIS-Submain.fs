@@ -472,14 +472,16 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                             }                                                            
                                                          
                                     let fileNameFull =  
-                                        match b rangeS || b rangeR || b rangeX1 || b rangeA with
-                                        | true  -> sprintf "%s%s" "_" fileNameFullA                                                                       
+                                        let ranges = [rangeS; rangeR; rangeX; rangeA]
+                                        match List.exists (fun r -> b r) ranges with
+                                        //match b rangeS || b rangeR || b rangeX || b rangeA with
+                                        | true  -> sprintf "%s%s" "_" fileNameFullA //jen pridani _, aby to melo 3 znaky _S1                                                                     
                                         | false -> fileNameFullA  
 
                                     let numberOfChar =  //vyhovuje i pro NAD
                                         match fileNameFull.Contains("_v") || fileNameFull.Contains("_t") with
                                         | true  -> 27  //27 -> 113_2022_12_11_2023_12_09_t......   //overovat, jestli se v jsonu nezmenila struktura nazvu                                                                
-                                        | false -> 25  //25 -> 113_2022_12_11_2023_12_09......
+                                        | false -> 25  //25 -> 113_2022_12_11_2023_12_09...... //NAD_745_2023_10_18_2023_10_26_v_d5610fbb4d.pdf //NAD_55_2023_10_18_2023_10_26_v_d5610fbb4d.pdf
                                                                                                                                                                                                                    
                                     match not (fileNameFull |> String.length >= numberOfChar) with 
                                     | true  ->                                           
@@ -580,15 +582,16 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                             let condNAD (rangeN: string list) =   
                                                 rangeN                                                  
                                                 |> List.tryFind (fun item -> fileNameFull.Contains(item))  
-                                                |> Option.isSome       
-                                                                               
-                                            let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
+                                                |> Option.isSome         
                                                                                 
                                             let x = //int hodnota je korekce pozice znaku v retezci
                                                 pyramidOfHell
                                                     {
-                                                        let!_ = not (fileNameFull.Contains("NAD") && condNAD = true), 2
+                                                        let!_ = not (fileNameFull.Contains("NAD") && nXor [condNAD rangeN3; condNAD rangeNS1; condNAD rangeNR1] = true), 4
+                                                        let!_ = not (fileNameFull.Contains("NAD") && nXor [condNAD rangeN2; condNAD rangeNS; condNAD rangeNR] = true), 3 
+                                                        let!_ = not (fileNameFull.Contains("NAD") && condNAD rangeN1 = true), 2
                                                         let!_ = not (List.exists (fun item -> fileNameFull.Contains(item: string)) rangeX2), 1
+                                                   
                                                         return 0
                                                     }
                                                                        
@@ -624,15 +627,16 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                             let condNAD (rangeN: string list) = 
                                                                 rangeN   
                                                                 |> List.tryFind (fun item1 -> item.Contains(item1))  
-                                                                |> Option.isSome                                               
-                                                                                              
-                                                            let condNAD = xor (condNAD rangeN1) (condNAD rangeN2) 
-                                                                               
+                                                                |> Option.isSome                       
+                                                                                                                                
                                                             let x = //int hodnota je korekce pozice znaku v retezci
                                                                 pyramidOfHell
                                                                     {
-                                                                        let!_ = not (item.Contains("NAD") && condNAD = true), 2
+                                                                        let!_ = not (item.Contains("NAD") && nXor [condNAD rangeN3; condNAD rangeNS1; condNAD rangeNR1] = true), 4
+                                                                        let!_ = not (item.Contains("NAD") && nXor [condNAD rangeN2; condNAD rangeNS; condNAD rangeNR] = true), 3
+                                                                        let!_ = not (item.Contains("NAD") && condNAD rangeN1 = true), 2
                                                                         let!_ = not (List.exists (fun item1 -> item.Contains(item1: string)) rangeX2), 1
+
                                                                         return 0
                                                                     } 
                                                                                       

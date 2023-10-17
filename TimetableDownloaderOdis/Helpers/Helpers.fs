@@ -22,6 +22,11 @@ module LogicalAliases =
 
     let internal xor a b = (a && not b) || (not a && b)   
 
+    let rec internal nXor operands =
+        match operands with
+        | []    -> false  
+        | x::xs -> (x && not (nXor xs)) || ((not x) && (nXor xs))
+
 module CopyingOrMovingFiles =    //not used yet   
          
     let private processFile source destination message action =
