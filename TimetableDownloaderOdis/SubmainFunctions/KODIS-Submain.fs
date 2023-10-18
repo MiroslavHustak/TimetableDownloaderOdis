@@ -474,14 +474,13 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                     let fileNameFull =  
                                         let ranges = [rangeS; rangeR; rangeX; rangeA]
                                         match List.exists (fun r -> b r) ranges with
-                                        //match b rangeS || b rangeR || b rangeX || b rangeA with
                                         | true  -> sprintf "%s%s" "_" fileNameFullA //jen pridani _, aby to melo 3 znaky _S1                                                                     
                                         | false -> fileNameFullA  
 
                                     let numberOfChar =  //vyhovuje i pro NAD
                                         match fileNameFull.Contains("_v") || fileNameFull.Contains("_t") with
                                         | true  -> 27  //27 -> 113_2022_12_11_2023_12_09_t......   //overovat, jestli se v jsonu nezmenila struktura nazvu                                                                
-                                        | false -> 25  //25 -> 113_2022_12_11_2023_12_09...... //NAD_745_2023_10_18_2023_10_26_v_d5610fbb4d.pdf //NAD_55_2023_10_18_2023_10_26_v_d5610fbb4d.pdf
+                                        | false -> 25  //25 -> 113_2022_12_11_2023_12_09...... //NAD_745_2023_10_18_2023_10_26_v_d5610fbb4d.pdf 
                                                                                                                                                                                                                    
                                     match not (fileNameFull |> String.length >= numberOfChar) with 
                                     | true  ->                                           

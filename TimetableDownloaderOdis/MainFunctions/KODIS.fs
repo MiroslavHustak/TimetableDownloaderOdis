@@ -98,7 +98,7 @@ let internal webscraping_KODIS pathToDir (variantList: Validity list) =
                                                 |> deconstructor message.msgParam1                                     
     
     stateReducer State.Default Messages.Default StartProcess environment
-   //stateReducer State.Default Messages.Default DownloadAndSaveJson environment
+    stateReducer State.Default Messages.Default DownloadAndSaveJson environment
     stateReducer State.Default Messages.Default (DownloadSelectedVariant variantList) environment
     stateReducer State.Default Messages.Default EndProcess environment   
     
