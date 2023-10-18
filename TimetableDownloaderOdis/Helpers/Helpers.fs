@@ -12,7 +12,10 @@ open ErrorHandling
 module ConsoleFixers = 
 
     let internal consoleAppProblemFixer() =
-        do System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance)        
+
+        do System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance)    
+        
+        //Console window settings
         Console.BackgroundColor <- ConsoleColor.Blue 
         Console.ForegroundColor <- ConsoleColor.White 
         Console.InputEncoding   <- System.Text.Encoding.Unicode
