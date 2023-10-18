@@ -68,22 +68,22 @@ let internal webscraping_KODIS pathToDir (variantList: Validity list) =
                                                      match variantList |> List.length with
                                                      //SingleVariantDownload
                                                      | 1 -> 
-                                                            let variant = variantList |> List.head
-                                                            environment.deleteOneODISDirectory message variant pathToDir                                                        
-                                                            let dirList = 
-                                                                createOneNewDirectory  //list -> aby bylo mozno pouzit funkci createFolders bez uprav  
-                                                                <| pathToDir 
-                                                                <| createDirName variant getDefaultRcValKodis 
-                                                            environment.createFolders message dirList
-                                                            environment.downloadAndSave message variant (dirList |> List.head) environment.client 
+                                                          let variant = variantList |> List.head
+                                                          environment.deleteOneODISDirectory message variant pathToDir                                                        
+                                                          let dirList = 
+                                                              createOneNewDirectory  //list -> aby bylo mozno pouzit funkci createFolders bez uprav  
+                                                              <| pathToDir 
+                                                              <| createDirName variant getDefaultRcValKodis 
+                                                          environment.createFolders message dirList
+                                                          environment.downloadAndSave message variant (dirList |> List.head) environment.client 
 
                                                      //BulkVariantDownload       
                                                      | _ ->  
-                                                            environment.deleteAllODISDirectories message pathToDir
-                                                            let dirList = createNewDirectories pathToDir getDefaultRcValKodis
-                                                            environment.createFolders message dirList 
-                                                            (variantList, dirList)
-                                                            ||> List.iter2 (fun variant dir -> environment.downloadAndSave message variant dir environment.client)         
+                                                          environment.deleteAllODISDirectories message pathToDir
+                                                          let dirList = createNewDirectories pathToDir getDefaultRcValKodis
+                                                          environment.createFolders message dirList 
+                                                          (variantList, dirList)
+                                                          ||> List.iter2 (fun variant dir -> environment.downloadAndSave message variant dir environment.client)         
                                                  
                                                  tryWith downloadSelectedVariant (fun x -> ()) ()
                                                  |> deconstructor message.msgParam1  

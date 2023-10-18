@@ -17,6 +17,8 @@ module ConsoleFixers =
         Console.ForegroundColor <- ConsoleColor.White 
         Console.InputEncoding   <- System.Text.Encoding.Unicode
         Console.OutputEncoding  <- System.Text.Encoding.Unicode
+        Console.WindowWidth     <- 140
+        Console.WindowHeight    <- 35
 
 module LogicalAliases =         
 

@@ -11,9 +11,7 @@ open Messages.Messages
 open DiscriminatedUnions
 open BrowserDialogWindow
 open Helpers.ConsoleFixers
-
 open ErrorHandling.TryWith
-
 
 [<EntryPoint; STAThread>]
 let main argv =
