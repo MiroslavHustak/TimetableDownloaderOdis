@@ -37,7 +37,7 @@ module PattternBuilders =
      let internal pyramidOfDoom = Builder2
 
 
-    //************************** READER MONAD ************************************************************
+    //************************** FOR A READER MONAD ************************************************************
 
     // Define a type alias for the reader monad    
     type internal Reader<'e, 'a> = 'e -> 'a
@@ -52,7 +52,7 @@ module PattternBuilders =
     let internal reader = ReaderBuilder 
 
 
-    //************************** FREE MONAD **************************************************************
+    //************************** FOR A FREE MONAD **************************************************************
 
     type internal CommandLineProgramBuilder = CommandLineProgramBuilder with
            member this.Bind(p, f) = //x |> mapI (bind f) |> Free
