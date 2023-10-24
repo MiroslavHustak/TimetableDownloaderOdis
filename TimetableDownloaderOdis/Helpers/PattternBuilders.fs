@@ -24,6 +24,18 @@ module PattternBuilders =
 
     //**************************************************************************************
 
+    [<Struct>]
+     type internal Builder2 = Builder2 with    
+         member _.Bind((optionExpr, err), nextFunc) =
+             match optionExpr with
+             | Some value -> nextFunc value 
+             | _          -> err  
+         member _.Return x : 'a = x
+
+     let internal pyramidOfDoom = Builder2
+
+    //**************************************************************************************
+
     // Define a type alias for the reader monad    
     type internal Reader<'e, 'a> = 'e -> 'a
 
@@ -35,3 +47,4 @@ module PattternBuilders =
         member __.Zero x = x
     
     let internal reader = ReaderBuilder 
+        

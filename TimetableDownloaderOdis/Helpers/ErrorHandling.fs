@@ -92,7 +92,19 @@ module TryWithRF =
         with
         | ex -> Error "Chyba v průběhu stahování JŘ DPO nebo JŘ MDPO nebo JŘ KODIS."//(string ex)
 
-module Option = 
+module Option =
+
+    let internal ofBool cond = 
+           cond                      
+           |> function   
+               | true  -> Some ()  
+               | false -> None
+
+    let internal fromBool value cond : 'a option = 
+        cond                      
+        |> function   
+            | true  -> Some value  
+            | false -> None
 
     let internal ofNull (value: 'nullableValue) =
         match System.Object.ReferenceEquals(value, null) with //The "value" type can be even non-nullable, and the library method will still work.

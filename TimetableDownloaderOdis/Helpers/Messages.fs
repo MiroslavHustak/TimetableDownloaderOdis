@@ -32,6 +32,7 @@ module Messages =
             msgParam9: string -> unit 
             msgParam10: string -> string -> unit 
             msgParam11: string -> unit 
+            msgParam12: string -> unit 
         }
         static member Default = 
             {
@@ -60,7 +61,8 @@ module Messages =
                 msgParam8 = printfn "%s\n" 
                 msgParam9 = printf "%s\r" 
                 msgParam10 = printfn "Parsování neproběhlo korektně u této hodnoty: %s. Problém je u %s."  
-                msgParam11 = printfn "Soubor %s nenalezen"  
+                msgParam11 = printfn "Soubor %s nenalezen" 
+                msgParam12 = printfn "Adresář %s nenalezen"
             }
    
 module MessagesMocking =  
@@ -93,6 +95,7 @@ module MessagesMocking =
             msgParam9: string -> unit 
             msgParam10: string -> string -> unit 
             msgParam11: string -> unit 
+            msgParam12: string -> unit
         }
         static member Default = 
             {
@@ -122,5 +125,6 @@ module MessagesMocking =
                 msgParam9 = fun (input: string) -> ()   
                 msgParam10 = fun (input1: string) (input2: string) -> () //fun (input: string) -> ()    
                 msgParam11 = fun (input: string) -> ()  
+                msgParam12 = fun (input: string) -> () 
             }
    
