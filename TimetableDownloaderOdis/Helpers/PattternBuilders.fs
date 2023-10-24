@@ -1,5 +1,7 @@
 ﻿namespace PatternBuilders
 
+open FreeMonads.FreeMonads
+
 module PattternBuilders =
            
     [<Struct>]
@@ -34,7 +36,8 @@ module PattternBuilders =
 
      let internal pyramidOfDoom = Builder2
 
-    //**************************************************************************************
+
+    //************************** READER MONAD ************************************************************
 
     // Define a type alias for the reader monad    
     type internal Reader<'e, 'a> = 'e -> 'a
@@ -47,4 +50,17 @@ module PattternBuilders =
         member __.Zero x = x
     
     let internal reader = ReaderBuilder 
+
+
+    //************************** FREE MONAD **************************************************************
+
+    type internal CommandLineProgramBuilder = CommandLineProgramBuilder with
+           member this.Bind(p, f) = //x |> mapI (bind f) |> Free
+               match p with
+               | Pure x     -> f x
+               | Free instr -> Free (mapI (fun p' -> this.Bind(p', f)) instr)
+           member this.Return x = Pure x
+           member this.ReturnFrom p = p
+
+    let internal cmdBuilder = CommandLineProgramBuilder  
         

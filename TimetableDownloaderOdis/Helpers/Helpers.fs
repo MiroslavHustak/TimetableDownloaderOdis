@@ -8,6 +8,7 @@ open Messages.Messages
 //open Messages.MessagesMocking
 
 open ErrorHandling
+open FreeMonads.FreeMonads
 open PatternBuilders.PattternBuilders
    
 module ConsoleFixers = 
@@ -68,37 +69,8 @@ module CopyingOrMovingFiles =    //not used yet
         processFile source destination message action
 
 module CopyingOrMovingFilesFreeMonad =   //not used yet  
-
-    type private CommandLineInstruction<'a> =
-        | SourceFilepath of (string -> 'a)
-        | DestinFilepath of (string -> 'a)
-        | CopyOrMove of (string * string) * 'a
-
-    type private CommandLineProgram<'a> =
-        | Pure of 'a 
-        | Free of CommandLineInstruction<CommandLineProgram<'a>>
-
-    let private mapI f = 
-        function
-        | SourceFilepath next  -> SourceFilepath (next >> f)
-        | DestinFilepath next  -> DestinFilepath (next >> f)
-        | CopyOrMove (s, next) -> CopyOrMove (s, next |> f)    
-
-    let rec private bind f = 
-        function
-        | Free x -> x |> mapI (bind f) |> Free
-        | Pure x -> f x
-
-    type private CommandLineProgramBuilder = CommandLineProgramBuilder with
-        member this.Bind(p, f) = //x |> mapI (bind f) |> Free
-            match p with
-            | Pure x     -> f x
-            | Free instr -> Free (mapI (fun p' -> this.Bind(p', f)) instr)
-        member this.Return x = Pure x
-        member this.ReturnFrom p = p
-
-    let private cmdBuilder = CommandLineProgramBuilder  
-    
+        
+    [<Struct>]
     type private Config =
         {
             source: string
@@ -106,10 +78,32 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
             fileName: string
         }
 
-    let rec private interpret config msg result f = 
+    [<Struct>]
+    type private IO = 
+        | Copy
+        | Move 
+
+    let rec private interpret config io = 
 
         let source = config.source
         let destination = config.destination
+
+        let msg = sprintf "Chyba %s při čtení cesty " 
+        
+        let result path1 path2 = 
+            match path1 with
+            | Ok path1  -> 
+                        path1
+            | Error err -> 
+                        printf "%s%s" err path2 
+                        Console.ReadKey() |> ignore 
+                        System.Environment.Exit(1) 
+                        String.Empty
+
+        let f = 
+            match io with
+            | Copy -> fun p1 p2 -> File.Copy(p1, p2, true) //(fun _ _ -> ())           
+            | Move -> fun p1 p2 -> File.Move(p1, p2, true) //(fun _ _ -> ())
       
         function
         | Pure x -> x
@@ -125,7 +119,7 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
                                                      ), Error <| msg "č.1"
                                                  return Ok value
                                              }      
-                                      next (result (sourceFilepath source) source) |> interpret config msg result f
+                                      next (result (sourceFilepath source) source) |> interpret config io
         | Free (DestinFilepath next) ->
                                       let destinFilepath destination =                                        
                                           pyramidOfDoom
@@ -138,7 +132,7 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
                                                      ), Error <| msg "č.3"
                                                  return Ok value
                                              }                                        
-                                      next (result (destinFilepath destination) destination) |> interpret config msg result f
+                                      next (result (destinFilepath destination) destination) |> interpret config io
         | Free (CopyOrMove (s, _))   -> 
                                       let sourceFilepath = fst s
                                       let destinFilepath = snd s  
@@ -150,34 +144,19 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
             source = @"e:\UVstarterLog\log.txt" //kontrola s FileInfo
             destination = @"e:\UVstarterLog\test\" //kontrola s DirectoryInfo
             fileName = "test.txt"
-        }
+        }   
 
-    let private msg = sprintf "Chyba %s při čtení cesty " 
-
-    let private result path1 path2 = 
-        match path1 with
-        | Ok path1  -> 
-                    path1
-        | Error err -> 
-                    printf "%s%s" err path2 
-                    Console.ReadKey() |> ignore 
-                    System.Environment.Exit(1) 
-                    String.Empty
-   
-    let private fc = (fun p1 p2 -> File.Copy(p1, p2, true)) //(fun _ _ -> ())
-    let private fm = (fun p1 p2 -> File.Move(p1, p2, true)) //(fun _ _ -> ())
-
-    let private copyOrMoveFiles config msg result f =
+    let private copyOrMoveFiles config io =
         
         cmdBuilder 
             {
                 let! sourceFilepath = Free (SourceFilepath Pure)                
                 let! destinFilepath = Free (DestinFilepath Pure) 
                 return! Free (CopyOrMove ((sourceFilepath, sprintf "%s%s" (destinFilepath) config.fileName), Pure ()))
-            } |> interpret config msg result f
+            } |> interpret config io
 
-    let copyFiles () = copyOrMoveFiles config msg result fc
-    let moveFiles () = copyOrMoveFiles config msg result fm
+    let copyFiles () = copyOrMoveFiles config Copy
+    let moveFiles () = copyOrMoveFiles config Move
 
        
 module MyString = 
