@@ -17,7 +17,7 @@ open Messages.Messages
 open ProgressBarFSharp
 open DiscriminatedUnions
 open Helpers.LogicalAliases
-open PatternBuilders.PattternBuilders
+open CEBuilders.PattternBuilders
 
 open ErrorHandling
 open ErrorHandling.TryWith

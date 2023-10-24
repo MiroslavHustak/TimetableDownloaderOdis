@@ -1,4 +1,4 @@
-﻿namespace PatternBuilders
+﻿namespace CEBuilders
 
 open FreeMonads.FreeMonads
 

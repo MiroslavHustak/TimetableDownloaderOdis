@@ -24,7 +24,7 @@ let inline private updateProgressBar (message: Messages) (currentProgress : int)
         let progressBar = 
             let barWidth = 50 //nastavit delku dle potreby            
             let percentComplete = (/) ((*) currentProgress 101) ((++) totalProgress) // :-) //101 proto, ze pri deleni 100 to po zaokrouhleni dalo jen 99%                    
-            let barFill = (/) ((*) currentProgress barWidth) totalProgress // :-)  
+            let barFill = (/) ((*) currentProgress barWidth) totalProgress // :-)  messing about
                
             let characterToFill = string (Array.item 0 output) //moze byt baj "#"
             let bar = String.replicate barFill characterToFill |> Option.toGenerics (lazy (message.msgParam7 "Indikátor průběhu má problém, který ale neovlivní stahování JŘ.")) String.Empty 

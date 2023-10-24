@@ -16,7 +16,7 @@
     <Compile Include="Types\DiscriminatedUnions.fs" />
     <Compile Include="Helpers\Messages.fs" />
     <Compile Include="Helpers\FreeMonads.fs" />
-    <Compile Include="Helpers\PattternBuilders.fs" />
+    <Compile Include="Helpers\CEBuilders.fs" />
     <Compile Include="Helpers\Parsing.fs" />
     <Compile Include="Helpers\ErrorHandling.fs" />
     <Compile Include="Helpers\Helpers.fs" />
