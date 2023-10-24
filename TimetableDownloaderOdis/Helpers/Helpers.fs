@@ -136,8 +136,8 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
         | Free (CopyOrMove (s, _))   -> 
                                       let sourceFilepath = fst s
                                       let destinFilepath = snd s  
-                                      let resultInt = f sourceFilepath destinFilepath 
-                                      resultInt  //next |> interpret config 
+                                      f sourceFilepath destinFilepath 
+                                      //next |> interpret config 
     
     let private config = 
         {
