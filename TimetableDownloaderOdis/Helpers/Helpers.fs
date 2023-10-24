@@ -104,19 +104,13 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
             source: string
             destination: string
             fileName: string
-            msg: string -> string
-            result: Result<string, string> -> string -> string 
-            f: string -> string -> unit
         }
 
-    let rec private interpret config = 
+    let rec private interpret config msg result f = 
 
         let source = config.source
         let destination = config.destination
-        let msg = config.msg
-        let result = config.result
-        let f = config.f
-
+      
         function
         | Pure x -> x
         | Free (SourceFilepath next) ->
@@ -131,7 +125,7 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
                                                      ), Error <| msg "č.1"
                                                  return Ok value
                                              }      
-                                      next (result (sourceFilepath source) source) |> interpret config
+                                      next (result (sourceFilepath source) source) |> interpret config msg result f
         | Free (DestinFilepath next) ->
                                       let destinFilepath destination =                                        
                                           pyramidOfDoom
@@ -144,13 +138,22 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
                                                      ), Error <| msg "č.3"
                                                  return Ok value
                                              }                                        
-                                      next (result (destinFilepath destination) destination) |> interpret config
+                                      next (result (destinFilepath destination) destination) |> interpret config msg result f
         | Free (CopyOrMove (s, _))   -> 
                                       let sourceFilepath = fst s
                                       let destinFilepath = snd s  
                                       let resultInt = f sourceFilepath destinFilepath 
-                                      resultInt  //next |> interpret config     
-                                          
+                                      resultInt  //next |> interpret config 
+    
+    let private config = 
+        {
+            source = @"e:\UVstarterLog\log.txt" //kontrola s FileInfo
+            destination = @"e:\UVstarterLog\test\" //kontrola s DirectoryInfo
+            fileName = "test.txt"
+        }
+
+    let private msg = sprintf "Chyba %s při čtení cesty " 
+
     let private result path1 path2 = 
         match path1 with
         | Ok path1  -> 
@@ -160,31 +163,21 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
                     Console.ReadKey() |> ignore 
                     System.Environment.Exit(1) 
                     String.Empty
+   
+    let private fc = (fun p1 p2 -> File.Copy(p1, p2, true)) //(fun _ _ -> ())
+    let private fm = (fun p1 p2 -> File.Move(p1, p2, true)) //(fun _ _ -> ())
 
-    let private config = 
-        {
-            source = @"e:\UVstarterLog\log.txt" //kontrola s FileInfo
-            destination = @"e:\UVstarterLog\test\" //kontrola s DirectoryInfo
-            fileName = "test.txt"
-            msg = sprintf "Chyba %s při čtení cesty " 
-            result = result
-            f = (fun _ _ -> ())
-        }
-
-    let private configCopyFiles = { config with f = (fun p1 p2 -> File.Copy(p1, p2, true)) }
-    let private configMoveFiles = { config with f = (fun p1 p2 -> File.Move(p1, p2, true)) }
-
-    let private copyOrMoveFiles config =
+    let private copyOrMoveFiles config msg result f =
         
         cmdBuilder 
             {
                 let! sourceFilepath = Free (SourceFilepath Pure)                
                 let! destinFilepath = Free (DestinFilepath Pure) 
                 return! Free (CopyOrMove ((sourceFilepath, sprintf "%s%s" (destinFilepath) config.fileName), Pure ()))
-            } |> interpret config
+            } |> interpret config msg result f
 
-    let copyFiles () = copyOrMoveFiles configCopyFiles
-    let moveFiles () = copyOrMoveFiles configMoveFiles
+    let copyFiles () = copyOrMoveFiles config msg result fc
+    let moveFiles () = copyOrMoveFiles config msg result fm
 
        
 module MyString = 
