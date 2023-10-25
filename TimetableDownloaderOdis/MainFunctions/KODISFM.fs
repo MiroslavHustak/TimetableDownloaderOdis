@@ -1,4 +1,4 @@
-﻿module WebScraping1_KODIS
+﻿module WebScraping1_KODISFM
 
 open System
 open System.IO
@@ -9,9 +9,11 @@ open Messages.Messages
 //open Messages.MessagesMocking
 
 open DiscriminatedUnions
+open FreeMonads.FreeMonadsDP 
 
 open ErrorHandling
 open ErrorHandling.TryWith
+open CEBuilders.PattternBuilders
 
 type internal State =  //not used
     { 
@@ -45,9 +47,9 @@ let internal environment: Environment =
         createFolders = createFolders
         downloadAndSave = downloadAndSave       
         client = client (lazy (Messages.Default.msgParam7 "Chyba v průběhu stahování JŘ KODIS.")) Messages.Default.msgParam1 
-    }    
+    }  
 
-let internal webscraping_KODIS pathToDir (variantList: Validity list) = 
+let internal webscraping_KODISFM pathToDir (variantList: Validity list) = 
     
     //****************************MainFunction**********************************   
     
@@ -95,13 +97,27 @@ let internal webscraping_KODIS pathToDir (variantList: Validity list) =
                                                     let processEndTime = sprintf "Konec procesu: %s" <| DateTime.Now.ToString("HH:mm:ss")                       
                                                     message.msgParam7 processEndTime
                                                 tryWith processEndTime (fun x -> ()) () 
-                                                |> deconstructor message.msgParam1                                     
-    
-    stateReducer State.Default Messages.Default StartProcess environment
-    stateReducer State.Default Messages.Default DownloadAndSaveJson environment
-    stateReducer State.Default Messages.Default (DownloadSelectedVariant variantList) environment
-    stateReducer State.Default Messages.Default EndProcess environment   
-    
+                                                |> deconstructor message.msgParam1       
+
+    let rec interpret = //Free Monad for educational purposes
+        function
+        | Pure x -> x
+        | Free (StartProcessFM next)            -> stateReducer State.Default Messages.Default StartProcess environment
+                                                   next () |> interpret
+        | Free (DownloadAndSaveJsonFM next)     -> stateReducer State.Default Messages.Default DownloadAndSaveJson environment
+                                                   next () |> interpret
+        | Free (DownloadSelectedVariantFM next) -> stateReducer State.Default Messages.Default (DownloadSelectedVariant variantList) environment
+                                                   next () |> interpret
+        | Free (EndProcessFM _)                 -> stateReducer State.Default Messages.Default EndProcess environment   
+     
+    cmdBuilder
+        {
+            let! _ = Free (StartProcessFM Pure)
+            let! _ = Free (DownloadAndSaveJsonFM Pure)
+            let! _ = Free (DownloadSelectedVariantFM Pure)
+            return! Free (EndProcessFM Pure)
+        } |> interpret
+
     //*****************************************************************************************************************************************
 
     //CurrentValidity = JR striktne platne k danemu dni, tj. pokud je napr. na dany den vylukovy JR, stahne se tento JR, ne JR platny dalsi den

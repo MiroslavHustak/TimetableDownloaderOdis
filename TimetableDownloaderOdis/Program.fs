@@ -5,7 +5,7 @@ open Types.DirNames
 
 open WebScraping1_DPO
 open WebScraping1_MDPO
-open WebScraping1_KODIS
+open WebScraping1_KODISFM
 
 open Messages.Messages
 open DiscriminatedUnions
@@ -153,7 +153,7 @@ let main argv =
            
         Console.Clear()
            
-        webscraping_KODIS (string pathToFolder) variant 
+        webscraping_KODISFM (string pathToFolder) variant 
            
         printfn "%c" <| char(32)         
         printfn "JŘ s chybějícími údaji o platnosti (např. NAD bez dalších údajů) nebyly staženy."

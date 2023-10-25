@@ -8,7 +8,7 @@ open Messages.Messages
 //open Messages.MessagesMocking
 
 open ErrorHandling
-open FreeMonads.FreeMonads
+open FreeMonads.FreeMonadsCM
 open CEBuilders.PattternBuilders
    
 module ConsoleFixers = 

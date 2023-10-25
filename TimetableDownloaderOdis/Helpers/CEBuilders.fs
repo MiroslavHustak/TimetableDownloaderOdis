@@ -1,6 +1,6 @@
 ﻿namespace CEBuilders
 
-open FreeMonads.FreeMonads
+open FreeMonads.FreeMonadsCM
 
 module PattternBuilders =
            
@@ -11,6 +11,7 @@ module PattternBuilders =
             | Ok resultFn -> Ok <| nextFunc() 
             | Error err   -> Error err
         member _.Return x = x  
+
 
     //**************************************************************************************
 
@@ -23,6 +24,7 @@ module PattternBuilders =
         member _.Return x = x
 
     let internal pyramidOfHell = MyBuilder
+
 
     //**************************************************************************************
 
@@ -54,13 +56,4 @@ module PattternBuilders =
 
     //************************** FOR A FREE MONAD **************************************************************
 
-    type internal CommandLineProgramBuilder = CommandLineProgramBuilder with
-        member this.Bind(p, f) = //x |> mapI (bind f) |> Free
-            match p with
-            | Pure x     -> f x
-            | Free instr -> Free (mapI (fun p' -> this.Bind(p', f)) instr)
-        member this.Return x = Pure x
-        member this.ReturnFrom p = p
-
-    let internal cmdBuilder = CommandLineProgramBuilder  
-        
+                           //See FreeMonads modules
