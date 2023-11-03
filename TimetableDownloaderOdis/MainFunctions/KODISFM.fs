@@ -101,7 +101,7 @@ let internal webscraping_KODISFM pathToDir (variantList: Validity list) =
 
     let rec interpret = //Free Monad for educational purposes
         function
-        | Pure x -> x
+        | Pure x                                -> x
         | Free (StartProcessFM next)            -> stateReducer State.Default Messages.Default StartProcess environment
                                                    next () |> interpret
         | Free (DownloadAndSaveJsonFM next)     -> stateReducer State.Default Messages.Default DownloadAndSaveJson environment
