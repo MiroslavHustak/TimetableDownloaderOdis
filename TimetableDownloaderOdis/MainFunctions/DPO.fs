@@ -69,11 +69,11 @@ let internal webscraping_DPO pathToDir =
                                     let dirName = ODIS.Default.odisDir5                                    
                                     let myDeleteFunction x =  
                                         //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
-                                        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ DPO.")) (new DirectoryInfo(pathToDir))   
+                                        let dirInfo = new DirectoryInfo(pathToDir) |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ MDPO.")) (new DirectoryInfo(pathToDir))   
                                         dirInfo.EnumerateDirectories()
                                         |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ DPO.")) Seq.empty  
                                         |> Seq.filter (fun item -> item.Name = dirName) 
-                                        |> Seq.iter (fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce    
+                                        |> Seq.iter _.Delete(true)//(fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
                                     message.msg12()    
                                     tryWith myDeleteFunction (fun x -> ()) () 
                                     |> deconstructor message.msgParam1   

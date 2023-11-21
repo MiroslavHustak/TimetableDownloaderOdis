@@ -191,7 +191,8 @@ module Parsing =
        let internal f x = 
            let isANumber = x                                          
            isANumber  
-           
+       
+       [<TailCall>]
        let rec inline internal parseMeInt printError line =
            function            
            | TryParserInt.Int i -> 
@@ -205,6 +206,7 @@ module Parsing =
            let isADate = x       
            isADate               
            
+       [<TailCall>]   
        let rec inline internal parseMeDate (printError: string -> unit) =
            function            
            | TryParserDate.Date d ->

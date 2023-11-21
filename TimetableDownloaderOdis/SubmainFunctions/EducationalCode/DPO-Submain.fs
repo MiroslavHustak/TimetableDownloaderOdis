@@ -24,6 +24,7 @@ let internal client printToConsole1 printToConsole2 =
     let myClient x = new System.Net.Http.HttpClient() |> (Option.toGenerics <| printToConsole1 <| (new System.Net.Http.HttpClient()))    
     tryWith myClient (fun x -> ()) (new System.Net.Http.HttpClient()) |> deconstructor printToConsole2
 
+[<TailCall>]
 let internal filterTimetables pathToDir (message: Messages) = //I
 
     let getLastThreeCharacters input =

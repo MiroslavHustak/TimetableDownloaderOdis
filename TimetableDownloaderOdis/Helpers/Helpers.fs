@@ -28,7 +28,8 @@ module ConsoleFixers =
 module LogicalAliases =         
 
     let internal xor a b = (a && not b) || (not a && b)   
-
+    
+    [<TailCall>]
     let rec internal nXor operands =
         match operands with
         | []    -> false  
@@ -82,7 +83,8 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
     type private IO = 
         | Copy
         | Move 
-
+    
+    [<TailCall>]
     let rec private interpret config io = 
 
         let source = config.source
@@ -163,9 +165,10 @@ module MyString =
         
     //priklad pouziti: getString(8, "0")//tuple a compiled nazev velkym kvuli DLL pro C#
     [<CompiledName "GetString">] 
+    [<TailCall>]
     let getString (numberOfStrings: int, stringToAdd: string): string =   
         let initialString = String.Empty   //initial value of the string
-        let listRange = [ 1 .. numberOfStrings ]            
+        let listRange = [ 1 .. numberOfStrings ] 
         let rec loop list acc =
             match list with 
             | []        ->

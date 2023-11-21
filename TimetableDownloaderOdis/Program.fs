@@ -14,6 +14,7 @@ open Helpers.ConsoleFixers
 open ErrorHandling.TryWith
 
 [<EntryPoint; STAThread>]
+[<TailCall>]
 let main argv =
 
     //*****************************Console******************************   
@@ -161,7 +162,7 @@ let main argv =
         printfn "%c" <| char(32)   
         printfn "Stiskni cokoliv pro ukončení aplikace."
         Console.ReadKey() |> ignore    
-           
+    
     let rec variant() = 
 
         printfn "Zdravím nadšence do klasických jízdních řádů. Nyní prosím zadejte číslici plus ENTER pro výběr varianty."        

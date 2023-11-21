@@ -71,7 +71,7 @@ let internal webscraping_MDPO pathToDir =
                                         dirInfo.EnumerateDirectories()
                                         |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ MDPO.")) Seq.empty  
                                         |> Seq.filter (fun item -> item.Name = dirName) 
-                                        |> Seq.iter (fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce    
+                                        |> Seq.iter _.Delete(true)//(fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce    
                                     message.msg12()    
                                     tryWith myDeleteFunction (fun x -> ()) () 
                                     |> deconstructor message.msgParam1   

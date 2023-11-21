@@ -2,12 +2,13 @@
 
   <PropertyGroup>   
 	<OutputType>Exe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWindowsForms>True</UseWindowsForms>
     <UseWPF>True</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="EducationalCode\EducationalCode.fs" />
     <Content Include="KODISJson\kodisMHDTotal.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -36,9 +37,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fantomas.Core" Version="6.0.8" />
-    <PackageReference Include="FSharp.Data" Version="6.2.0" />
-    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.8.0" />
+    <PackageReference Include="Fantomas.Core" Version="6.2.3" />
+    <PackageReference Include="FSharp.Data" Version="6.3.0" />
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.11.0" />
     <PackageReference Include="Fugit" Version="0.4.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
@@ -48,7 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="7.0.300" />
+    <PackageReference Update="FSharp.Core" Version="8.0.100" />
   </ItemGroup>
 
 </Project>

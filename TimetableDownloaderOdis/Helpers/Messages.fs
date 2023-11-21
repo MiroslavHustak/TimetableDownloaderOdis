@@ -4,6 +4,9 @@ open System
 
 module Messages =
 
+    [<Literal>] 
+    let formatBody = "\n%s%s"
+
     type internal Messages = 
         {
             msg1: unit -> unit
@@ -51,8 +54,8 @@ module Messages =
                 msg13 = fun () -> printfn "Pravděpodobně někdo odstranil daný adresář v průběhu práce tohoto programu."  
                 msg14 = fun () -> printfn "Nadřel jsem se, ale úkol jsem úspěšně dokončil :-)"
 
-                msgParam1 = printfn "\n%s%s" "No jéje, někde nastala chyba. Zmáčkni cokoliv pro ukončení programu a zkus to znovu. Popis chyby: " 
-                msgParam2 = printfn "\n%s%s" "Jízdní řád s tímto odkazem se nepodařilo stáhnout: \n"  
+                msgParam1 = printfn formatBody "No jéje, někde nastala chyba. Zmáčkni cokoliv pro ukončení programu a zkus to znovu. Popis chyby: " 
+                msgParam2 = printfn formatBody "Jízdní řád s tímto odkazem se nepodařilo stáhnout: \n"  
                 msgParam3 = printfn "Probíhá stahování příslušných JŘ a jejich ukládání do [%s]."  
                 msgParam4 = printfn "Dokončeno stahování příslušných JŘ a jejich ukládání do [%s]. \nChvíli strpení, prosím..."  
                 msgParam5 = printfn "Adresář [%s] neexistuje, příslušné JŘ do něj určené nemohly být staženy." 

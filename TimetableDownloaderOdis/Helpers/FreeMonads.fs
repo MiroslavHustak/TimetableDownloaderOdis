@@ -18,7 +18,8 @@ module FreeMonadsCM =
         | SourceFilepath next  -> SourceFilepath (next >> f)
         | DestinFilepath next  -> DestinFilepath (next >> f)
         | CopyOrMove (s, next) -> CopyOrMove (s, next |> f)    
-
+     
+    [<TailCall>]
     let rec internal bind f = 
         function
         | Free x -> x |> mapI (bind f) |> Free
@@ -55,7 +56,8 @@ module FreeMonadsCM =
         | DownloadAndSaveJsonFM next     -> DownloadAndSaveJsonFM (next >> f)
         | DownloadSelectedVariantFM next -> DownloadSelectedVariantFM (next >> f)
         | EndProcessFM next              -> EndProcessFM (next >> f)
-
+    
+    [<TailCall>]
     let rec internal bind f program =
         match program with
         | Free x -> Free (mapI (bind f) x)

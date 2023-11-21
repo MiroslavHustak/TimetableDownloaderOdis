@@ -63,6 +63,7 @@ let internal client (printToConsole1 : Lazy<unit>) (printToConsole2: string -> u
                      err.Force()
                      new System.Net.Http.HttpClient()  
 
+[<TailCall>]
 let internal filterTimetables pathToDir (message: Messages) = 
 
     let getLastThreeCharacters input =

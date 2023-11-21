@@ -731,7 +731,7 @@ let internal deleteAllODISDirectories message pathToDir =
                             |> Array.ofSeq
                             |> Array.filter (fun item -> (getDefaultRecordValues |> List.contains item.Name)) //prunik dvou kolekci (plus jeste Array.distinct pro unique items)
                             |> Array.distinct 
-                            |> Array.Parallel.iter (fun item -> item.Delete(true))                 
+                            |> Array.Parallel.iter _.Delete(true) //(fun item -> item.Delete(true))                 
                         deleteIt 
                         
                     return tryWith myDeleteFunction (fun x -> ()) () |> deconstructor message.msgParam1
@@ -777,8 +777,7 @@ let internal deleteOneODISDirectory message variant pathToDir =
                     dirInfo.EnumerateDirectories()
                     |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
                     |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
-                    |> Seq.iter (fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce
-                 
+                    |> Seq.iter _.Delete(true) //(fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce                 
                 return tryWith myDeleteFunction (fun x -> ()) () |> deconstructor message.msgParam1                          
             }
 

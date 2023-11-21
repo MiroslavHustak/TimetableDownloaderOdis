@@ -49,6 +49,7 @@ let internal environment: Environment =
         client = client (lazy (Messages.Default.msgParam7 "Chyba v průběhu stahování JŘ KODIS.")) Messages.Default.msgParam1 
     }  
 
+[<TailCall>]
 let internal webscraping_KODISFM pathToDir (variantList: Validity list) = 
     
     //****************************MainFunction**********************************   
