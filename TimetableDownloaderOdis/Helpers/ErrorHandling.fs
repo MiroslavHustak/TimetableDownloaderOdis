@@ -187,30 +187,28 @@ module TryWith =
 
 module Parsing =
        
-       //Int 
-       let internal f x = 
-           let isANumber = x                                          
-           isANumber  
+    //Int 
+    let internal f x = 
+        let isANumber = x                                          
+        isANumber 
+
+    let internal parseMeInt printError line =
+        function            
+        | TryParserInt.Int i -> 
+                                f i 
+        | notANumber         ->  
+                                printError notANumber line 
+                                -1 
        
-       [<TailCall>]
-       let rec inline internal parseMeInt printError line =
-           function            
-           | TryParserInt.Int i -> 
-                                 f i 
-           | notANumber         ->  
-                                 printError notANumber line 
-                                 -1 
-       
-       //DateTime
-       let internal f_date x = 
-           let isADate = x       
-           isADate               
-           
-       [<TailCall>]   
-       let rec inline internal parseMeDate (printError: string -> unit) =
-           function            
-           | TryParserDate.Date d ->
-                                   f_date d 
-           | notADate             -> 
-                                   printError notADate
-                                   DateTime.MinValue
+    //DateTime
+    let internal f_date x = 
+        let isADate = x       
+        isADate       
+   
+    let internal parseMeDate (printError: string -> unit) =
+        function            
+        | TryParserDate.Date d ->
+                                f_date d 
+        | notADate             -> 
+                                printError notADate
+                                DateTime.MinValue

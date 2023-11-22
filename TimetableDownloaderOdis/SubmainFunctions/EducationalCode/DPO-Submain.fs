@@ -16,7 +16,6 @@ open ErrorHandling
 open ErrorHandling.TryWith
 
 
-
 //************************Submain functions************************************************************************
 
 let internal client printToConsole1 printToConsole2 =  

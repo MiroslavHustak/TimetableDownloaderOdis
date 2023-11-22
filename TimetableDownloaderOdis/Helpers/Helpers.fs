@@ -84,7 +84,7 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
         | Copy
         | Move 
     
-    [<TailCall>]
+    //[<TailCall>]
     let rec private interpret config io = 
 
         let source = config.source

@@ -38,7 +38,7 @@ module FreeMonadsCM =
 
  module FreeMonadsDP =   
 
-//***************************KODIS Design Pattern********************************  
+//***************************For KODIS Design Pattern********************************  
 
     type internal CommandLineInstruction<'a> =
         | StartProcessFM of (unit -> 'a)

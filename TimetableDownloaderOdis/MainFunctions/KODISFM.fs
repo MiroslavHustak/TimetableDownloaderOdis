@@ -49,7 +49,7 @@ let internal environment: Environment =
         client = client (lazy (Messages.Default.msgParam7 "Chyba v průběhu stahování JŘ KODIS.")) Messages.Default.msgParam1 
     }  
 
-[<TailCall>]
+//[<TailCall>]
 let internal webscraping_KODISFM pathToDir (variantList: Validity list) = 
     
     //****************************MainFunction**********************************   
@@ -99,7 +99,7 @@ let internal webscraping_KODISFM pathToDir (variantList: Validity list) =
                                                     message.msgParam7 processEndTime
                                                 tryWith processEndTime (fun x -> ()) () 
                                                 |> deconstructor message.msgParam1       
-
+    
     let rec interpret = //Free Monad for educational purposes
         function
         | Pure x                                -> x
