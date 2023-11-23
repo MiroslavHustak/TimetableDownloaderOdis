@@ -14,7 +14,6 @@ open Helpers.ConsoleFixers
 open ErrorHandling.TryWith
 
 [<EntryPoint; STAThread>]
-[<TailCall>]
 let main argv =
 
     //*****************************Console******************************   

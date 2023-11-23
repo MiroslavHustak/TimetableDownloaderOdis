@@ -28,12 +28,34 @@ module ConsoleFixers =
 module LogicalAliases =         
 
     let internal xor a b = (a && not b) || (not a && b)   
-    
-    [<TailCall>]
+        
+    (*
     let rec internal nXor operands =
         match operands with
         | []    -> false  
         | x::xs -> (x && not (nXor xs)) || ((not x) && (nXor xs))
+    *)
+
+    [<TailCall>]
+    let internal nXor operands =
+        let rec nXor_tail_recursive acc operands =
+            match operands with
+            | []    -> acc
+            | x::xs -> nXor_tail_recursive ((x && not acc) || ((not x) && acc)) xs
+            in
+            nXor_tail_recursive false operands
+               
+    (*
+    let rec nXor operands =
+        match operands with
+        | []    -> false
+        | x::xs -> nXor_tail_recursive ((x && not (nXor xs)) || ((not x) && (nXor xs))) xs
+    
+    and nXor_tail_recursive acc operands =
+        match operands with
+        | []    -> acc
+        | x::xs -> nXor_tail_recursive ((x && not acc) || ((not x) && acc)) xs
+    *)
 
 module CopyingOrMovingFiles =    //not used yet   
          
@@ -85,7 +107,7 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
         | Move 
     
     //[<TailCall>]
-    let rec private interpret config io = 
+    let rec private interpret config io = //for testing purposes
 
         let source = config.source
         let destination = config.destination
@@ -121,7 +143,8 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
                                                      ), Error <| msg "č.1"
                                                  return Ok value
                                              }      
-                                      next (result (sourceFilepath source) source) |> interpret config io
+                                      let param = next (result (sourceFilepath source) source) 
+                                      interpret config io param
         | Free (DestinFilepath next) ->
                                       let destinFilepath destination =                                        
                                           pyramidOfDoom
@@ -133,13 +156,14 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
                                                          Option.fromBool value dInfodat.Exists
                                                      ), Error <| msg "č.3"
                                                  return Ok value
-                                             }                                        
-                                      next (result (destinFilepath destination) destination) |> interpret config io
+                                             }   
+                                      let param = next (result (destinFilepath destination) destination)       
+                                      interpret config io param
         | Free (CopyOrMove (s, _))   -> 
                                       let sourceFilepath = fst s
                                       let destinFilepath = snd s  
                                       f sourceFilepath destinFilepath 
-                                      //next |> interpret config 
+                                      //next |> interpret config //btw |> not tail-recursive
     
     let private config = 
         {
@@ -164,8 +188,7 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
 module MyString = 
         
     //priklad pouziti: getString(8, "0")//tuple a compiled nazev velkym kvuli DLL pro C#
-    [<CompiledName "GetString">] 
-    [<TailCall>]
+    [<CompiledName "GetString">]     
     let getString (numberOfStrings: int, stringToAdd: string): string =   
         let initialString = String.Empty   //initial value of the string
         let listRange = [ 1 .. numberOfStrings ] 
@@ -178,6 +201,3 @@ module MyString =
                          loop tail finalString  //Tail-recursive function calls that have their parameters passed by the pipe operator are not optimized as loops #6984
     
         loop listRange initialString
-         
-
-    
