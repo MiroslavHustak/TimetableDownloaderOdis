@@ -821,18 +821,18 @@ let internal downloadAndSaveTimetables (client: Http.HttpClient) message pathToD
         |> List.iteri 
             (fun i (link, pathToFile) -> //Array.Parallel.iter tady nelze  
                                          //async { printfn"%s" pathToFile; return! Async.Sleep 0 } //for testing
-                                        async                                                 
-                                            {
-                                                progressBarContinuous message i (filterTimetables |> List.length)
-                                                return! downloadFileTaskAsync link pathToFile 
-                                            }
-                                            |> Async.Catch
-                                            |> Async.RunSynchronously
-                                            |> Result.ofChoice
-                                            |> Result.toOption
-                                            |> function
-                                                | Some value -> ()                                                                                 
-                                                | None       -> message.msgParam2 link                                                         
+                                         async                                                 
+                                             {
+                                                 progressBarContinuous message i (filterTimetables |> List.length)
+                                                 return! downloadFileTaskAsync link pathToFile 
+                                             }
+                                             |> Async.Catch
+                                             |> Async.RunSynchronously
+                                             |> Result.ofChoice
+                                             |> Result.toOption
+                                             |> function
+                                                 | Some value -> ()                                                                                 
+                                                 | None       -> message.msgParam2 link                                                         
             )                           
    
     downloadTimetables filterTimetables 

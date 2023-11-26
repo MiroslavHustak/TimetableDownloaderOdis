@@ -69,14 +69,14 @@ module CopyingOrMovingFiles =    //not used yet
     //to be wrapped in a tryWith block
     //not used yet
     let internal copyFiles source destination message =
-        let action sourceFilepath destinFilepath = File.Copy(sourceFilepath, destinFilepath, true) in                
-            processFile source destination message action
+        let action sourceFilepath destinFilepath = File.Copy(sourceFilepath, destinFilepath, true) 
+            in processFile source destination message action
             
     //to be wrapped in a tryWith block
     //not used yet
     let internal moveFiles source destination message =
-        let action sourceFilepath destinFilepath = File.Move(sourceFilepath, destinFilepath, true) in               
-            processFile source destination message action
+        let action sourceFilepath destinFilepath = File.Move(sourceFilepath, destinFilepath, true)                
+            in processFile source destination message action
 
 module CopyingOrMovingFilesFreeMonad =   //not used yet  
         
@@ -119,7 +119,7 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
       
         
         match clp with 
-        //function //CommandLineProgram<unit> -> unit
+        //function //CommandLineProgram<unit> -> unit //warning FS3569
         | Pure x                     -> x
         | Free (SourceFilepath next) ->
                                         let sourceFilepath source =                                        
@@ -134,7 +134,7 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
                                                     return Ok value
                                                 }      
                                         let param = next (result (sourceFilepath source) source) 
-                                        interpret config io param //warning FS3569
+                                        interpret config io param 
         | Free (DestinFilepath next) ->
                                         let destinFilepath destination =                                        
                                             pyramidOfDoom
@@ -147,9 +147,9 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
                                                         ), Error <| msg "č.3"
                                                     return Ok value
                                                 }   
-                                        //let param = next (result (destinFilepath destination) destination)    
-                                        //error FS0251
-                                        next (result (destinFilepath destination) destination) |> interpret config io 
+                                        let param = next (result (destinFilepath destination) destination)    
+                                        interpret config io param
+                                        //next (result (destinFilepath destination) destination) |> interpret config io  //error FS0251 expected 
         | Free (CopyOrMove (s, _))   -> 
                                         let (sourceFilepath, destinFilepath) = s
                                         f sourceFilepath destinFilepath 

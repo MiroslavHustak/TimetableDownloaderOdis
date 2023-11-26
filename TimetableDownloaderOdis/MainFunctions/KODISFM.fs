@@ -59,7 +59,7 @@ let internal webscraping_KODISFM pathToDir (variantList: Validity list) =
         | StartProcess                        -> 
                                                  let processStartTime x =    
                                                      let processStartTime = sprintf "Začátek procesu: %s" <| DateTime.Now.ToString("HH:mm:ss") 
-                                                     message.msgParam7 processStartTime 
+                                                         in message.msgParam7 processStartTime 
                                                      in tryWith processStartTime (fun x -> ()) ()
                                                  |> deconstructor message.msgParam1
 
@@ -95,12 +95,12 @@ let internal webscraping_KODISFM pathToDir (variantList: Validity list) =
         | EndProcess                         -> 
                                                 let processEndTime x =    
                                                     let processEndTime = sprintf "Konec procesu: %s" <| DateTime.Now.ToString("HH:mm:ss")                       
-                                                    message.msgParam7 processEndTime
+                                                        in message.msgParam7 processEndTime
                                                     in tryWith processEndTime (fun x -> ()) () 
                                                 |> deconstructor message.msgParam1       
     
     let rec interpret clp = //Free Monad for educational purposes
-        //function
+        //function //CommandLineProgram<unit> -> unit
         match clp with
         | Pure x                                -> x
         | Free (StartProcessFM next)            -> 

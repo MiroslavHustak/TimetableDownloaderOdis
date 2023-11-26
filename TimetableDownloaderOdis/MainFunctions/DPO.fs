@@ -61,7 +61,7 @@ let internal webscraping_DPO pathToDir =
         | StartProcess           -> 
                                     let processStartTime x =    
                                         let processStartTime = sprintf "Začátek procesu: %s" <| DateTime.Now.ToString("HH:mm:ss") 
-                                        message.msgParam7 processStartTime 
+                                            in message.msgParam7 processStartTime 
                                     tryWith processStartTime (fun x -> ()) ()
                                     |> deconstructor message.msgParam1
 
@@ -70,10 +70,10 @@ let internal webscraping_DPO pathToDir =
                                     let myDeleteFunction x =  
                                         //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
                                         let dirInfo = new DirectoryInfo(pathToDir) |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ MDPO.")) (new DirectoryInfo(pathToDir))   
-                                        dirInfo.EnumerateDirectories()
-                                        |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ DPO.")) Seq.empty  
-                                        |> Seq.filter (fun item -> item.Name = dirName) 
-                                        |> Seq.iter _.Delete(true)//(fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
+                                            in dirInfo.EnumerateDirectories()
+                                               |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ DPO.")) Seq.empty  
+                                               |> Seq.filter (fun item -> item.Name = dirName) 
+                                               |> Seq.iter _.Delete(true)//(fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce 
                                         in tryWith myDeleteFunction (fun x -> ()) () 
                                     |> deconstructor message.msgParam1   
                                     message.msg12()   
@@ -91,11 +91,11 @@ let internal webscraping_DPO pathToDir =
                                         let pathToSubdir = dirList pathToDir |> List.head    
                                         match pathToSubdir |> Directory.Exists with 
                                         | false ->                                              
-                                                   message.msgParam5 pathToSubdir   
-                                                   message.msg1()                                                
+                                                 message.msgParam5 pathToSubdir   
+                                                 message.msg1()                                                
                                         | true  -> 
-                                                   environment.filterTimetables pathToSubdir message
-                                                   |> environment.downloadAndSaveTimetables environment.client message pathToSubdir   
+                                                 environment.filterTimetables pathToSubdir message
+                                                 |> environment.downloadAndSaveTimetables environment.client message pathToSubdir   
                                         in tryWith filterDownloadSave (fun x -> ()) ()
                                     |> deconstructor message.msgParam1
                                     
@@ -104,7 +104,7 @@ let internal webscraping_DPO pathToDir =
         | EndProcess             -> 
                                     let processEndTime x =    
                                         let processEndTime = sprintf "Konec procesu: %s" <| DateTime.Now.ToString("HH:mm:ss")                       
-                                        message.msgParam7 processEndTime
+                                            in message.msgParam7 processEndTime
                                         in tryWith processEndTime (fun x -> ()) () 
                                     |> deconstructor message.msgParam1
     

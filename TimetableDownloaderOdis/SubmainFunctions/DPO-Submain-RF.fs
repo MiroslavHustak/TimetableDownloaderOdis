@@ -125,7 +125,7 @@ let internal filterTimetables pathToDir (message: Messages) =
                                             let s (item2: string) = item2.Replace(@"/jr/", String.Empty).Replace(@"/", "?").Replace(".pdf", String.Empty) 
                                             let rec x s =                                                                            
                                                 match (getLastThreeCharacters s).Contains("?") with
-                                                | true  -> x <| sprintf "%s%s" s "_"                                                                             
+                                                | true  -> x (sprintf "%s%s" s "_")                                                                             
                                                 | false -> s
                                             (x << s) item2
                                         let lineName = 
