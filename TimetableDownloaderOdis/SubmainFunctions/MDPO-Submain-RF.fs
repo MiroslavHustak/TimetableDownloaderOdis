@@ -157,23 +157,21 @@ let internal downloadAndSaveTimetables client (message: Messages) (pathToDir: st
         filterTimetables 
         |> List.iteri
             (fun i (link, pathToFile) ->                                                     
-                                       let mapErr3 err p =                  
-                                           p
-                                           |> function
-                                               | Ok value  ->
-                                                            value   
-                                                            |> List.tryFind (fun item -> err = item)
-                                                            |> function
-                                                                | Some err -> closeIt client message err                                                                      
-                                                                | None     -> message.msgParam2 link 
-                                               | Error err ->
-                                                            closeIt client message err              
+                                       let mapErr3 err  =    
+                                           function
+                                           | Ok value  ->
+                                                        value   
+                                                        |> List.tryFind (fun item -> err = item)
+                                                        |> function
+                                                            | Some err -> closeIt client message err                                                                      
+                                                            | None     -> message.msgParam2 link 
+                                           | Error err ->
+                                                        closeIt client message err              
 
-                                       let mapErr2 (p: Result<unit, string>) =           
-                                           p                      
-                                           |> function
-                                               | Ok value  -> value |> ignore
-                                               | Error err -> mapErr3 err getDefaultRcValMdpo 
+                                       let mapErr2 = //(p: Result<unit, string>)           
+                                           function
+                                           | Ok value  -> value |> ignore
+                                           | Error err -> mapErr3 err getDefaultRcValMdpo 
                                                  
                                        async                                                
                                            {   

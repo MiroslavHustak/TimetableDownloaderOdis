@@ -721,15 +721,13 @@ let internal deleteAllODISDirectories message pathToDir =
                         
                         //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
                         let dirInfo = new DirectoryInfo(pathToDir) |> Option.toGenerics (lazy (message.msgParam7 "Error8")) (new DirectoryInfo(pathToDir)) 
-                        
-                        let deleteIt = //smazeme pouze adresare obsahujici stare JR, ostatni ponechame                
+                            in //smazeme pouze adresare obsahujici stare JR, ostatni ponechame                                        
                             dirInfo.EnumerateDirectories()
                             |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
                             |> Array.ofSeq
                             |> Array.filter (fun item -> (getDefaultRecordValues |> List.contains item.Name)) //prunik dvou kolekci (plus jeste Array.distinct pro unique items)
                             |> Array.distinct 
-                            |> Array.Parallel.iter _.Delete(true) //(fun item -> item.Delete(true))                 
-                        deleteIt 
+                            |> Array.Parallel.iter _.Delete(true) //(fun item -> item.Delete(true))   
                         
                     return tryWith myDeleteFunction (fun x -> ()) () |> deconstructor message.msgParam1
                 }
@@ -770,11 +768,11 @@ let internal deleteOneODISDirectory message variant pathToDir =
 
                     //rozdil mezi Directory a DirectoryInfo viz Unique_Identifier_And_Metadata_File_Creator.sln -> MainLogicDG.fs
                     let dirInfo = new DirectoryInfo(pathToDir) |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) (new DirectoryInfo(pathToDir))        
-       
-                    dirInfo.EnumerateDirectories()
-                    |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
-                    |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
-                    |> Seq.iter _.Delete(true) //(fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce                 
+                        in
+                        dirInfo.EnumerateDirectories()
+                        |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
+                        |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
+                        |> Seq.iter _.Delete(true) //(fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce                 
                 return tryWith myDeleteFunction (fun x -> ()) () |> deconstructor message.msgParam1                          
             }
 
