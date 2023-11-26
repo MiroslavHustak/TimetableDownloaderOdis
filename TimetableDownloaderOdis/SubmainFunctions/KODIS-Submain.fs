@@ -67,12 +67,11 @@ let private splitList message list =
 
 let private splitListByPrefix message (list: string list) : string list list = 
 
-    let mySplitting x = 
-        let prefix = (fun (x: string) -> x.Substring(0, lineNumberLength))
-        let groups = list |> List.groupBy prefix  
-        let filteredGroups = groups |> List.filter (fun (k, _) -> k.Substring(0, lineNumberLength) = k.Substring(0, lineNumberLength))
-        let result = filteredGroups |> List.map snd
-        result
+    let mySplitting x =         
+        let filteredGroups = 
+            let prefix = (fun (x: string) -> x.Substring(0, lineNumberLength))
+            (prefix, list) ||> List.groupBy |> List.filter (fun (k, _) -> k.Substring(0, lineNumberLength) = k.Substring(0, lineNumberLength))
+        filteredGroups |> List.map snd
     tryWith mySplitting (fun x -> ()) [ [] ] |> deconstructor message.msgParam1
 
 //ekvivalent splitListByPrefix za predpokladu existence teto podminky shodnosti k.Substring(0, lineNumberLength) = k.Substring(0, lineNumberLength)   
@@ -114,10 +113,9 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
                         pathToJsonList
                         |> List.toArray
                         |> Array.Parallel.map 
-                            (fun item ->                                          
-                                       let fileInfo = new FileInfo(Path.GetFullPath(item))
-                                                                       
+                            (fun item ->                                                                         
                                        try   
+                                           let fileInfo = new FileInfo(Path.GetFullPath(item))
                                            match fileInfo.Exists with
                                            | true  -> Some fileInfo.Length 
                                            | false -> None                                               
@@ -139,9 +137,9 @@ let internal downloadAndSaveJson2 message (client: Http.HttpClient) = //ponechan
                                                         { 
                                                             try 
                                                                 let! httpResponse = client.GetAsync(url) |> Async.AwaitTask
-                                                                let response = httpResponse.Content.Headers
-                                                                                  
+                                                                
                                                                 let contentLength = 
+                                                                    let response = httpResponse.Content.Headers
                                                                     response.ContentLength
                                                                     |> Option.ofNullable    
                                                                     |> Option.map (fun value -> value)
@@ -472,7 +470,7 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                             }                                                            
                                                          
                                     let fileNameFull =  
-                                        let ranges = [rangeS; rangeR; rangeX; rangeA]
+                                        let ranges = [ rangeS; rangeR; rangeX; rangeA ]
                                         match List.exists (fun r -> b r) ranges with
                                         | true  -> sprintf "%s%s" "_" fileNameFullA //jen pridani _, aby to melo 3 znaky _S1                                                                     
                                         | false -> fileNameFullA  
@@ -530,50 +528,49 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                             let dateValidityStart x = new DateTime(yearValidityStart x, monthValidityStart x, dayValidityStart x)                                                                                       
                                                             let dateValidityEnd x = new DateTime(yearValidityEnd x, monthValidityEnd x, dayValidityEnd x) 
                                                                                 
-                                                            let cond = 
-                                                                //Code with Fugit.now() will be comparing the current date and time, including the precise time down to the second,
-                                                                //that is why only Fugit.today() shall be used.
-                                                                match param with 
-                                                                | CurrentValidity           ->  
-                                                                                               ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
-                                                                                               && 
-                                                                                               dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
-                                                                                               ||
-                                                                                               ((dateValidityStart x).Equals(currentTime) 
-                                                                                               && 
-                                                                                               (dateValidityEnd x).Equals(currentTime)))
+                                                            //Code with Fugit.now() will be comparing the current date and time, including the precise time down to the second,
+                                                            //that is why only Fugit.today() shall be used.
+                                                            match param with 
+                                                            | CurrentValidity           ->  
+                                                                                            ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
+                                                                                            && 
+                                                                                            dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                            ||
+                                                                                            ((dateValidityStart x).Equals(currentTime) 
+                                                                                            && 
+                                                                                            (dateValidityEnd x).Equals(currentTime)))
 
-                                                                | FutureValidity            -> dateValidityStart x |> Fugit.isAfter currentTime
+                                                            | FutureValidity            -> dateValidityStart x |> Fugit.isAfter currentTime
 
-                                                                | ReplacementService        -> 
-                                                                                               ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
-                                                                                               && 
-                                                                                               dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
-                                                                                               ||
-                                                                                               ((dateValidityStart x).Equals(currentTime) 
-                                                                                               && 
-                                                                                               (dateValidityEnd x).Equals(currentTime)))
-                                                                                               &&
-                                                                                               (fileNameFull.Contains("_v") 
-                                                                                               || fileNameFull.Contains("X")
-                                                                                               || fileNameFull.Contains("NAD"))
+                                                            | ReplacementService        -> 
+                                                                                            ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
+                                                                                            && 
+                                                                                            dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                            ||
+                                                                                            ((dateValidityStart x).Equals(currentTime) 
+                                                                                            && 
+                                                                                            (dateValidityEnd x).Equals(currentTime)))
+                                                                                            &&
+                                                                                            (fileNameFull.Contains("_v") 
+                                                                                            || fileNameFull.Contains("X")
+                                                                                            || fileNameFull.Contains("NAD"))
 
-                                                                | WithoutReplacementService ->
-                                                                                               ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
-                                                                                               && 
-                                                                                               dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
-                                                                                               ||
-                                                                                               ((dateValidityStart x).Equals(currentTime) 
-                                                                                               && 
-                                                                                               (dateValidityEnd x).Equals(currentTime)))
-                                                                                               &&
-                                                                                               (not <| fileNameFull.Contains("_v") 
-                                                                                               && not <| fileNameFull.Contains("X")
-                                                                                               && not <| fileNameFull.Contains("NAD"))
+                                                            | WithoutReplacementService ->
+                                                                                            ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
+                                                                                            && 
+                                                                                            dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                            ||
+                                                                                            ((dateValidityStart x).Equals(currentTime) 
+                                                                                            && 
+                                                                                            (dateValidityEnd x).Equals(currentTime)))
+                                                                                            &&
+                                                                                            (not <| fileNameFull.Contains("_v") 
+                                                                                            && not <| fileNameFull.Contains("X")
+                                                                                            && not <| fileNameFull.Contains("NAD"))
                                                             
-                                                            match cond with
-                                                            | true  -> fileNameFull                                                                       
-                                                            | false -> String.Empty                                                                                
+                                                            |> function
+                                                                | true  -> fileNameFull                                                                       
+                                                                | false -> String.Empty                                                                                
                                                                                
                                                         with 
                                                         | _ -> String.Empty  
@@ -820,14 +817,13 @@ let internal downloadAndSaveTimetables (client: Http.HttpClient) message pathToD
         
     let downloadTimetables filterTimetables = 
 
-        let l = filterTimetables |> List.length
         filterTimetables 
         |> List.iteri 
             (fun i (link, pathToFile) -> //Array.Parallel.iter tady nelze  
                                          //async { printfn"%s" pathToFile; return! Async.Sleep 0 } //for testing
                                         async                                                 
                                             {
-                                                progressBarContinuous message i l
+                                                progressBarContinuous message i (filterTimetables |> List.length)
                                                 return! downloadFileTaskAsync link pathToFile 
                                             }
                                             |> Async.Catch

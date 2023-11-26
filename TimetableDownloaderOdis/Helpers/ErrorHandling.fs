@@ -163,7 +163,7 @@ module TryWith =
             f1 x |> Success
         with
         | ex -> 
-               Failure (ex.Message, y)      
+              Failure (ex.Message, y)      
 
     let internal deconstructorError fn1 fn2 =  
         fn1       

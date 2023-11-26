@@ -60,7 +60,7 @@ let internal webscraping_KODISFM pathToDir (variantList: Validity list) =
                                                  let processStartTime x =    
                                                      let processStartTime = sprintf "Začátek procesu: %s" <| DateTime.Now.ToString("HH:mm:ss") 
                                                      message.msgParam7 processStartTime 
-                                                 tryWith processStartTime (fun x -> ()) ()
+                                                     in tryWith processStartTime (fun x -> ()) ()
                                                  |> deconstructor message.msgParam1
 
         | DownloadAndSaveJson                 -> downloadAndSaveJson message environment.client  //try with included
@@ -96,18 +96,25 @@ let internal webscraping_KODISFM pathToDir (variantList: Validity list) =
                                                 let processEndTime x =    
                                                     let processEndTime = sprintf "Konec procesu: %s" <| DateTime.Now.ToString("HH:mm:ss")                       
                                                     message.msgParam7 processEndTime
-                                                tryWith processEndTime (fun x -> ()) () 
+                                                    in tryWith processEndTime (fun x -> ()) () 
                                                 |> deconstructor message.msgParam1       
     
-    let rec interpret = //Free Monad for educational purposes
-        function
+    let rec interpret clp = //Free Monad for educational purposes
+        //function
+        match clp with
         | Pure x                                -> x
-        | Free (StartProcessFM next)            -> stateReducer State.Default Messages.Default StartProcess environment
-                                                   next () |> interpret
-        | Free (DownloadAndSaveJsonFM next)     -> stateReducer State.Default Messages.Default DownloadAndSaveJson environment
-                                                   next () |> interpret
-        | Free (DownloadSelectedVariantFM next) -> stateReducer State.Default Messages.Default (DownloadSelectedVariant variantList) environment
-                                                   next () |> interpret
+        | Free (StartProcessFM next)            -> 
+                                                   stateReducer State.Default Messages.Default StartProcess environment
+                                                   let param = next ()
+                                                   interpret param
+        | Free (DownloadAndSaveJsonFM next)     -> 
+                                                   stateReducer State.Default Messages.Default DownloadAndSaveJson environment
+                                                   let param = next ()
+                                                   interpret param
+        | Free (DownloadSelectedVariantFM next) -> 
+                                                   stateReducer State.Default Messages.Default (DownloadSelectedVariant variantList) environment
+                                                   let param = next ()
+                                                   interpret param
         | Free (EndProcessFM _)                 -> stateReducer State.Default Messages.Default EndProcess environment   
      
     cmdBuilder

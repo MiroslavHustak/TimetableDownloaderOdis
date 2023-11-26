@@ -42,21 +42,8 @@ module LogicalAliases =
             match operands with
             | []    -> acc
             | x::xs -> nXor_tail_recursive ((x && not acc) || ((not x) && acc)) xs
-            in
-            nXor_tail_recursive false operands
-               
-    (*
-    let rec nXor operands =
-        match operands with
-        | []    -> false
-        | x::xs -> nXor_tail_recursive ((x && not (nXor xs)) || ((not x) && (nXor xs))) xs
+        nXor_tail_recursive false operands
     
-    and nXor_tail_recursive acc operands =
-        match operands with
-        | []    -> acc
-        | x::xs -> nXor_tail_recursive ((x && not acc) || ((not x) && acc)) xs
-    *)
-
 module CopyingOrMovingFiles =    //not used yet   
          
     let private processFile source destination message action =
@@ -82,14 +69,14 @@ module CopyingOrMovingFiles =    //not used yet
     //to be wrapped in a tryWith block
     //not used yet
     let internal copyFiles source destination message =
-        let action sourceFilepath destinFilepath = File.Copy(sourceFilepath, destinFilepath, true)                
-        processFile source destination message action
+        let action sourceFilepath destinFilepath = File.Copy(sourceFilepath, destinFilepath, true) in                
+            processFile source destination message action
             
     //to be wrapped in a tryWith block
     //not used yet
     let internal moveFiles source destination message =
-        let action sourceFilepath destinFilepath = File.Move(sourceFilepath, destinFilepath, true)                
-        processFile source destination message action
+        let action sourceFilepath destinFilepath = File.Move(sourceFilepath, destinFilepath, true) in               
+            processFile source destination message action
 
 module CopyingOrMovingFilesFreeMonad =   //not used yet  
         
@@ -106,8 +93,9 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
         | Copy
         | Move 
     
-    //[<TailCall>]
-    let rec private interpret config io = //for testing purposes
+    [<TailCall>]
+    let rec private interpret config io clp = //[<TailCall>] for testing purposes
+    //let rec private interpret config io = //[<TailCall>] for testing purposes
 
         let source = config.source
         let destination = config.destination
@@ -129,41 +117,43 @@ module CopyingOrMovingFilesFreeMonad =   //not used yet
             | Copy -> fun p1 p2 -> File.Copy(p1, p2, true) //(fun _ _ -> ())           
             | Move -> fun p1 p2 -> File.Move(p1, p2, true) //(fun _ _ -> ())
       
-        function
-        | Pure x -> x
+        
+        match clp with 
+        //function //CommandLineProgram<unit> -> unit
+        | Pure x                     -> x
         | Free (SourceFilepath next) ->
-                                      let sourceFilepath source =                                        
-                                          pyramidOfDoom
-                                             {
-                                                 let! value = Path.GetFullPath(source) |> Option.ofNull, Error <| msg "č.2"   
-                                                 let! value = 
-                                                     (
-                                                         let fInfodat: FileInfo = new FileInfo(value)   
-                                                         Option.fromBool value fInfodat.Exists
-                                                     ), Error <| msg "č.1"
-                                                 return Ok value
-                                             }      
-                                      let param = next (result (sourceFilepath source) source) 
-                                      interpret config io param
+                                        let sourceFilepath source =                                        
+                                            pyramidOfDoom
+                                                {
+                                                    let! value = Path.GetFullPath(source) |> Option.ofNull, Error <| msg "č.2"   
+                                                    let! value = 
+                                                        (
+                                                            let fInfodat: FileInfo = new FileInfo(value)   
+                                                            Option.fromBool value fInfodat.Exists
+                                                        ), Error <| msg "č.1"
+                                                    return Ok value
+                                                }      
+                                        let param = next (result (sourceFilepath source) source) 
+                                        interpret config io param //warning FS3569
         | Free (DestinFilepath next) ->
-                                      let destinFilepath destination =                                        
-                                          pyramidOfDoom
-                                             {
-                                                 let! value = Path.GetFullPath(destination) |> Option.ofNull, Error <| msg "č.4"   
-                                                 let! value = 
-                                                     (
-                                                         let dInfodat: DirectoryInfo = new DirectoryInfo(value)   
-                                                         Option.fromBool value dInfodat.Exists
-                                                     ), Error <| msg "č.3"
-                                                 return Ok value
-                                             }   
-                                      let param = next (result (destinFilepath destination) destination)       
-                                      interpret config io param
+                                        let destinFilepath destination =                                        
+                                            pyramidOfDoom
+                                                {
+                                                    let! value = Path.GetFullPath(destination) |> Option.ofNull, Error <| msg "č.4"   
+                                                    let! value = 
+                                                        (
+                                                            let dInfodat: DirectoryInfo = new DirectoryInfo(value)   
+                                                            Option.fromBool value dInfodat.Exists
+                                                        ), Error <| msg "č.3"
+                                                    return Ok value
+                                                }   
+                                        //let param = next (result (destinFilepath destination) destination)    
+                                        //error FS0251
+                                        next (result (destinFilepath destination) destination) |> interpret config io 
         | Free (CopyOrMove (s, _))   -> 
-                                      let sourceFilepath = fst s
-                                      let destinFilepath = snd s  
-                                      f sourceFilepath destinFilepath 
-                                      //next |> interpret config //btw |> not tail-recursive
+                                        let (sourceFilepath, destinFilepath) = s
+                                        f sourceFilepath destinFilepath 
+                                        //interpret config next 
     
     let private config = 
         {
