@@ -773,6 +773,7 @@ let internal deleteOneODISDirectory message variant pathToDir =
                         |> Option.toGenerics (lazy (message.msgParam7 "Chyba v průběhu odstraňování starých JŘ KODIS.")) Seq.empty  
                         |> Seq.filter (fun item -> item.Name = createDirName variant getDefaultRecordValues) 
                         |> Seq.iter _.Delete(true) //(fun item -> item.Delete(true)) //trochu je to hack, ale nemusim se zabyvat tryHead, bo moze byt empty kolekce                 
+                
                 return tryWith myDeleteFunction (fun x -> ()) () |> deconstructor message.msgParam1                          
             }
 
