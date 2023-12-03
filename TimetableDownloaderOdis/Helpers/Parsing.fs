@@ -12,9 +12,10 @@ module TryParserInt =
 module TryParserDate = //tohle je pro parsing textoveho retezce do DateTime, ne pro overovani new DateTime()
 
        let tryParseWith (tryParseFunc: string -> bool * _) =
-           tryParseFunc >> function
-           | true, value -> Some value
-           | false, _    -> None
+           tryParseFunc
+           >> function
+              | true, value -> Some value
+              | false, _    -> None
        let parseDate = tryParseWith <| System.DateTime.TryParse 
        let (|Date|_|) = parseDate                 
                                     
@@ -23,9 +24,10 @@ module TryParserDate = //tohle je pro parsing textoveho retezce do DateTime, ne 
 module private TryParser =
 
      let tryParseWith (tryParseFunc: string -> bool * _) = 
-         tryParseFunc >> function
-                         | true, value -> Some value
-                         | false, _    -> None
+         tryParseFunc 
+         >> function
+             | true, value -> Some value
+             | false, _    -> None
 
      let parseDate   = tryParseWith <| System.DateTime.TryParse
      let parseInt    = tryParseWith <| System.Int32.TryParse

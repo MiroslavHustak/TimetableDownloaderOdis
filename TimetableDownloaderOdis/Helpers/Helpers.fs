@@ -2,7 +2,6 @@
 
 open System
 open System.IO
-open System.Diagnostics
 
 open Messages.Messages
 //open Messages.MessagesMocking
@@ -13,10 +12,9 @@ open CEBuilders.PattternBuilders
    
 module ConsoleFixers = 
 
-    let internal consoleAppProblemFixer() =
-
-        do System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance)    
-        
+    let internal consoleAppProblemFixer () = System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance)  
+      
+    let internal consoleWindowSettings () =
         //Console window settings
         Console.BackgroundColor <- ConsoleColor.Blue 
         Console.ForegroundColor <- ConsoleColor.White 

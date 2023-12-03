@@ -19,6 +19,7 @@ let main argv =
     //*****************************Console******************************   
     
     consoleAppProblemFixer()
+    consoleWindowSettings ()
     
     //*****************************WebScraping1******************************   
 
