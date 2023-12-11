@@ -26,10 +26,10 @@ let [<Literal>] internal pathKodisAmazonLink = @"https://kodis-files.s3.eu-centr
 let [<Literal>] internal nonJsonString = "12345 #$%&*()"
 
 let internal currentTime = Fugit.today() //nelze Fugit.now //.AddDays(-1.0)   // new DateTime(2023, 04, 11)
-let internal regularValidityStart = new DateTime(2022, 12, 11) //zmenit pri pravidelne zmene JR 
-let internal regularValidityEnd = new DateTime(2023, 12, 09) //zmenit pri pravidelne zmene JR 
-//let internal regularValidityStart = new DateTime(2023, 12, 10) //zmenit pri pravidelne zmene JR 
-//let internal regularValidityEnd = new DateTime(2024, 12, 14) //zmenit pri pravidelne zmene JR 
+//let internal regularValidityStart = new DateTime(2022, 12, 11) //zmenit pri pravidelne zmene JR 
+//let internal regularValidityEnd = new DateTime(2023, 12, 09) //zmenit pri pravidelne zmene JR 
+let internal regularValidityStart = new DateTime(2023, 12, 10) //zmenit pri pravidelne zmene JR 
+let internal regularValidityEnd = new DateTime(2024, 12, 14) //zmenit pri pravidelne zmene JR 
 
 let internal range = [ 0..9 ] |> List.map (fun item -> char (int '0' + item))  //[ '1'; '2'; .... ] //nema souvislost s nize uvedenym
 //int '0': Converts the character '0' to its Unicode code point, which is equivalent to the integer 48.
