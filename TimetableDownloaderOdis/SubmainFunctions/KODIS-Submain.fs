@@ -513,41 +513,42 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                             //that is why only Fugit.today() shall be used.
                                                             match param with 
                                                             | CurrentValidity           ->  
-                                                                                            ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
-                                                                                            && 
-                                                                                            dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
-                                                                                            ||
-                                                                                            ((dateValidityStart x).Equals(currentTime) 
-                                                                                            && 
-                                                                                            (dateValidityEnd x).Equals(currentTime)))
+                                                                                        ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
+                                                                                         && 
+                                                                                        dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                        ||
+                                                                                        ((dateValidityStart x).Equals(currentTime) 
+                                                                                        && 
+                                                                                        (dateValidityEnd x).Equals(currentTime)))
 
-                                                            | FutureValidity            -> dateValidityStart x |> Fugit.isAfter currentTime
+                                                            | FutureValidity            -> 
+                                                                                        dateValidityStart x |> Fugit.isAfter currentTime
 
                                                             | ReplacementService        -> 
-                                                                                            ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
-                                                                                            && 
-                                                                                            dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
-                                                                                            ||
-                                                                                            ((dateValidityStart x).Equals(currentTime) 
-                                                                                            && 
-                                                                                            (dateValidityEnd x).Equals(currentTime)))
-                                                                                            &&
-                                                                                            (fileNameFull.Contains("_v") 
-                                                                                            || fileNameFull.Contains("X")
-                                                                                            || fileNameFull.Contains("NAD"))
+                                                                                        ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
+                                                                                        && 
+                                                                                        dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                        ||
+                                                                                        ((dateValidityStart x).Equals(currentTime) 
+                                                                                        && 
+                                                                                        (dateValidityEnd x).Equals(currentTime)))
+                                                                                        &&
+                                                                                        (fileNameFull.Contains("_v") 
+                                                                                        || fileNameFull.Contains("X")
+                                                                                        || fileNameFull.Contains("NAD"))
 
                                                             | WithoutReplacementService ->
-                                                                                            ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
-                                                                                            && 
-                                                                                            dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
-                                                                                            ||
-                                                                                            ((dateValidityStart x).Equals(currentTime) 
-                                                                                            && 
-                                                                                            (dateValidityEnd x).Equals(currentTime)))
-                                                                                            &&
-                                                                                            (not <| fileNameFull.Contains("_v") 
-                                                                                            && not <| fileNameFull.Contains("X")
-                                                                                            && not <| fileNameFull.Contains("NAD"))
+                                                                                        ((dateValidityStart x |> Fugit.isBeforeOrEqual currentTime 
+                                                                                        && 
+                                                                                        dateValidityEnd x |> Fugit.isAfterOrEqual currentTime)
+                                                                                        ||
+                                                                                        ((dateValidityStart x).Equals(currentTime) 
+                                                                                        && 
+                                                                                        (dateValidityEnd x).Equals(currentTime)))
+                                                                                        &&
+                                                                                        (not <| fileNameFull.Contains("_v") 
+                                                                                        && not <| fileNameFull.Contains("X")
+                                                                                        && not <| fileNameFull.Contains("NAD"))
                                                             
                                                             |> function
                                                                 | true  -> fileNameFull                                                                       
