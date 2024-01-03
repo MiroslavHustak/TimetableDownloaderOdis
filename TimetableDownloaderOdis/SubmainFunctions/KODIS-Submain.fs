@@ -489,16 +489,18 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                                 | true  -> 
                                                         let cond = 
                                                             match param with 
-                                                            | CurrentValidity           -> true //s tim nic nezrobim, nekonzistentni informace v retezci
-                                                            | FutureValidity            -> true //s tim nic nezrobim, nekonzistentni informace v retezci
+                                                            | CurrentValidity           -> 
+                                                                                         true //s tim nic nezrobim, nekonzistentni informace v retezci
+                                                            | FutureValidity            -> 
+                                                                                         true //s tim nic nezrobim, nekonzistentni informace v retezci
                                                             | ReplacementService        -> 
-                                                                                           fileNameFull.Contains("_v") 
-                                                                                           || fileNameFull.Contains("X")
-                                                                                           || fileNameFull.Contains("NAD")
+                                                                                         fileNameFull.Contains("_v") 
+                                                                                         || fileNameFull.Contains("X")
+                                                                                         || fileNameFull.Contains("NAD")
                                                             | WithoutReplacementService -> 
-                                                                                           not <| fileNameFull.Contains("_v") 
-                                                                                           && not <| fileNameFull.Contains("X")
-                                                                                           && not <| fileNameFull.Contains("NAD")
+                                                                                         not <| fileNameFull.Contains("_v") 
+                                                                                         && not <| fileNameFull.Contains("X")
+                                                                                         && not <| fileNameFull.Contains("NAD")
 
                                                         match cond with
                                                         | true  -> fileNameFull
@@ -602,35 +604,35 @@ let internal filterTimetables message param pathToDir diggingResult  =
                                         list
                                         |> List.map
                                             (fun item -> 
-                                                        let item = string item                                                                              
-                                                        try
-                                                            let condNAD (rangeN: string list) = 
-                                                                rangeN   
-                                                                |> List.tryFind (fun item1 -> item.Contains(item1))  
-                                                                |> Option.isSome                       
+                                                       let item = string item                                                                              
+                                                       try
+                                                           let condNAD (rangeN: string list) = 
+                                                               rangeN   
+                                                               |> List.tryFind (fun item1 -> item.Contains(item1))  
+                                                               |> Option.isSome                       
                                                                                                                                 
-                                                            let x = //int hodnota je korekce pozice znaku v retezci
-                                                                pyramidOfHell
-                                                                    {
-                                                                        let!_ = not (item.Contains("NAD") && nXor [condNAD rangeN3; condNAD rangeNS1; condNAD rangeNR1] = true), 4
-                                                                        let!_ = not (item.Contains("NAD") && nXor [condNAD rangeN2; condNAD rangeNS; condNAD rangeNR] = true), 3
-                                                                        let!_ = not (item.Contains("NAD") && condNAD rangeN1 = true), 2
-                                                                        let!_ = not (List.exists (fun item1 -> item.Contains(item1: string)) rangeX2), 1
+                                                           let x = //int hodnota je korekce pozice znaku v retezci
+                                                               pyramidOfHell
+                                                                   {
+                                                                       let!_ = not (item.Contains("NAD") && nXor [condNAD rangeN3; condNAD rangeNS1; condNAD rangeNR1] = true), 4
+                                                                       let!_ = not (item.Contains("NAD") && nXor [condNAD rangeN2; condNAD rangeNS; condNAD rangeNR] = true), 3
+                                                                       let!_ = not (item.Contains("NAD") && condNAD rangeN1 = true), 2
+                                                                       let!_ = not (List.exists (fun item1 -> item.Contains(item1: string)) rangeX2), 1
 
-                                                                        return 0
-                                                                    } 
+                                                                       return 0
+                                                                   } 
                                                                                       
-                                                            let yearValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(4 + x, 4) //overovat, jestli se v jsonu neco nezmenilo //113_2022_12_11_2023_12_09.....
-                                                            let monthValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(9 + x, 2) 
-                                                            let dayValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(12 + x, 2)
-                                                              
-                                                            let yearValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(15 + x, 4) 
-                                                            let monthValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(20 + x, 2) 
-                                                            let dayValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(23 + x, 2) 
-                                                            item, new DateTime(yearValidityStart x, monthValidityStart x, dayValidityStart x) 
-                                                            //item, new DateTime(yearValidityEnd x, monthValidityEnd x, dayValidityEnd x) //pro pripadnou zmenu logiky
-                                                        with 
-                                                        | _ -> item, currentTime
+                                                           let yearValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(4 + x, 4) //overovat, jestli se v jsonu neco nezmenilo //113_2022_12_11_2023_12_09.....
+                                                           let monthValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(9 + x, 2) 
+                                                           let dayValidityStart x = parseMeInt <| message.msgParam10 <| item <| item.Substring(12 + x, 2)
+                                                             
+                                                           let yearValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(15 + x, 4) 
+                                                           let monthValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(20 + x, 2) 
+                                                           let dayValidityEnd x = parseMeInt <| message.msgParam10 <| item <| item.Substring(23 + x, 2) 
+                                                           item, new DateTime(yearValidityStart x, monthValidityStart x, dayValidityStart x) 
+                                                           //item, new DateTime(yearValidityEnd x, monthValidityEnd x, dayValidityEnd x) //pro pripadnou zmenu logiky
+                                                       with 
+                                                       | _ -> item, currentTime
                                             )
                                             
                                     let latestValidityStart : string*DateTime = 
