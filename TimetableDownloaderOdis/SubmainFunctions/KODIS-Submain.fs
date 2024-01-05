@@ -289,7 +289,7 @@ let internal digThroughJsonStructure message = //prohrabeme se strukturou json s
                                         kodisJsonSamples 
                                         |> function 
                                             | Some value -> 
-                                                          value |> Array.map (fun item -> item.Timetable) //quli tomuto je nutno Array
+                                                          value |> Array.map _.Timetable //quli tomuto je nutno Array
                                             | None       -> 
                                                           message.msg5() 
                                                           [||]    
